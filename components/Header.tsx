@@ -36,7 +36,7 @@ export default function Header() {
 
         {/* Search Bar - conditionally visible */}
         <div className={`hidden md:block flex-1 max-w-[640px] transition-opacity duration-300 ${showSearch ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
-          <form role="search" className="relative flex items-center w-full h-11 rounded-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow bg-white overflow-hidden pl-5 pr-1 py-1 group focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500">
+          <form action="/planner" role="search" className="relative flex items-center w-full h-11 rounded-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow bg-white overflow-hidden pl-5 pr-1 py-1 group focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500">
             {/* Find places text usually goes here but screenshot shows just placeholder */}
             <input
               type="search"
@@ -46,10 +46,10 @@ export default function Header() {
               aria-label="Search destination"
               className="flex-1 h-full outline-none text-gray-700 placeholder-gray-500 font-medium text-[15px]"
             />
-            <button type="submit" aria-label="Plan trip" className="h-9 px-6 bg-[#0071eb] hover:bg-[#005fb8] text-white font-bold rounded-full transition-colors text-[14px] flex items-center gap-2">
-              Search
-            </button>
-          </form>
+              <button type="submit" aria-label="Plan trip" className="h-9 px-6 bg-[#0071eb] hover:bg-[#005fb8] text-white font-bold rounded-full transition-colors text-[14px] flex items-center gap-2">
+                Search
+              </button>
+            </form>
         </div>
 
 
@@ -77,24 +77,24 @@ export default function Header() {
       {/* Sub-navigation */}
       <div className="max-w-[1320px] mx-auto px-3 sm:px-4 md:px-6">
         <nav className="flex items-center gap-6 md:gap-8 py-3 text-[14px] text-gray-500 font-medium border-t border-gray-100/50 overflow-x-auto no-scrollbar whitespace-nowrap" aria-label="Secondary navigation">
-          <button className="hover:text-gray-900 flex items-center gap-1 group">
+          <Link href="/attractions" className="hover:text-gray-900 flex items-center gap-1 group">
             Places to see
             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:text-blue-600 transition-colors" aria-hidden="true">
               <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </button>
-          <button className="hover:text-gray-900 flex items-center gap-1 group">
+          </Link>
+          <Link href="/planner" className="hover:text-gray-900 flex items-center gap-1 group">
             Things to do
             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:text-blue-600 transition-colors" aria-hidden="true">
               <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </button>
-          <button className="hover:text-gray-900 flex items-center gap-1 group">
+          </Link>
+          <Link href="/assistant" className="hover:text-gray-900 flex items-center gap-1 group">
             Trip inspiration
             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:text-blue-600 transition-colors" aria-hidden="true">
               <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </button>
+          </Link>
         </nav>
       </div>
     </header>

@@ -1,6 +1,7 @@
 'use client';
 
 import { Sparkles, MapPin, DollarSign, Clock, Save, CloudSun, Banknote } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import type { BudgetLevel, GeneratedItinerary, InterestTag, ItineraryRequest } from '@/types/travel';
 
@@ -44,6 +45,7 @@ export default function ItineraryGenerator() {
   const [realtimeLoading, setRealtimeLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveResult, setSaveResult] = useState<string | null>(null);
+  const [savedItineraryId, setSavedItineraryId] = useState<string | null>(null);
   const [result, setResult] = useState<GeneratedItinerary | null>(null);
   const [requestSnapshot, setRequestSnapshot] = useState<ItineraryRequest | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -93,6 +95,7 @@ export default function ItineraryGenerator() {
     setLoading(true);
     setError(null);
     setSaveResult(null);
+    setSavedItineraryId(null);
 
     const startDate = new Date();
     const endDate = new Date(startDate);
@@ -159,6 +162,7 @@ export default function ItineraryGenerator() {
       }
 
       setSaveResult(`Saved itinerary ${body.id}`);
+      setSavedItineraryId(body.id);
     } catch (saveError) {
       setSaveResult(saveError instanceof Error ? saveError.message : 'Failed to save itinerary');
     } finally {
@@ -295,6 +299,14 @@ export default function ItineraryGenerator() {
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
       {saveResult && <p className="mt-4 text-sm text-gray-700">{saveResult}</p>}
+      {savedItineraryId ? (
+        <Link
+          href={`/itineraries/${savedItineraryId}`}
+          className="mt-2 inline-flex rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700"
+        >
+          Open saved itinerary
+        </Link>
+      ) : null}
 
       {result && (
         <div className="mt-6 rounded-xl border border-gray-200 bg-white p-5">

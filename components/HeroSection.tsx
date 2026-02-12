@@ -71,23 +71,24 @@ export default function HeroSection() {
                 {/* Hero Content */}
                 <div className="relative z-10 max-w-[1320px] mx-auto px-4 md:px-6 h-full flex flex-col justify-center pb-8 md:pb-20 pt-12 md:pt-0">
                     <h1 className="text-white text-4xl sm:text-5xl md:text-[56px] font-bold mb-6 md:mb-8 drop-shadow-md leading-tight">
-                        Discover & book things to do
+                        Discover and plan unforgettable Turkey experiences
                     </h1>
 
                     {/* Search Bar */}
                     <div className="max-w-[640px] w-full mb-6 md:mb-12">
-                        <div className="relative flex items-center w-full h-14 md:h-16 rounded-full bg-white shadow-lg overflow-hidden pl-4 md:pl-6 pr-2">
+                        <form action="/planner" className="relative flex items-center w-full h-14 md:h-16 rounded-full bg-white shadow-lg overflow-hidden pl-4 md:pl-6 pr-2">
                             <div className="flex-1 flex items-center h-full">
                                 <input
+                                    name="destination"
                                     type="text"
-                                    placeholder="Find places and things to do"
+                                    placeholder="Find places and things to do in Turkey"
                                     className="w-full h-full outline-none text-gray-700 placeholder-gray-500 font-medium text-base md:text-lg bg-transparent"
                                 />
                             </div>
-                            <button className="h-10 md:h-12 px-5 md:px-8 bg-[#0071eb] hover:bg-[#005fb8] text-white font-bold rounded-full transition-colors text-sm md:text-base">
+                            <button type="submit" className="h-10 md:h-12 px-5 md:px-8 bg-[#0071eb] hover:bg-[#005fb8] text-white font-bold rounded-full transition-colors text-sm md:text-base">
                                 Search
                             </button>
-                        </div>
+                        </form>
                     </div>
 
                     {/* Continue Planning Card */}
