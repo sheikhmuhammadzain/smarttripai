@@ -19,6 +19,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.563.0",
     "mapbox-gl": "^3.18.1",
+    "maplibre-gl": "^5.18.0",
     "mongodb": "^6.21.0",
     "mongoose": "^9.2.1",
     "next": "16.1.6",
