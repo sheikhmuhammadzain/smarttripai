@@ -51,7 +51,7 @@ export default function HeroSection() {
     return (
         <div className="relative">
             {/* Search Overlay Container */}
-            <div className="relative w-full h-[580px]">
+            <div className="relative w-full min-h-[640px] md:h-[580px]">
                 {/* Background Image */}
                 <div className="absolute inset-0 z-0">
                     <Image
@@ -66,34 +66,34 @@ export default function HeroSection() {
                 </div>
 
                 {/* Hero Content */}
-                <div className="relative z-10 max-w-[1320px] mx-auto px-4 md:px-6 h-full flex flex-col justify-center pb-20">
-                    <h1 className="text-white text-5xl md:text-[56px] font-bold mb-8 drop-shadow-md">
+                <div className="relative z-10 max-w-[1320px] mx-auto px-4 md:px-6 h-full flex flex-col justify-center pb-8 md:pb-20 pt-12 md:pt-0">
+                    <h1 className="text-white text-4xl sm:text-5xl md:text-[56px] font-bold mb-6 md:mb-8 drop-shadow-md leading-tight">
                         Discover & book things to do
                     </h1>
 
                     {/* Search Bar */}
-                    <div className="max-w-[640px] w-full mb-12">
-                        <div className="relative flex items-center w-full h-16 rounded-full bg-white shadow-lg overflow-hidden pl-6 pr-2">
+                    <div className="max-w-[640px] w-full mb-6 md:mb-12">
+                        <div className="relative flex items-center w-full h-14 md:h-16 rounded-full bg-white shadow-lg overflow-hidden pl-4 md:pl-6 pr-2">
                             <div className="flex-1 flex items-center h-full">
                                 <input
                                     type="text"
                                     placeholder="Find places and things to do"
-                                    className="w-full h-full outline-none text-gray-700 placeholder-gray-500 font-medium text-lg bg-transparent"
+                                    className="w-full h-full outline-none text-gray-700 placeholder-gray-500 font-medium text-base md:text-lg bg-transparent"
                                 />
                             </div>
-                            <button className="h-12 px-8 bg-[#0071eb] hover:bg-[#005fb8] text-white font-bold rounded-full transition-colors text-base">
+                            <button className="h-10 md:h-12 px-5 md:px-8 bg-[#0071eb] hover:bg-[#005fb8] text-white font-bold rounded-full transition-colors text-sm md:text-base">
                                 Search
                             </button>
                         </div>
                     </div>
 
                     {/* Continue Planning Card */}
-                    <div className="absolute top-[60%] left-4 md:left-6 max-w-sm pt-4 md:pt-[10%]">
+                    <div className="relative md:absolute md:top-[60%] left-0 md:left-6 w-full max-w-sm pt-2 md:pt-[10%]">
                         <div className="bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-xl max-w-[400px]">
                             <div className="mb-3">
                                 <h3 className="text-white font-bold text-lg drop-shadow-md mb-2">Continue planning your trip</h3>
                             </div>
-                            <div className="flex gap-4 bg-white rounded-lg p-3 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow">
+                            <div className="flex gap-3 md:gap-4 bg-white rounded-lg p-3 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow">
                                 <div className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden">
                                     <Image
                                         src="https://picsum.photos/200/200"
@@ -102,7 +102,7 @@ export default function HeroSection() {
                                         className="object-cover"
                                     />
                                 </div>
-                                <div className="flex flex-col justify-between py-1">
+                                <div className="flex flex-col justify-between py-1 min-w-0">
                                     <div>
                                         <h4 className="font-bold text-sm leading-tight text-gray-900 mb-1 line-clamp-2">Rome: Skip the line Catacombs Underground Group Tour</h4>
                                         <p className="text-xs text-gray-500 mb-1">1 hour • Skip the line</p>

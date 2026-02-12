@@ -20,7 +20,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-[1320px] mx-auto px-4 md:px-6 h-[80px] flex items-center justify-between gap-4">
+      <div className="max-w-[1320px] mx-auto px-3 sm:px-4 md:px-6 h-[80px] flex items-center justify-between gap-2 md:gap-4">
         {/* Logo */}
         <Link href="/" className="shrink-0 flex items-center gap-1" aria-label="GetYourGuide Home">
           <img
@@ -33,7 +33,7 @@ export default function Header() {
         </Link>
 
         {/* Search Bar - conditionally visible */}
-        <div className={`flex-1 max-w-[640px] transition-opacity duration-300 ${showSearch ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+        <div className={`hidden md:block flex-1 max-w-[640px] transition-opacity duration-300 ${showSearch ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
           <form role="search" className="relative flex items-center w-full h-11 rounded-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow bg-white overflow-hidden pl-5 pr-1 py-1 group focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500">
             {/* Find places text usually goes here but screenshot shows just placeholder */}
             <input
@@ -52,7 +52,7 @@ export default function Header() {
 
 
         {/* Navigation Actions */}
-        <nav className="flex items-center gap-1 md:gap-6" aria-label="Main navigation">
+        <nav className="flex items-center gap-1 sm:gap-2 md:gap-6" aria-label="Main navigation">
           <Link href="/wishlist" className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group" aria-label="View wishlist">
             <Heart className="w-6 h-6 stroke-[1.5]" aria-hidden="true" />
             <span className="text-[11px] font-medium hidden md:block">Wishlist</span>
@@ -73,8 +73,8 @@ export default function Header() {
       </div>
 
       {/* Sub-navigation */}
-      <div className="max-w-[1320px] mx-auto px-4 md:px-6">
-        <nav className="flex items-center gap-8 py-3 text-[14px] text-gray-500 font-medium border-t border-gray-100/50" aria-label="Secondary navigation">
+      <div className="max-w-[1320px] mx-auto px-3 sm:px-4 md:px-6">
+        <nav className="flex items-center gap-6 md:gap-8 py-3 text-[14px] text-gray-500 font-medium border-t border-gray-100/50 overflow-x-auto no-scrollbar whitespace-nowrap" aria-label="Secondary navigation">
           <button className="hover:text-gray-900 flex items-center gap-1 group">
             Places to see
             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:text-blue-600 transition-colors" aria-hidden="true">
