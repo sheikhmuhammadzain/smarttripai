@@ -36,7 +36,7 @@ export default function HeroSection() {
               </div>
               <button
                 type="submit"
-                className="h-10 md:h-12 px-5 md:px-8 bg-[#0071eb] hover:bg-[#005fb8] text-white font-bold rounded-full transition-colors text-sm md:text-base"
+                className="h-10 md:h-12 px-5 md:px-8 bg-brand hover:bg-brand-hover text-white font-bold rounded-full transition-colors text-sm md:text-base"
               >
                 Search
               </button>
@@ -46,7 +46,7 @@ export default function HeroSection() {
           <div className="relative w-full max-w-sm pt-2 md:pt-4">
             <div className="bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-xl max-w-[400px]">
               <div className="mb-3">
-                <h3 className="text-[#1a1b1d] font-bold text-[30px] mb-2">Continue planning your trip</h3>
+                <h3 className="text-text-heading font-bold text-xl sm:text-2xl mb-2">Continue planning your trip</h3>
               </div>
               <div className="flex gap-3 md:gap-4 bg-white rounded-lg p-3 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow">
                 <div className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden">
@@ -64,7 +64,7 @@ export default function HeroSection() {
                     </h4>
                     <p className="text-xs text-gray-600 mb-1">2 hours • Skip the line</p>
                     <div className="flex items-center gap-1">
-                      <div className="flex text-[#FFC800]">
+                      <div className="flex text-yellow-400">
                         <Star className="w-3 h-3 fill-current" />
                         <Star className="w-3 h-3 fill-current" />
                         <Star className="w-3 h-3 fill-current" />
@@ -75,7 +75,7 @@ export default function HeroSection() {
                     </div>
                   </div>
                   <div className="text-sm font-medium text-gray-900">
-                    From <span className="font-bold text-lg text-[#1a1b1d]">$42</span>
+                    From <span className="font-bold text-lg text-text-heading">$42</span>
                   </div>
                 </div>
               </div>

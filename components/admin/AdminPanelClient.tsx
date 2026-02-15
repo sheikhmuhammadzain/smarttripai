@@ -416,7 +416,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="hidden w-[260px] border-r border-[#e4e7ec] bg-[#f8f9fb] p-4 lg:flex lg:flex-col">
+      <aside className="hidden w-[260px] border-r border-border-default bg-surface-muted p-4 lg:flex lg:flex-col">
         <div className="mb-4 flex items-center gap-2 rounded-xl px-2 py-1">
           <div className="overflow-hidden rounded-lg">
             <Image
@@ -430,8 +430,8 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
           </div>
         </div>
 
-        <div className="mb-4 rounded-xl border border-[#e4e7ec] bg-white px-3 py-2">
-          <div className="flex items-center gap-2 text-sm text-[#667085]">
+        <div className="mb-4 rounded-xl border border-border-default bg-white px-3 py-2">
+          <div className="flex items-center gap-2 text-sm text-text-muted">
             <Search className="h-4 w-4" />
             <span>Search workspace...</span>
           </div>
@@ -494,7 +494,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
           />
         </nav>
 
-        <div className="mt-6 space-y-1 border-t border-[#e4e7ec] pt-4 text-sm">
+        <div className="mt-6 space-y-1 border-t border-border-default pt-4 text-sm">
           <Link href="/help" className="block">
             <SidebarItem icon={<HelpCircle className="h-4 w-4" />} label="Help center" />
           </Link>
@@ -510,12 +510,12 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
           />
         </div>
 
-        <div className="mt-auto rounded-xl border border-[#e4e7ec] bg-white p-3">
-          <p className="text-xs text-[#98a2b3]">Signed in as</p>
-          <p className="text-sm font-semibold text-[#1f2733]">admin@gmail.com</p>
+        <div className="mt-auto rounded-xl border border-border-default bg-white p-3">
+          <p className="text-xs text-text-subtle">Signed in as</p>
+          <p className="text-sm font-semibold text-text-heading">admin@gmail.com</p>
           <button
             onClick={() => void signOut({ callbackUrl: "/auth/signin" })}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-[#f3c7cd] bg-[#fff5f6] px-3 py-2 text-xs font-semibold text-[#b42318]"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-border-danger bg-surface-danger-soft px-3 py-2 text-xs font-semibold text-text-danger"
           >
             <LogOut className="h-4 w-4" />
             Logout
@@ -525,27 +525,27 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
 
       <section className="flex-1 p-4 md:p-6">
         <div className="mx-auto max-w-[1200px]">
-          <header className="mb-4 rounded-2xl border border-[#e4e7ec] bg-white px-4 py-3 shadow-sm">
+          <header className="mb-4 rounded-2xl border border-border-default bg-white px-4 py-3 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-sm text-[#667085]">
-                <Link href="/" className="font-medium text-[#344054]">Workspace</Link>
+              <div className="flex items-center gap-2 text-sm text-text-muted">
+                <Link href="/" className="font-medium text-text-body">Workspace</Link>
                 <ChevronRight className="h-4 w-4" />
                 <span>Projects</span>
                 <ChevronRight className="h-4 w-4" />
-                <span className="font-semibold text-[#1f2733]">Admin Operations</span>
+                <span className="font-semibold text-text-heading">Admin Operations</span>
               </div>
               <div className="flex items-center gap-2">
-                <button className="rounded-lg border border-[#e4e7ec] bg-white px-3 py-2 text-xs font-semibold text-[#344054]">Manage</button>
-                <button className="rounded-lg border border-[#e4e7ec] bg-white px-3 py-2 text-xs font-semibold text-[#344054]">Share</button>
+                <button className="rounded-lg border border-border-default bg-white px-3 py-2 text-xs font-semibold text-text-body">Manage</button>
+                <button className="rounded-lg border border-border-default bg-white px-3 py-2 text-xs font-semibold text-text-body">Share</button>
               </div>
             </div>
           </header>
 
-          <section className="mb-4 rounded-2xl border border-[#e4e7ec] bg-white p-4 shadow-sm md:p-5">
+          <section className="mb-4 rounded-2xl border border-border-default bg-white p-4 shadow-sm md:p-5">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-3xl font-bold tracking-tight text-[#101828]">Admin Command Center</p>
-                <p className="mt-1 text-sm text-[#667085]">Unified control for users, bookings, itineraries, and support operations.</p>
+                <p className="text-3xl font-bold tracking-tight text-text-primary">Admin Command Center</p>
+                <p className="mt-1 text-sm text-text-muted">Unified control for users, bookings, itineraries, and support operations.</p>
               </div>
               <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
                 <KpiCard label="Users" value={String(totals.users)} tone="blue" />
@@ -555,26 +555,26 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
               </div>
             </div>
 
-            <div className="rounded-xl border border-[#e4e7ec] bg-[#fbfcfd] p-4">
+            <div className="rounded-xl border border-border-default bg-surface-alt p-4">
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-sm font-semibold text-[#1f2733]">{chartModel.title}</p>
+                <p className="text-sm font-semibold text-text-heading">{chartModel.title}</p>
                 <div className="flex items-center gap-1">
-                  <button className="rounded-md bg-[#e8f1ff] px-2 py-1 text-xs font-semibold text-[#175cd3]">6M</button>
+                  <button className="rounded-md bg-surface-brand-soft px-2 py-1 text-xs font-semibold text-text-brand">6M</button>
                 </div>
               </div>
               <svg viewBox="0 0 900 180" className="h-[160px] w-full">
                 <rect x="0" y="0" width="900" height="180" fill="transparent" />
-                <path d={chartModel.firstPath} stroke="#0ba5ec" strokeWidth="3" fill="none" />
-                <path d={chartModel.secondPath} stroke="#f04438" strokeWidth="3" fill="none" />
+                <path d={chartModel.firstPath} stroke="var(--color-metric-primary)" strokeWidth="3" fill="none" />
+                <path d={chartModel.secondPath} stroke="var(--color-metric-secondary)" strokeWidth="3" fill="none" />
               </svg>
-              <div className="mt-2 flex items-center justify-between text-xs text-[#667085]">
+              <div className="mt-2 flex items-center justify-between text-xs text-text-muted">
                 <div className="flex items-center gap-4">
                   <span className="inline-flex items-center gap-1">
-                    <span className="h-2 w-2 rounded-full bg-[#0ba5ec]" />
+                    <span className="h-2 w-2 rounded-full bg-metric-primary" />
                     {chartModel.firstLabel} ({chartModel.firstTotal}{chartModel.firstSuffix ? ` ${chartModel.firstSuffix}` : ""} / 6M)
                   </span>
                   <span className="inline-flex items-center gap-1">
-                    <span className="h-2 w-2 rounded-full bg-[#f04438]" />
+                    <span className="h-2 w-2 rounded-full bg-metric-secondary" />
                     {chartModel.secondLabel} ({chartModel.secondTotal}{chartModel.secondSuffix ? ` ${chartModel.secondSuffix}` : ""} / 6M)
                   </span>
                 </div>
@@ -583,7 +583,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-[#e4e7ec] bg-white p-4 shadow-sm md:p-5">
+          <section className="rounded-2xl border border-border-default bg-white p-4 shadow-sm md:p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap gap-2">
                 {(["users", "orders", "itineraries", "feedback"] as const).map((tab) => (
@@ -596,7 +596,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                       setSortValue("default");
                     }}
                     className={`rounded-full px-4 py-2 text-sm font-semibold capitalize ${
-                      activeTab === tab ? "bg-[#101828] text-white" : "border border-[#d0d5dd] bg-white text-[#475467]"
+                      activeTab === tab ? "bg-text-primary text-white" : "border border-border-strong bg-white text-text-body"
                     }`}
                   >
                     {tab}
@@ -612,13 +612,13 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                       setFilterMenuOpen((prev) => !prev);
                       setSortMenuOpen(false);
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg border border-[#d0d5dd] bg-white px-3 py-2 text-xs font-semibold text-[#344054]"
+                    className="inline-flex items-center gap-1 rounded-lg border border-border-strong bg-white px-3 py-2 text-xs font-semibold text-text-body"
                   >
                     <SlidersHorizontal className="h-4 w-4" />
                     Filter
                   </button>
                   {filterMenuOpen ? (
-                    <div className="absolute right-0 z-20 mt-1 w-44 rounded-lg border border-[#d0d5dd] bg-white p-1 shadow-lg">
+                    <div className="absolute right-0 z-20 mt-1 w-44 rounded-lg border border-border-strong bg-white p-1 shadow-lg">
                       {filterOptions.map((option) => (
                         <button
                           key={option.value}
@@ -629,8 +629,8 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                           }}
                           className={`w-full rounded-md px-2 py-1.5 text-left text-xs ${
                             filterValue === option.value
-                              ? "bg-[#eef4ff] font-semibold text-[#175cd3]"
-                              : "text-[#344054] hover:bg-[#f8f9fb]"
+                              ? "bg-surface-brand-subtle font-semibold text-text-brand"
+                              : "text-text-body hover:bg-surface-muted"
                           }`}
                         >
                           {option.label}
@@ -647,13 +647,13 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                       setSortMenuOpen((prev) => !prev);
                       setFilterMenuOpen(false);
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg border border-[#d0d5dd] bg-white px-3 py-2 text-xs font-semibold text-[#344054]"
+                    className="inline-flex items-center gap-1 rounded-lg border border-border-strong bg-white px-3 py-2 text-xs font-semibold text-text-body"
                   >
                     <Settings2 className="h-4 w-4" />
                     Sort
                   </button>
                   {sortMenuOpen ? (
-                    <div className="absolute right-0 z-20 mt-1 w-44 rounded-lg border border-[#d0d5dd] bg-white p-1 shadow-lg">
+                    <div className="absolute right-0 z-20 mt-1 w-44 rounded-lg border border-border-strong bg-white p-1 shadow-lg">
                       {sortOptions.map((option) => (
                         <button
                           key={option.value}
@@ -664,8 +664,8 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                           }}
                           className={`w-full rounded-md px-2 py-1.5 text-left text-xs ${
                             sortValue === option.value
-                              ? "bg-[#eef4ff] font-semibold text-[#175cd3]"
-                              : "text-[#344054] hover:bg-[#f8f9fb]"
+                              ? "bg-surface-brand-subtle font-semibold text-text-brand"
+                              : "text-text-body hover:bg-surface-muted"
                           }`}
                         >
                           {option.label}
@@ -675,22 +675,22 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                   ) : null}
                 </div>
                 <div className="relative">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98a2b3]" />
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
                   <input
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder={`Search ${activeTab}`}
-                    className="h-10 w-[220px] rounded-lg border border-[#d0d5dd] pl-9 pr-3 text-sm outline-none focus:border-[#175cd3]"
+                    className="h-10 w-[220px] rounded-lg border border-border-strong pl-9 pr-3 text-sm outline-none focus:border-brand"
                   />
                 </div>
               </div>
             </div>
 
             {message ? (
-              <div className="mb-3 rounded-lg border border-[#b2ddff] bg-[#f0f9ff] px-3 py-2 text-sm text-[#175cd3]">{message}</div>
+              <div className="mb-3 rounded-lg border border-border-info bg-surface-info px-3 py-2 text-sm text-text-brand">{message}</div>
             ) : null}
 
-            <div className="overflow-hidden rounded-xl border border-[#eaecf0]">
+            <div className="overflow-hidden rounded-xl border border-border-soft">
               <div className="max-h-[460px] overflow-auto">
                 {activeTab === "users" ? (
                   <ResourceTable
@@ -919,13 +919,13 @@ function SidebarItem({
       type="button"
       onClick={onClick}
       className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${
-        active ? "bg-white font-semibold text-[#101828] shadow-sm" : "text-[#667085] hover:bg-white"
+        active ? "bg-white font-semibold text-text-primary shadow-sm" : "text-text-muted hover:bg-white"
       }`}
     >
       {icon}
       {label}
       {typeof count === "number" ? (
-        <span className="ml-auto rounded-full bg-[#f2f4f7] px-2 py-0.5 text-[10px] text-[#475467]">{count}</span>
+        <span className="ml-auto rounded-full bg-surface-count-chip px-2 py-0.5 text-[10px] text-text-body">{count}</span>
       ) : null}
     </button>
   );
@@ -934,17 +934,17 @@ function SidebarItem({
 function KpiCard({ label, value, tone }: { label: string; value: string; tone: "blue" | "green" | "amber" | "slate" }) {
   const toneClass =
     tone === "blue"
-      ? "border-[#b2ddff] bg-[#f0f9ff]"
+      ? "border-border-info bg-surface-info"
       : tone === "green"
-      ? "border-[#abefc6] bg-[#ecfdf3]"
+      ? "border-border-success bg-surface-success-soft"
       : tone === "amber"
-      ? "border-[#fde272] bg-[#fffaeb]"
-      : "border-[#d0d5dd] bg-[#f9fafb]";
+      ? "border-border-warning bg-surface-warning-soft"
+      : "border-border-strong bg-slate-50";
 
   return (
     <div className={`min-w-[120px] rounded-xl border px-3 py-2 ${toneClass}`}>
-      <p className="text-xs text-[#667085]">{label}</p>
-      <p className="text-base font-semibold text-[#101828]">{value}</p>
+      <p className="text-xs text-text-muted">{label}</p>
+      <p className="text-base font-semibold text-text-primary">{value}</p>
     </div>
   );
 }
@@ -953,7 +953,7 @@ function ResourceTable({ headers, rows }: { headers: string[]; rows: Array<Array
   return (
     <table className="min-w-full text-sm">
       <thead>
-        <tr className="border-b border-[#eaecf0] bg-[#f9fafb] text-left text-[#667085]">
+        <tr className="border-b border-border-soft bg-slate-50 text-left text-text-muted">
           {headers.map((header) => (
             <th key={header} className="px-3 py-2 font-medium">{header}</th>
           ))}
@@ -961,7 +961,7 @@ function ResourceTable({ headers, rows }: { headers: string[]; rows: Array<Array
       </thead>
       <tbody>
         {rows.map((row, rowIndex) => (
-          <tr key={rowIndex} className="border-b border-[#f2f4f7] text-[#344054]">
+          <tr key={rowIndex} className="border-b border-border-subtle text-text-body">
             {row.map((cell, cellIndex) => (
               <td key={`${rowIndex}-${cellIndex}`} className="px-3 py-3 align-middle">{cell}</td>
             ))}
@@ -977,7 +977,7 @@ function ActionButton({ label, disabled, onClick }: { label: string; disabled?: 
     <button
       disabled={disabled}
       onClick={onClick}
-      className="rounded-md border border-[#d0d5dd] bg-white px-2.5 py-1 text-xs font-semibold text-[#344054] disabled:opacity-50"
+      className="rounded-md border border-border-strong bg-white px-2.5 py-1 text-xs font-semibold text-text-body disabled:opacity-50"
     >
       {label}
     </button>
@@ -989,11 +989,9 @@ function DangerButton({ label, disabled, onClick }: { label: string; disabled?: 
     <button
       disabled={disabled}
       onClick={onClick}
-      className="rounded-md border border-[#fecdca] bg-[#fff5f4] px-2.5 py-1 text-xs font-semibold text-[#b42318] disabled:opacity-50"
+      className="rounded-md border border-border-danger-subtle bg-surface-danger-subtle px-2.5 py-1 text-xs font-semibold text-text-danger disabled:opacity-50"
     >
       {label}
     </button>
   );
 }
-
-
