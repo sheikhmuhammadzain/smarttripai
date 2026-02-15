@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { signOut } from "next-auth/react";
@@ -437,7 +437,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                     {chartModel.secondLabel} ({chartModel.secondTotal}{chartModel.secondSuffix ? ` ${chartModel.secondSuffix}` : ""} / 6M)
                   </span>
                 </div>
-                <span>{chartModel.months.join("  �  ")}</span>
+                <span>{chartModel.months.join("  •  ")}</span>
               </div>
             </div>
           </section>
@@ -791,4 +791,5 @@ function DangerButton({ label, disabled, onClick }: { label: string; disabled?: 
     </button>
   );
 }
+
 
