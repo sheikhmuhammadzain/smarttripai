@@ -16,11 +16,12 @@ import {
   Table,
   Users,
 } from "lucide-react";
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { GETYOURGUIDE_LOGO_DATA_URI } from "@/components/branding/logo";
 
 type AdminTab = "users" | "orders" | "itineraries" | "feedback";
 type AdminNav = "overview" | AdminTab;
+type Option = { value: string; label: string };
 
 interface AdminPanelClientProps {
   overview: {
@@ -78,6 +79,10 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
   const [activeNav, setActiveNav] = useState<AdminNav>("overview");
   const [activeTab, setActiveTab] = useState<AdminTab>("users");
   const [search, setSearch] = useState("");
+  const [filterValue, setFilterValue] = useState("all");
+  const [sortValue, setSortValue] = useState("default");
+  const [filterMenuOpen, setFilterMenuOpen] = useState(false);
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [users, setUsers] = useState(props.users.data);
@@ -267,6 +272,134 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
       feedback.filter((item) => `${item.category} ${item.email ?? ""} ${item.message}`.toLowerCase().includes(search.toLowerCase())),
     [feedback, search],
   );
+
+  const filterOptions = useMemo<Option[]>(() => {
+    if (activeTab === "users") {
+      return [
+        { value: "all", label: "All users" },
+        { value: "verified", label: "Verified only" },
+        { value: "unverified", label: "Unverified only" },
+      ];
+    }
+    if (activeTab === "orders") {
+      return [
+        { value: "all", label: "All orders" },
+        { value: "confirmed", label: "Confirmed only" },
+        { value: "cancelled", label: "Cancelled only" },
+      ];
+    }
+    if (activeTab === "itineraries") {
+      return [
+        { value: "all", label: "All itineraries" },
+        { value: "saved", label: "Saved" },
+        { value: "draft", label: "Draft" },
+        { value: "archived", label: "Archived" },
+      ];
+    }
+    return [
+      { value: "all", label: "All feedback" },
+      { value: "new", label: "New only" },
+      { value: "reviewed", label: "Reviewed only" },
+      { value: "with-rating", label: "With rating" },
+    ];
+  }, [activeTab]);
+
+  const sortOptions = useMemo<Option[]>(() => {
+    if (activeTab === "users") {
+      return [
+        { value: "default", label: "Default order" },
+        { value: "name-asc", label: "Name A-Z" },
+        { value: "name-desc", label: "Name Z-A" },
+        { value: "email-asc", label: "Email A-Z" },
+      ];
+    }
+    if (activeTab === "orders") {
+      return [
+        { value: "default", label: "Newest first" },
+        { value: "oldest", label: "Oldest first" },
+        { value: "value-desc", label: "Highest value" },
+        { value: "value-asc", label: "Lowest value" },
+      ];
+    }
+    if (activeTab === "itineraries") {
+      return [
+        { value: "default", label: "Recently updated" },
+        { value: "oldest", label: "Least recent" },
+        { value: "status-asc", label: "Status A-Z" },
+      ];
+    }
+    return [
+      { value: "default", label: "Newest first" },
+      { value: "oldest", label: "Oldest first" },
+      { value: "rating-desc", label: "Highest rating" },
+      { value: "rating-asc", label: "Lowest rating" },
+    ];
+  }, [activeTab]);
+
+  useEffect(() => {
+    const hasFilter = filterOptions.some((item) => item.value === filterValue);
+    const hasSort = sortOptions.some((item) => item.value === sortValue);
+    if (!hasFilter) setFilterValue(filterOptions[0]?.value ?? "all");
+    if (!hasSort) setSortValue(sortOptions[0]?.value ?? "default");
+    setFilterMenuOpen(false);
+    setSortMenuOpen(false);
+  }, [activeTab, filterOptions, sortOptions, filterValue, sortValue]);
+
+  const visibleUsers = useMemo(() => {
+    const rows = [...filteredUsers].filter((user) => {
+      if (filterValue === "verified") return Boolean(user.emailVerified);
+      if (filterValue === "unverified") return !user.emailVerified;
+      return true;
+    });
+
+    if (sortValue === "name-asc") rows.sort((a, b) => a.name.localeCompare(b.name));
+    else if (sortValue === "name-desc") rows.sort((a, b) => b.name.localeCompare(a.name));
+    else if (sortValue === "email-asc") rows.sort((a, b) => a.email.localeCompare(b.email));
+    return rows;
+  }, [filteredUsers, filterValue, sortValue]);
+
+  const visibleOrders = useMemo(() => {
+    const rows = [...filteredOrders].filter((order) => {
+      if (filterValue === "confirmed") return order.status === "confirmed";
+      if (filterValue === "cancelled") return order.status === "cancelled";
+      return true;
+    });
+
+    if (sortValue === "oldest") rows.sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt));
+    else if (sortValue === "value-desc") rows.sort((a, b) => b.total - a.total);
+    else if (sortValue === "value-asc") rows.sort((a, b) => a.total - b.total);
+    else rows.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+    return rows;
+  }, [filteredOrders, filterValue, sortValue]);
+
+  const visibleItineraries = useMemo(() => {
+    const rows = [...filteredItineraries].filter((item) => {
+      if (filterValue === "saved" || filterValue === "draft" || filterValue === "archived") {
+        return item.status === filterValue;
+      }
+      return true;
+    });
+
+    if (sortValue === "oldest") rows.sort((a, b) => +new Date(a.updatedAt) - +new Date(b.updatedAt));
+    else if (sortValue === "status-asc") rows.sort((a, b) => a.status.localeCompare(b.status));
+    else rows.sort((a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt));
+    return rows;
+  }, [filteredItineraries, filterValue, sortValue]);
+
+  const visibleFeedback = useMemo(() => {
+    const rows = [...filteredFeedback].filter((item) => {
+      if (filterValue === "new") return item.status === "new";
+      if (filterValue === "reviewed") return item.status === "reviewed";
+      if (filterValue === "with-rating") return item.rating !== null;
+      return true;
+    });
+
+    if (sortValue === "oldest") rows.sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt));
+    else if (sortValue === "rating-desc") rows.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    else if (sortValue === "rating-asc") rows.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
+    else rows.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+    return rows;
+  }, [filteredFeedback, filterValue, sortValue]);
 
   async function runAction(action: () => Promise<void>, id: string, successMessage: string) {
     setMessage(null);
@@ -459,6 +592,8 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                     onClick={() => {
                       setActiveTab(tab);
                       setActiveNav(tab);
+                      setFilterValue("all");
+                      setSortValue("default");
                     }}
                     className={`rounded-full px-4 py-2 text-sm font-semibold capitalize ${
                       activeTab === tab ? "bg-[#101828] text-white" : "border border-[#d0d5dd] bg-white text-[#475467]"
@@ -470,14 +605,75 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
               </div>
 
               <div className="flex w-full flex-wrap items-center justify-end gap-2 md:w-auto">
-                <button className="inline-flex items-center gap-1 rounded-lg border border-[#d0d5dd] bg-white px-3 py-2 text-xs font-semibold text-[#344054]">
-                  <SlidersHorizontal className="h-4 w-4" />
-                  Filter
-                </button>
-                <button className="inline-flex items-center gap-1 rounded-lg border border-[#d0d5dd] bg-white px-3 py-2 text-xs font-semibold text-[#344054]">
-                  <Settings2 className="h-4 w-4" />
-                  Sort
-                </button>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilterMenuOpen((prev) => !prev);
+                      setSortMenuOpen(false);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#d0d5dd] bg-white px-3 py-2 text-xs font-semibold text-[#344054]"
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    Filter
+                  </button>
+                  {filterMenuOpen ? (
+                    <div className="absolute right-0 z-20 mt-1 w-44 rounded-lg border border-[#d0d5dd] bg-white p-1 shadow-lg">
+                      {filterOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => {
+                            setFilterValue(option.value);
+                            setFilterMenuOpen(false);
+                          }}
+                          className={`w-full rounded-md px-2 py-1.5 text-left text-xs ${
+                            filterValue === option.value
+                              ? "bg-[#eef4ff] font-semibold text-[#175cd3]"
+                              : "text-[#344054] hover:bg-[#f8f9fb]"
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSortMenuOpen((prev) => !prev);
+                      setFilterMenuOpen(false);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#d0d5dd] bg-white px-3 py-2 text-xs font-semibold text-[#344054]"
+                  >
+                    <Settings2 className="h-4 w-4" />
+                    Sort
+                  </button>
+                  {sortMenuOpen ? (
+                    <div className="absolute right-0 z-20 mt-1 w-44 rounded-lg border border-[#d0d5dd] bg-white p-1 shadow-lg">
+                      {sortOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => {
+                            setSortValue(option.value);
+                            setSortMenuOpen(false);
+                          }}
+                          className={`w-full rounded-md px-2 py-1.5 text-left text-xs ${
+                            sortValue === option.value
+                              ? "bg-[#eef4ff] font-semibold text-[#175cd3]"
+                              : "text-[#344054] hover:bg-[#f8f9fb]"
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
                 <div className="relative">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98a2b3]" />
                   <input
@@ -499,7 +695,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                 {activeTab === "users" ? (
                   <ResourceTable
                     headers={["Name", "Email", "Verified", "Actions"]}
-                    rows={filteredUsers.map((user) => [
+                    rows={visibleUsers.map((user) => [
                       user.name,
                       user.email,
                       user.emailVerified ? "Yes" : "No",
@@ -549,7 +745,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                 {activeTab === "orders" ? (
                   <ResourceTable
                     headers={["Order", "Customer", "Status", "Value", "Actions"]}
-                    rows={filteredOrders.map((order) => [
+                    rows={visibleOrders.map((order) => [
                       order.orderCode,
                       order.customer.email,
                       order.status,
@@ -599,7 +795,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                 {activeTab === "itineraries" ? (
                   <ResourceTable
                     headers={["Itinerary ID", "User ID", "Status", "Updated", "Actions"]}
-                    rows={filteredItineraries.map((item) => [
+                    rows={visibleItineraries.map((item) => [
                       <span key={`${item.id}-id`} className="font-mono text-xs">{item.id}</span>,
                       <span key={`${item.id}-uid`} className="font-mono text-xs">{item.userId}</span>,
                       item.status,
@@ -649,7 +845,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                 {activeTab === "feedback" ? (
                   <ResourceTable
                     headers={["Category", "Email", "Rating", "Status", "Message", "Actions"]}
-                    rows={filteredFeedback.map((item) => [
+                    rows={visibleFeedback.map((item) => [
                       item.category,
                       item.email ?? "Anonymous",
                       item.rating ?? "-",
@@ -799,7 +995,5 @@ function DangerButton({ label, disabled, onClick }: { label: string; disabled?: 
     </button>
   );
 }
-
-
 
 
