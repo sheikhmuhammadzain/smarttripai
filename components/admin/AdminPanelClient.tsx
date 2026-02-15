@@ -18,6 +18,7 @@ import {
 import { type ReactNode, useMemo, useState } from "react";
 
 type AdminTab = "users" | "orders" | "itineraries" | "feedback";
+type AdminNav = "overview" | AdminTab;
 
 interface AdminPanelClientProps {
   overview: {
@@ -72,6 +73,7 @@ interface AdminPanelClientProps {
 }
 
 export default function AdminPanelClient(props: AdminPanelClientProps) {
+  const [activeNav, setActiveNav] = useState<AdminNav>("overview");
   const [activeTab, setActiveTab] = useState<AdminTab>("users");
   const [search, setSearch] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -183,16 +185,76 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
         </div>
 
         <nav className="space-y-1 text-sm">
-          <SidebarItem icon={<LayoutDashboard className="h-4 w-4" />} label="Overview" active />
-          <SidebarItem icon={<Users className="h-4 w-4" />} label="Users" count={totals.users} />
-          <SidebarItem icon={<Table className="h-4 w-4" />} label="Orders" count={totals.orders} />
-          <SidebarItem icon={<Sparkles className="h-4 w-4" />} label="Itineraries" count={totals.itineraries} />
-          <SidebarItem icon={<Bell className="h-4 w-4" />} label="Feedback" count={totals.feedback} />
+          <SidebarItem
+            icon={<LayoutDashboard className="h-4 w-4" />}
+            label="Overview"
+            active={activeNav === "overview"}
+            onClick={() => {
+              setActiveNav("overview");
+              setActiveTab("users");
+              setSearch("");
+            }}
+          />
+          <SidebarItem
+            icon={<Users className="h-4 w-4" />}
+            label="Users"
+            count={totals.users}
+            active={activeNav === "users"}
+            onClick={() => {
+              setActiveNav("users");
+              setActiveTab("users");
+              setSearch("");
+            }}
+          />
+          <SidebarItem
+            icon={<Table className="h-4 w-4" />}
+            label="Orders"
+            count={totals.orders}
+            active={activeNav === "orders"}
+            onClick={() => {
+              setActiveNav("orders");
+              setActiveTab("orders");
+              setSearch("");
+            }}
+          />
+          <SidebarItem
+            icon={<Sparkles className="h-4 w-4" />}
+            label="Itineraries"
+            count={totals.itineraries}
+            active={activeNav === "itineraries"}
+            onClick={() => {
+              setActiveNav("itineraries");
+              setActiveTab("itineraries");
+              setSearch("");
+            }}
+          />
+          <SidebarItem
+            icon={<Bell className="h-4 w-4" />}
+            label="Feedback"
+            count={totals.feedback}
+            active={activeNav === "feedback"}
+            onClick={() => {
+              setActiveNav("feedback");
+              setActiveTab("feedback");
+              setSearch("");
+            }}
+          />
         </nav>
 
         <div className="mt-6 space-y-1 border-t border-[#e4e7ec] pt-4 text-sm">
-          <SidebarItem icon={<HelpCircle className="h-4 w-4" />} label="Help center" />
-          <SidebarItem icon={<Bell className="h-4 w-4" />} label="Notifications" />
+          <Link href="/help" className="block">
+            <SidebarItem icon={<HelpCircle className="h-4 w-4" />} label="Help center" />
+          </Link>
+          <SidebarItem
+            icon={<Bell className="h-4 w-4" />}
+            label="Notifications"
+            active={activeNav === "feedback"}
+            onClick={() => {
+              setActiveNav("feedback");
+              setActiveTab("feedback");
+              setSearch("");
+            }}
+          />
         </div>
 
         <div className="mt-auto rounded-xl border border-[#e4e7ec] bg-white p-3">
@@ -274,7 +336,10 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                 {(["users", "orders", "itineraries", "feedback"] as const).map((tab) => (
                   <button
                     key={tab}
-                    onClick={() => setActiveTab(tab)}
+                    onClick={() => {
+                      setActiveTab(tab);
+                      setActiveNav(tab);
+                    }}
                     className={`rounded-full px-4 py-2 text-sm font-semibold capitalize ${
                       activeTab === tab ? "bg-[#101828] text-white" : "border border-[#d0d5dd] bg-white text-[#475467]"
                     }`}
@@ -525,14 +590,18 @@ function SidebarItem({
   label,
   active = false,
   count,
+  onClick,
 }: {
   icon: ReactNode;
   label: string;
   active?: boolean;
   count?: number;
+  onClick?: () => void;
 }) {
   return (
     <button
+      type="button"
+      onClick={onClick}
       className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${
         active ? "bg-white font-semibold text-[#101828] shadow-sm" : "text-[#667085] hover:bg-white"
       }`}
