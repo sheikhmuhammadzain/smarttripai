@@ -523,28 +523,98 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
         </div>
       </aside>
 
-      <section className="flex-1 p-4 md:p-6">
+      <section className="flex-1 p-3 sm:p-4 md:p-6">
         <div className="mx-auto max-w-[1200px]">
-          <header className="mb-4 rounded-2xl border border-border-default bg-white px-4 py-3 shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-sm text-text-muted">
+          <div className="mb-3 rounded-2xl border border-border-default bg-white p-2.5 shadow-sm lg:hidden">
+            <div className="flex items-center justify-between gap-2 px-1 pb-2">
+              <div className="flex items-center gap-2">
+                <Image
+                  src={GETYOURGUIDE_LOGO_DATA_URI}
+                  alt="GetYourGuide"
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 rounded-md object-cover object-left"
+                  unoptimized
+                />
+                <p className="text-sm font-semibold text-text-primary">Admin Workspace</p>
+              </div>
+              <button
+                onClick={() => void signOut({ callbackUrl: "/auth/signin" })}
+                className="inline-flex items-center gap-1 rounded-md border border-border-danger bg-surface-danger-soft px-2.5 py-1.5 text-[11px] font-semibold text-text-danger"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Logout
+              </button>
+            </div>
+            <div className="no-scrollbar flex gap-2 overflow-x-auto px-1">
+              <SidebarItemCompact
+                label="Overview"
+                active={activeNav === "overview"}
+                onClick={() => {
+                  setActiveNav("overview");
+                  setActiveTab("users");
+                  setSearch("");
+                }}
+              />
+              <SidebarItemCompact
+                label={`Users (${totals.users})`}
+                active={activeNav === "users"}
+                onClick={() => {
+                  setActiveNav("users");
+                  setActiveTab("users");
+                  setSearch("");
+                }}
+              />
+              <SidebarItemCompact
+                label={`Orders (${totals.orders})`}
+                active={activeNav === "orders"}
+                onClick={() => {
+                  setActiveNav("orders");
+                  setActiveTab("orders");
+                  setSearch("");
+                }}
+              />
+              <SidebarItemCompact
+                label={`Itineraries (${totals.itineraries})`}
+                active={activeNav === "itineraries"}
+                onClick={() => {
+                  setActiveNav("itineraries");
+                  setActiveTab("itineraries");
+                  setSearch("");
+                }}
+              />
+              <SidebarItemCompact
+                label={`Feedback (${totals.feedback})`}
+                active={activeNav === "feedback"}
+                onClick={() => {
+                  setActiveNav("feedback");
+                  setActiveTab("feedback");
+                  setSearch("");
+                }}
+              />
+            </div>
+          </div>
+
+          <header className="mb-4 rounded-2xl border border-border-default bg-white px-3 py-3 shadow-sm sm:px-4">
+            <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
+              <div className="flex flex-wrap items-center gap-1.5 text-xs text-text-muted sm:gap-2 sm:text-sm">
                 <Link href="/" className="font-medium text-text-body">Workspace</Link>
-                <ChevronRight className="h-4 w-4" />
-                <span>Projects</span>
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Projects</span>
+                <ChevronRight className="hidden h-4 w-4 sm:block" />
                 <span className="font-semibold text-text-heading">Admin Operations</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex w-full items-center gap-2 sm:w-auto">
                 <button className="rounded-lg border border-border-default bg-white px-3 py-2 text-xs font-semibold text-text-body">Manage</button>
                 <button className="rounded-lg border border-border-default bg-white px-3 py-2 text-xs font-semibold text-text-body">Share</button>
               </div>
             </div>
           </header>
 
-          <section className="mb-4 rounded-2xl border border-border-default bg-white p-4 shadow-sm md:p-5">
+          <section className="mb-4 rounded-2xl border border-border-default bg-white p-3.5 shadow-sm sm:p-4 md:p-5">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-3xl font-bold tracking-tight text-text-primary">Admin Command Center</p>
+                <p className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">Admin Command Center</p>
                 <p className="mt-1 text-sm text-text-muted">Unified control for users, bookings, itineraries, and support operations.</p>
               </div>
               <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
@@ -555,20 +625,22 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
               </div>
             </div>
 
-            <div className="rounded-xl border border-border-default bg-surface-alt p-4">
-              <div className="mb-2 flex items-center justify-between">
+            <div className="rounded-xl border border-border-default bg-surface-alt p-3 sm:p-4">
+              <div className="mb-2 flex items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-text-heading">{chartModel.title}</p>
                 <div className="flex items-center gap-1">
                   <button className="rounded-md bg-surface-brand-soft px-2 py-1 text-xs font-semibold text-text-brand">6M</button>
                 </div>
               </div>
-              <svg viewBox="0 0 900 180" className="h-[160px] w-full">
-                <rect x="0" y="0" width="900" height="180" fill="transparent" />
-                <path d={chartModel.firstPath} stroke="var(--color-metric-primary)" strokeWidth="3" fill="none" />
-                <path d={chartModel.secondPath} stroke="var(--color-metric-secondary)" strokeWidth="3" fill="none" />
-              </svg>
-              <div className="mt-2 flex items-center justify-between text-xs text-text-muted">
-                <div className="flex items-center gap-4">
+              <div className="overflow-x-auto">
+                <svg viewBox="0 0 900 180" className="h-[160px] min-w-[620px] w-full">
+                  <rect x="0" y="0" width="900" height="180" fill="transparent" />
+                  <path d={chartModel.firstPath} stroke="var(--color-metric-primary)" strokeWidth="3" fill="none" />
+                  <path d={chartModel.secondPath} stroke="var(--color-metric-secondary)" strokeWidth="3" fill="none" />
+                </svg>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-text-muted">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                   <span className="inline-flex items-center gap-1">
                     <span className="h-2 w-2 rounded-full bg-metric-primary" />
                     {chartModel.firstLabel} ({chartModel.firstTotal}{chartModel.firstSuffix ? ` ${chartModel.firstSuffix}` : ""} / 6M)
@@ -578,14 +650,14 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                     {chartModel.secondLabel} ({chartModel.secondTotal}{chartModel.secondSuffix ? ` ${chartModel.secondSuffix}` : ""} / 6M)
                   </span>
                 </div>
-                <span>{chartModel.months.join("  •  ")}</span>
+                <span className="w-full text-left sm:w-auto sm:text-right">{chartModel.months.join("  •  ")}</span>
               </div>
             </div>
           </section>
 
-          <section className="rounded-2xl border border-border-default bg-white p-4 shadow-sm md:p-5">
+          <section className="rounded-2xl border border-border-default bg-white p-3.5 shadow-sm sm:p-4 md:p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap gap-2">
+              <div className="no-scrollbar flex w-full gap-2 overflow-x-auto pb-1 md:w-auto md:flex-wrap md:overflow-visible md:pb-0">
                 {(["users", "orders", "itineraries", "feedback"] as const).map((tab) => (
                   <button
                     key={tab}
@@ -595,7 +667,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                       setFilterValue("all");
                       setSortValue("default");
                     }}
-                    className={`rounded-full px-4 py-2 text-sm font-semibold capitalize ${
+                    className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold capitalize ${
                       activeTab === tab ? "bg-text-primary text-white" : "border border-border-strong bg-white text-text-body"
                     }`}
                   >
@@ -604,7 +676,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                 ))}
               </div>
 
-              <div className="flex w-full flex-wrap items-center justify-end gap-2 md:w-auto">
+              <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:justify-end">
                 <div className="relative">
                   <button
                     type="button"
@@ -612,13 +684,13 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                       setFilterMenuOpen((prev) => !prev);
                       setSortMenuOpen(false);
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg border border-border-strong bg-white px-3 py-2 text-xs font-semibold text-text-body"
+                    className="inline-flex h-10 items-center gap-1 rounded-lg border border-border-strong bg-white px-3 py-2 text-xs font-semibold text-text-body"
                   >
                     <SlidersHorizontal className="h-4 w-4" />
                     Filter
                   </button>
                   {filterMenuOpen ? (
-                    <div className="absolute right-0 z-20 mt-1 w-44 rounded-lg border border-border-strong bg-white p-1 shadow-lg">
+                    <div className="absolute left-0 z-20 mt-1 w-44 rounded-lg border border-border-strong bg-white p-1 shadow-lg md:left-auto md:right-0">
                       {filterOptions.map((option) => (
                         <button
                           key={option.value}
@@ -647,13 +719,13 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                       setSortMenuOpen((prev) => !prev);
                       setFilterMenuOpen(false);
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg border border-border-strong bg-white px-3 py-2 text-xs font-semibold text-text-body"
+                    className="inline-flex h-10 items-center gap-1 rounded-lg border border-border-strong bg-white px-3 py-2 text-xs font-semibold text-text-body"
                   >
                     <Settings2 className="h-4 w-4" />
                     Sort
                   </button>
                   {sortMenuOpen ? (
-                    <div className="absolute right-0 z-20 mt-1 w-44 rounded-lg border border-border-strong bg-white p-1 shadow-lg">
+                    <div className="absolute left-0 z-20 mt-1 w-44 rounded-lg border border-border-strong bg-white p-1 shadow-lg md:left-auto md:right-0">
                       {sortOptions.map((option) => (
                         <button
                           key={option.value}
@@ -680,7 +752,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder={`Search ${activeTab}`}
-                    className="h-10 w-[220px] rounded-lg border border-border-strong pl-9 pr-3 text-sm outline-none focus:border-brand"
+                    className="h-10 w-full min-w-0 rounded-lg border border-border-strong pl-9 pr-3 text-sm outline-none focus:border-brand md:w-[220px]"
                   />
                 </div>
               </div>
@@ -690,7 +762,215 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
               <div className="mb-3 rounded-lg border border-border-info bg-surface-info px-3 py-2 text-sm text-text-brand">{message}</div>
             ) : null}
 
-            <div className="overflow-hidden rounded-xl border border-border-soft">
+            <div className="md:hidden">
+              {activeTab === "users" ? (
+                <MobileList
+                  rows={visibleUsers.map((user) => ({
+                    id: user.id,
+                    title: user.name,
+                    subtitle: user.email,
+                    meta: user.emailVerified ? "Verified" : "Unverified",
+                    actions: (
+                      <>
+                        <ActionButton
+                          label="Edit"
+                          disabled={busyId === user.id}
+                          onClick={() =>
+                            runAction(
+                              async () => {
+                                const name = window.prompt("Update name", user.name);
+                                if (!name) return;
+                                const response = await fetch(`/api/v1/admin/users/${user.id}`, {
+                                  method: "PATCH",
+                                  headers: { "content-type": "application/json" },
+                                  body: JSON.stringify({ name }),
+                                });
+                                if (!response.ok) throw new Error("User update failed");
+                                setUsers((prev) => prev.map((item) => (item.id === user.id ? { ...item, name } : item)));
+                              },
+                              user.id,
+                              "User updated",
+                            )
+                          }
+                        />
+                        <DangerButton
+                          label="Delete"
+                          disabled={busyId === user.id}
+                          onClick={() =>
+                            runAction(
+                              async () => {
+                                if (!window.confirm("Delete user and related records?")) return;
+                                const response = await fetch(`/api/v1/admin/users/${user.id}`, { method: "DELETE" });
+                                if (!response.ok) throw new Error("User delete failed");
+                                setUsers((prev) => prev.filter((item) => item.id !== user.id));
+                              },
+                              user.id,
+                              "User deleted",
+                            )
+                          }
+                        />
+                      </>
+                    ),
+                  }))}
+                />
+              ) : null}
+
+              {activeTab === "orders" ? (
+                <MobileList
+                  rows={visibleOrders.map((order) => ({
+                    id: order.id,
+                    title: order.orderCode,
+                    subtitle: order.customer.email,
+                    meta: `${order.status} • ${order.total} ${order.currency}`,
+                    actions: (
+                      <>
+                        <ActionButton
+                          label="Toggle"
+                          disabled={busyId === order.id}
+                          onClick={() =>
+                            runAction(
+                              async () => {
+                                const nextStatus = order.status === "confirmed" ? "cancelled" : "confirmed";
+                                const response = await fetch(`/api/v1/admin/orders/${order.id}`, {
+                                  method: "PATCH",
+                                  headers: { "content-type": "application/json" },
+                                  body: JSON.stringify({ status: nextStatus }),
+                                });
+                                if (!response.ok) throw new Error("Order update failed");
+                                setOrders((prev) => prev.map((it) => (it.id === order.id ? { ...it, status: nextStatus } : it)));
+                              },
+                              order.id,
+                              "Order updated",
+                            )
+                          }
+                        />
+                        <DangerButton
+                          label="Delete"
+                          disabled={busyId === order.id}
+                          onClick={() =>
+                            runAction(
+                              async () => {
+                                if (!window.confirm("Delete this order?")) return;
+                                const response = await fetch(`/api/v1/admin/orders/${order.id}`, { method: "DELETE" });
+                                if (!response.ok) throw new Error("Order delete failed");
+                                setOrders((prev) => prev.filter((it) => it.id !== order.id));
+                              },
+                              order.id,
+                              "Order deleted",
+                            )
+                          }
+                        />
+                      </>
+                    ),
+                  }))}
+                />
+              ) : null}
+
+              {activeTab === "itineraries" ? (
+                <MobileList
+                  rows={visibleItineraries.map((item) => ({
+                    id: item.id,
+                    title: item.id,
+                    subtitle: item.userId,
+                    meta: `${item.status} • ${new Date(item.updatedAt).toLocaleString()}`,
+                    actions: (
+                      <>
+                        <ActionButton
+                          label="Cycle"
+                          disabled={busyId === item.id}
+                          onClick={() =>
+                            runAction(
+                              async () => {
+                                const status = item.status === "saved" ? "archived" : item.status === "archived" ? "draft" : "saved";
+                                const response = await fetch(`/api/v1/admin/itineraries/${item.id}`, {
+                                  method: "PATCH",
+                                  headers: { "content-type": "application/json" },
+                                  body: JSON.stringify({ status }),
+                                });
+                                if (!response.ok) throw new Error("Itinerary update failed");
+                                setItineraries((prev) => prev.map((it) => (it.id === item.id ? { ...it, status } : it)));
+                              },
+                              item.id,
+                              "Itinerary updated",
+                            )
+                          }
+                        />
+                        <DangerButton
+                          label="Delete"
+                          disabled={busyId === item.id}
+                          onClick={() =>
+                            runAction(
+                              async () => {
+                                if (!window.confirm("Delete itinerary?")) return;
+                                const response = await fetch(`/api/v1/admin/itineraries/${item.id}`, { method: "DELETE" });
+                                if (!response.ok) throw new Error("Itinerary delete failed");
+                                setItineraries((prev) => prev.filter((it) => it.id !== item.id));
+                              },
+                              item.id,
+                              "Itinerary deleted",
+                            )
+                          }
+                        />
+                      </>
+                    ),
+                  }))}
+                />
+              ) : null}
+
+              {activeTab === "feedback" ? (
+                <MobileList
+                  rows={visibleFeedback.map((item) => ({
+                    id: item.id,
+                    title: item.category,
+                    subtitle: item.email ?? "Anonymous",
+                    meta: `Rating: ${item.rating ?? "-"} • ${item.status}`,
+                    details: item.message,
+                    actions: (
+                      <>
+                        <ActionButton
+                          label="Toggle"
+                          disabled={busyId === item.id}
+                          onClick={() =>
+                            runAction(
+                              async () => {
+                                const status = item.status === "new" ? "reviewed" : "new";
+                                const response = await fetch(`/api/v1/admin/feedback/${item.id}`, {
+                                  method: "PATCH",
+                                  headers: { "content-type": "application/json" },
+                                  body: JSON.stringify({ status }),
+                                });
+                                if (!response.ok) throw new Error("Feedback update failed");
+                                setFeedback((prev) => prev.map((it) => (it.id === item.id ? { ...it, status } : it)));
+                              },
+                              item.id,
+                              "Feedback updated",
+                            )
+                          }
+                        />
+                        <DangerButton
+                          label="Delete"
+                          disabled={busyId === item.id}
+                          onClick={() =>
+                            runAction(
+                              async () => {
+                                if (!window.confirm("Delete feedback entry?")) return;
+                                const response = await fetch(`/api/v1/admin/feedback/${item.id}`, { method: "DELETE" });
+                                if (!response.ok) throw new Error("Feedback delete failed");
+                                setFeedback((prev) => prev.filter((it) => it.id !== item.id));
+                              },
+                              item.id,
+                              "Feedback deleted",
+                            )
+                          }
+                        />
+                      </>
+                    ),
+                  }))}
+                />
+              ) : null}
+            </div>
+
+            <div className="hidden overflow-hidden rounded-xl border border-border-soft md:block">
               <div className="max-h-[460px] overflow-auto">
                 {activeTab === "users" ? (
                   <ResourceTable
@@ -931,6 +1211,22 @@ function SidebarItem({
   );
 }
 
+function SidebarItemCompact({ label, active, onClick }: { label: string; active?: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold ${
+        active
+          ? "border-text-primary bg-text-primary text-white"
+          : "border-border-strong bg-white text-text-body"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
 function KpiCard({ label, value, tone }: { label: string; value: string; tone: "blue" | "green" | "amber" | "slate" }) {
   const toneClass =
     tone === "blue"
@@ -945,6 +1241,37 @@ function KpiCard({ label, value, tone }: { label: string; value: string; tone: "
     <div className={`min-w-[120px] rounded-xl border px-3 py-2 ${toneClass}`}>
       <p className="text-xs text-text-muted">{label}</p>
       <p className="text-base font-semibold text-text-primary">{value}</p>
+    </div>
+  );
+}
+
+function MobileList({
+  rows,
+}: {
+  rows: Array<{
+    id: string;
+    title: ReactNode;
+    subtitle: ReactNode;
+    meta: ReactNode;
+    details?: ReactNode;
+    actions: ReactNode;
+  }>;
+}) {
+  if (rows.length === 0) {
+    return <div className="rounded-xl border border-border-soft bg-slate-50 p-3 text-sm text-text-muted">No results found.</div>;
+  }
+
+  return (
+    <div className="space-y-2.5">
+      {rows.map((row) => (
+        <article key={row.id} className="rounded-xl border border-border-soft bg-white p-3">
+          <p className="truncate text-sm font-semibold text-text-primary">{row.title}</p>
+          <p className="mt-1 truncate text-xs text-text-body">{row.subtitle}</p>
+          <p className="mt-1 text-xs text-text-muted">{row.meta}</p>
+          {row.details ? <p className="mt-2 line-clamp-3 text-xs text-text-body">{row.details}</p> : null}
+          <div className="mt-3 flex flex-wrap gap-2">{row.actions}</div>
+        </article>
+      ))}
     </div>
   );
 }
