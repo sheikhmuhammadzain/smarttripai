@@ -91,7 +91,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-[1320px] mx-auto px-3 sm:px-4 md:px-6 h-[80px] flex items-center justify-between gap-2 md:gap-4">
+      <div className="max-w-[1320px] mx-auto px-3 sm:px-4 md:px-6 h-[72px] md:h-[80px] flex items-center justify-between gap-2 md:gap-4">
         {/* Logo */}
         <Link href="/" className="shrink-0 flex items-center gap-1" aria-label="GetYourGuide Home">
           <Image
@@ -99,7 +99,7 @@ export default function Header() {
             alt="GetYourGuide - Travel experiences and tours"
             width={56}
             height={64}
-            className="h-12 w-auto"
+            className="h-10 md:h-12 w-auto"
             unoptimized
           />
         </Link>
@@ -124,34 +124,34 @@ export default function Header() {
 
 
         {/* Navigation Actions */}
-        <nav className="flex items-center gap-1 sm:gap-2 md:gap-6" aria-label="Main navigation">
-          <Link href="/wishlist" className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group" aria-label="View wishlist">
-            <Heart className="w-6 h-6 stroke-[1.5]" aria-hidden="true" />
+        <nav className="flex items-center gap-2 sm:gap-2 md:gap-6" aria-label="Main navigation">
+          <Link href="/wishlist" className="p-1.5 md:p-0 flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group" aria-label="View wishlist">
+            <Heart className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" aria-hidden="true" />
             <span className="text-[11px] font-medium hidden md:block">Wishlist</span>
           </Link>
-          <Link href="/cart" className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group" aria-label="View cart">
-            <ShoppingCart className="w-6 h-6 stroke-[1.5]" aria-hidden="true" />
+          <Link href="/cart" className="p-1.5 md:p-0 flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group" aria-label="View cart">
+            <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" aria-hidden="true" />
             <span className="text-[11px] font-medium hidden md:block">Cart</span>
           </Link>
-          <button className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group" aria-label="Change language and currency">
-            <Globe className="w-6 h-6 stroke-[1.5]" aria-hidden="true" />
+          <button className="p-1.5 md:p-0 flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group" aria-label="Change language and currency">
+            <Globe className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" aria-hidden="true" />
             <span className="text-[11px] font-medium hidden md:block">EN/USD $</span>
           </button>
           <div ref={accountRef} className="relative">
             <button
               onClick={() => setAccountOpen((prev) => !prev)}
-              className="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group"
+              className="p-1.5 md:p-0 flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group"
               aria-label="Open account menu"
             >
               <div className="flex items-center gap-1">
-                <User className="w-6 h-6 stroke-[1.5]" aria-hidden="true" />
+                <User className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" aria-hidden="true" />
                 <ChevronDown className="h-3.5 w-3.5 hidden md:block" aria-hidden="true" />
               </div>
               <span className="text-[11px] font-medium hidden md:block">Dashboard</span>
             </button>
 
             {accountOpen ? (
-              <div className="absolute right-0 top-[58px] w-64 rounded-2xl border border-gray-200 bg-white p-2 shadow-2xl">
+              <div className="absolute right-0 top-[50px] md:top-[58px] w-56 sm:w-64 rounded-2xl border border-gray-200 bg-white p-2 shadow-2xl">
                 {accountLoading ? (
                   <p className="px-3 py-2 text-sm text-gray-500">Loading...</p>
                 ) : isAuthenticated ? (
@@ -223,7 +223,7 @@ export default function Header() {
 
       {/* Sub-navigation */}
       <div className="max-w-[1320px] mx-auto px-3 sm:px-4 md:px-6">
-        <nav className="flex items-center gap-6 md:gap-8 py-3 text-[14px] text-gray-500 font-medium border-t border-gray-100/50 overflow-x-auto no-scrollbar whitespace-nowrap" aria-label="Secondary navigation">
+        <nav className="flex items-center gap-5 md:gap-8 py-3 text-[13px] md:text-[14px] text-gray-500 font-medium border-t border-gray-100/50 overflow-x-auto no-scrollbar whitespace-nowrap" aria-label="Secondary navigation">
           <Link href="/attractions" className="hover:text-gray-900 flex items-center gap-1 group">
             Places to see
             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:text-blue-600 transition-colors" aria-hidden="true">

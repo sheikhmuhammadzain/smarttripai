@@ -59,7 +59,7 @@ export default function AuthCard({ mode }: AuthCardProps) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
+    <div className="mx-auto w-full max-w-md rounded-xl md:rounded-2xl border border-gray-200 bg-white p-5 md:p-6 shadow-md md:shadow-lg">
       <h1 className="text-2xl font-bold text-[#1a1b1d]">{title}</h1>
       <p className="mt-1 text-sm text-gray-600">{subtitle}</p>
 
