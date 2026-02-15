@@ -46,7 +46,7 @@ export default function HeroSection() {
           <div className="relative w-full max-w-sm pt-2 md:pt-4">
             <div className="bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-xl max-w-[400px]">
               <div className="mb-3">
-                <h3 className="text-white font-bold text-lg drop-shadow-md mb-2">Continue planning your trip</h3>
+                <h3 className="text-[#1a1b1d] font-bold text-[30px] mb-2">Continue planning your trip</h3>
               </div>
               <div className="flex gap-3 md:gap-4 bg-white rounded-lg p-3 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow">
                 <div className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden">
@@ -62,7 +62,7 @@ export default function HeroSection() {
                     <h4 className="font-bold text-sm leading-tight text-gray-900 mb-1 line-clamp-2">
                       Istanbul: Skip-the-line Hagia Sophia and Basilica Cistern Tour
                     </h4>
-                    <p className="text-xs text-gray-500 mb-1">2 hours • Skip the line</p>
+                    <p className="text-xs text-gray-600 mb-1">2 hours • Skip the line</p>
                     <div className="flex items-center gap-1">
                       <div className="flex text-[#FFC800]">
                         <Star className="w-3 h-3 fill-current" />
@@ -71,7 +71,7 @@ export default function HeroSection() {
                         <Star className="w-3 h-3 fill-current" />
                         <Star className="w-3 h-3 fill-current" />
                       </div>
-                      <span className="text-xs text-gray-400">4.8</span>
+                      <span className="text-xs text-gray-600">4.8</span>
                     </div>
                   </div>
                   <div className="text-sm font-medium text-gray-900">
