@@ -415,7 +415,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen overflow-x-hidden">
       <aside className="hidden w-[260px] border-r border-border-default bg-surface-muted p-4 lg:flex lg:flex-col">
         <div className="mb-4 flex items-center gap-2 rounded-xl px-2 py-1">
           <div className="overflow-hidden rounded-lg">
@@ -523,8 +523,8 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
         </div>
       </aside>
 
-      <section className="flex-1 p-3 sm:p-4 md:p-6">
-        <div className="mx-auto max-w-[1200px]">
+      <section className="min-w-0 flex-1 p-3 sm:p-4 md:p-6">
+        <div className="mx-auto w-full max-w-[1200px]">
           <div className="mb-3 rounded-2xl border border-border-default bg-white p-2.5 shadow-sm lg:hidden">
             <div className="flex items-center justify-between gap-2 px-1 pb-2">
               <div className="flex items-center gap-2">
@@ -595,14 +595,14 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
             </div>
           </div>
 
-          <header className="mb-4 rounded-2xl border border-border-default bg-white px-3 py-3 shadow-sm sm:px-4">
+          <header className="mb-4 overflow-hidden rounded-2xl border border-border-default bg-white px-3 py-3 shadow-sm sm:px-4">
             <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
-              <div className="flex flex-wrap items-center gap-1.5 text-xs text-text-muted sm:gap-2 sm:text-sm">
+              <div className="min-w-0 flex flex-wrap items-center gap-1.5 text-xs text-text-muted sm:gap-2 sm:text-sm">
                 <Link href="/" className="font-medium text-text-body">Workspace</Link>
                 <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Projects</span>
                 <ChevronRight className="hidden h-4 w-4 sm:block" />
-                <span className="font-semibold text-text-heading">Admin Operations</span>
+                <span className="truncate font-semibold text-text-heading">Admin Operations</span>
               </div>
               <div className="flex w-full items-center gap-2 sm:w-auto">
                 <button className="rounded-lg border border-border-default bg-white px-3 py-2 text-xs font-semibold text-text-body">Manage</button>
@@ -625,15 +625,15 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
               </div>
             </div>
 
-            <div className="rounded-xl border border-border-default bg-surface-alt p-3 sm:p-4">
+            <div className="overflow-hidden rounded-xl border border-border-default bg-surface-alt p-3 sm:p-4">
               <div className="mb-2 flex items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-text-heading">{chartModel.title}</p>
                 <div className="flex items-center gap-1">
                   <button className="rounded-md bg-surface-brand-soft px-2 py-1 text-xs font-semibold text-text-brand">6M</button>
                 </div>
               </div>
-              <div className="overflow-x-auto">
-                <svg viewBox="0 0 900 180" className="h-[160px] min-w-[620px] w-full">
+              <div className="no-scrollbar max-w-full overflow-x-auto">
+                <svg viewBox="0 0 900 180" className="h-[140px] min-w-[460px] w-full sm:h-[160px] sm:min-w-[620px]">
                   <rect x="0" y="0" width="900" height="180" fill="transparent" />
                   <path d={chartModel.firstPath} stroke="var(--color-metric-primary)" strokeWidth="3" fill="none" />
                   <path d={chartModel.secondPath} stroke="var(--color-metric-secondary)" strokeWidth="3" fill="none" />
@@ -650,14 +650,14 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                     {chartModel.secondLabel} ({chartModel.secondTotal}{chartModel.secondSuffix ? ` ${chartModel.secondSuffix}` : ""} / 6M)
                   </span>
                 </div>
-                <span className="w-full text-left sm:w-auto sm:text-right">{chartModel.months.join("  •  ")}</span>
+                <span className="w-full break-words text-left sm:w-auto sm:text-right">{chartModel.months.join("  •  ")}</span>
               </div>
             </div>
           </section>
 
           <section className="rounded-2xl border border-border-default bg-white p-3.5 shadow-sm sm:p-4 md:p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <div className="no-scrollbar flex w-full gap-2 overflow-x-auto pb-1 md:w-auto md:flex-wrap md:overflow-visible md:pb-0">
+              <div className="no-scrollbar max-w-full flex w-full gap-2 overflow-x-auto pb-1 md:w-auto md:flex-wrap md:overflow-visible md:pb-0">
                 {(["users", "orders", "itineraries", "feedback"] as const).map((tab) => (
                   <button
                     key={tab}
@@ -676,7 +676,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                 ))}
               </div>
 
-              <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:justify-end">
+              <div className="max-w-full flex w-full flex-wrap items-center gap-2 md:w-auto md:justify-end">
                 <div className="relative">
                   <button
                     type="button"
@@ -746,7 +746,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                     </div>
                   ) : null}
                 </div>
-                <div className="relative">
+                <div className="relative min-w-0 grow md:grow-0">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
                   <input
                     value={search}
