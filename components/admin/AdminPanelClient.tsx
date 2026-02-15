@@ -4,9 +4,7 @@ import Link from "next/link";
 import { signOut } from "next-auth/react";
 import {
   Bell,
-  Building2,
   ChevronRight,
-  FolderKanban,
   HelpCircle,
   LayoutDashboard,
   LogOut,
@@ -85,6 +83,55 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
 
   const totals = props.overview.totals;
 
+  const chartModel = useMemo(() => {
+    const now = new Date();
+    const months: string[] = [];
+    const orderSeries: number[] = [];
+    const itinerarySeries: number[] = [];
+
+    for (let offset = 5; offset >= 0; offset -= 1) {
+      const date = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      months.push(date.toLocaleString("en-US", { month: "short" }));
+
+      const orderValue = orders
+        .filter((order) => {
+          const d = new Date(order.createdAt);
+          const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+          return k === key;
+        })
+        .reduce((sum, item) => sum + item.total, 0);
+      orderSeries.push(orderValue);
+
+      const itineraryValue = itineraries.filter((item) => {
+        const d = new Date(item.updatedAt);
+        const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        return k === key;
+      }).length;
+      itinerarySeries.push(itineraryValue);
+    }
+
+    function makePath(values: number[], width: number, height: number, pad = 18) {
+      const max = Math.max(...values, 1);
+      const xStep = values.length > 1 ? (width - pad * 2) / (values.length - 1) : 0;
+      return values
+        .map((value, index) => {
+          const x = pad + index * xStep;
+          const y = height - pad - (value / max) * (height - pad * 2);
+          return `${index === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`;
+        })
+        .join(" ");
+    }
+
+    return {
+      months,
+      orderSeries,
+      itinerarySeries,
+      orderPath: makePath(orderSeries, 900, 180),
+      itineraryPath: makePath(itinerarySeries, 900, 180),
+    };
+  }, [orders, itineraries]);
+
   const filteredUsers = useMemo(
     () => users.filter((item) => `${item.name} ${item.email}`.toLowerCase().includes(search.toLowerCase())),
     [users, search],
@@ -136,11 +183,11 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
         </div>
 
         <nav className="space-y-1 text-sm">
-          <SidebarItem icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" active />
-          <SidebarItem icon={<FolderKanban className="h-4 w-4" />} label="Projects" />
-          <SidebarItem icon={<Table className="h-4 w-4" />} label="Reports" />
-          <SidebarItem icon={<Users className="h-4 w-4" />} label="Companies" />
-          <SidebarItem icon={<Building2 className="h-4 w-4" />} label="People" />
+          <SidebarItem icon={<LayoutDashboard className="h-4 w-4" />} label="Overview" active />
+          <SidebarItem icon={<Users className="h-4 w-4" />} label="Users" count={totals.users} />
+          <SidebarItem icon={<Table className="h-4 w-4" />} label="Orders" count={totals.orders} />
+          <SidebarItem icon={<Sparkles className="h-4 w-4" />} label="Itineraries" count={totals.itineraries} />
+          <SidebarItem icon={<Bell className="h-4 w-4" />} label="Feedback" count={totals.feedback} />
         </nav>
 
         <div className="mt-6 space-y-1 border-t border-[#e4e7ec] pt-4 text-sm">
@@ -195,18 +242,29 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
 
             <div className="rounded-xl border border-[#e4e7ec] bg-[#fbfcfd] p-4">
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-sm font-semibold text-[#1f2733]">Consolidated trend</p>
+                <p className="text-sm font-semibold text-[#1f2733]">Consolidated trend (real data)</p>
                 <div className="flex items-center gap-1">
-                  <button className="rounded-md bg-white px-2 py-1 text-xs text-[#475467]">D</button>
-                  <button className="rounded-md bg-white px-2 py-1 text-xs text-[#475467]">W</button>
-                  <button className="rounded-md bg-[#e8f1ff] px-2 py-1 text-xs font-semibold text-[#175cd3]">M</button>
+                  <button className="rounded-md bg-[#e8f1ff] px-2 py-1 text-xs font-semibold text-[#175cd3]">6M</button>
                 </div>
               </div>
               <svg viewBox="0 0 900 180" className="h-[160px] w-full">
                 <rect x="0" y="0" width="900" height="180" fill="transparent" />
-                <path d="M0 98 C80 70, 150 130, 240 96 C330 62, 390 108, 470 86 C540 67, 620 98, 700 80 C770 64, 835 86, 900 74" stroke="#0ba5ec" strokeWidth="3" fill="none" />
-                <path d="M0 128 C80 110, 150 146, 240 132 C330 120, 390 148, 470 128 C540 118, 620 140, 700 130 C770 122, 835 141, 900 136" stroke="#f04438" strokeWidth="3" fill="none" />
+                <path d={chartModel.orderPath} stroke="#0ba5ec" strokeWidth="3" fill="none" />
+                <path d={chartModel.itineraryPath} stroke="#f04438" strokeWidth="3" fill="none" />
               </svg>
+              <div className="mt-2 flex items-center justify-between text-xs text-[#667085]">
+                <div className="flex items-center gap-4">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-[#0ba5ec]" />
+                    Revenue ({chartModel.orderSeries.reduce((a, b) => a + b, 0)} EUR / 6M)
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-[#f04438]" />
+                    Itineraries ({chartModel.itinerarySeries.reduce((a, b) => a + b, 0)} / 6M)
+                  </span>
+                </div>
+                <span>{chartModel.months.join("  •  ")}</span>
+              </div>
             </div>
           </section>
 
@@ -462,7 +520,17 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
   );
 }
 
-function SidebarItem({ icon, label, active = false }: { icon: ReactNode; label: string; active?: boolean }) {
+function SidebarItem({
+  icon,
+  label,
+  active = false,
+  count,
+}: {
+  icon: ReactNode;
+  label: string;
+  active?: boolean;
+  count?: number;
+}) {
   return (
     <button
       className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left ${
@@ -471,7 +539,9 @@ function SidebarItem({ icon, label, active = false }: { icon: ReactNode; label: 
     >
       {icon}
       {label}
-      {active ? <span className="ml-auto rounded-full bg-[#eef4ff] px-2 py-0.5 text-[10px] text-[#3538cd]">Live</span> : null}
+      {typeof count === "number" ? (
+        <span className="ml-auto rounded-full bg-[#f2f4f7] px-2 py-0.5 text-[10px] text-[#475467]">{count}</span>
+      ) : null}
     </button>
   );
 }
