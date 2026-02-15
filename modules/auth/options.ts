@@ -1,4 +1,5 @@
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import { compareSync, hashSync } from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
@@ -44,9 +45,11 @@ function buildProviders(env: ReturnType<typeof getServerEnv>): NonNullable<NextA
   if (providers.length === 0) {
     providers.push(
       CredentialsProvider({
-        name: "Development Fallback",
+        name: "Email and Password",
         credentials: {
           email: { label: "Email", type: "email" },
+          password: { label: "Password", type: "password" },
+          intent: { label: "Intent", type: "text" },
           name: { label: "Name", type: "text" },
         },
         async authorize(credentials) {
@@ -54,20 +57,68 @@ function buildProviders(env: ReturnType<typeof getServerEnv>): NonNullable<NextA
             typeof credentials?.email === "string"
               ? credentials.email.trim().toLowerCase()
               : "";
+          const password =
+            typeof credentials?.password === "string"
+              ? credentials.password
+              : "";
+          const intent =
+            typeof credentials?.intent === "string"
+              ? credentials.intent
+              : "signin";
 
-          if (!email) {
+          if (!email || !password) {
             return null;
           }
 
-          const name =
-            typeof credentials?.name === "string" && credentials.name.trim()
-              ? credentials.name.trim()
-              : "Traveler";
+          const client = await getMongoClientPromise();
+          const db = client.db();
+          const users = db.collection<{
+            _id: { toString(): string };
+            email: string;
+            name?: string | null;
+            passwordHash?: string;
+          }>("users");
+
+          const existing = await users.findOne({ email });
+
+          if (intent === "signup") {
+            if (existing) {
+              return null;
+            }
+
+            const name =
+              typeof credentials?.name === "string" && credentials.name.trim()
+                ? credentials.name.trim()
+                : "Traveler";
+
+            const created = await users.insertOne({
+              email,
+              name,
+              passwordHash: hashSync(password, 10),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
+
+            return {
+              id: created.insertedId.toString(),
+              email,
+              name,
+            };
+          }
+
+          if (!existing?.passwordHash) {
+            return null;
+          }
+
+          const valid = compareSync(password, existing.passwordHash);
+          if (!valid) {
+            return null;
+          }
 
           return {
-            id: `dev-${email}`,
-            email,
-            name,
+            id: existing._id.toString(),
+            email: existing.email,
+            name: existing.name ?? "Traveler",
           };
         },
       }),

@@ -11,14 +11,15 @@ interface AuthCardProps {
 export default function AuthCard({ mode }: AuthCardProps) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isSignup = mode === "signup";
   const title = isSignup ? "Create account" : "Sign in";
   const subtitle = isSignup
-    ? "Create your travel planner account."
-    : "Access your trips and dashboard.";
+    ? "Create your travel planner account with email and password."
+    : "Access your trips and dashboard with email and password.";
 
   const callbackUrl = useMemo(() => "/dashboard", []);
 
@@ -29,13 +30,15 @@ export default function AuthCard({ mode }: AuthCardProps) {
 
     const response = await signIn("credentials", {
       email,
-      name,
+      password,
+      intent: isSignup ? "signup" : "signin",
+      ...(isSignup ? { name } : {}),
       redirect: false,
       callbackUrl,
     });
 
     if (!response || response.error) {
-      setError("Sign in failed. Check your details and try again.");
+      setError(isSignup ? "Account creation failed. Try a different email." : "Sign in failed. Check your email and password.");
       setIsLoading(false);
       return;
     }
@@ -61,14 +64,28 @@ export default function AuthCard({ mode }: AuthCardProps) {
           />
         </label>
 
+        {isSignup ? (
+          <label className="block">
+            <span className="mb-1 block text-sm font-semibold text-gray-700">Name</span>
+            <input
+              required
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              className="h-11 w-full rounded-lg border border-gray-300 px-3 outline-none focus:border-blue-600"
+              placeholder="Your name"
+            />
+          </label>
+        ) : null}
+
         <label className="block">
-          <span className="mb-1 block text-sm font-semibold text-gray-700">Name</span>
+          <span className="mb-1 block text-sm font-semibold text-gray-700">Password</span>
           <input
             required
-            value={name}
-            onChange={(event) => setName(event.target.value)}
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
             className="h-11 w-full rounded-lg border border-gray-300 px-3 outline-none focus:border-blue-600"
-            placeholder="Your name"
+            placeholder="Enter password"
           />
         </label>
 
