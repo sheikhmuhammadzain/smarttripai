@@ -5,7 +5,7 @@ Modular full-stack Next.js app with MongoDB, NextAuth, versioned APIs, itinerary
 ## Stack
 - Next.js App Router (TypeScript)
 - MongoDB Atlas + Mongoose
-- NextAuth (Google + Email magic link support)
+- NextAuth (credentials-based auth)
 - OpenAI/OpenRouter (hybrid with deterministic fallback)
 - MapLibre (`react-map-gl/maplibre`)
 - Zod validation + RFC7807-style API errors
