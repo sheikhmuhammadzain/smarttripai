@@ -29,9 +29,39 @@ export interface ChatAgentResult {
   booking: AgentBookingAction | null;
 }
 
+function isGreetingOrSmallTalk(message: string) {
+  const normalized = message.trim().toLowerCase();
+  if (!normalized) return true;
+  const compact = normalized.replace(/[^\p{L}\p{N}\s]/gu, "").trim();
+  const smallTalkSet = new Set([
+    "hi",
+    "hello",
+    "hey",
+    "hii",
+    "hola",
+    "salam",
+    "merhaba",
+    "yo",
+    "sup",
+    "good morning",
+    "good afternoon",
+    "good evening",
+    "how are you",
+    "who are you",
+    "what can you do",
+  ]);
+  return smallTalkSet.has(compact);
+}
+
+function wantsRecommendations(message: string) {
+  const lower = message.toLowerCase();
+  return /\b(recommend|suggest|best|top|where to go|things to do|plan|itinerary|trip|tour|activity|activities)\b/.test(lower);
+}
+
 function fallbackAgentResponse(message: string): ChatAgentResult {
   const lower = message.toLowerCase();
   const wantsBooking = /\b(book|booking|reserve|buy|checkout)\b/.test(lower);
+  const wantsSuggest = wantsRecommendations(message);
   const recommendations = products.slice(0, 3).map((product) => ({
     productId: product.id,
     title: product.title,
@@ -58,6 +88,16 @@ function fallbackAgentResponse(message: string): ChatAgentResult {
         currency: selected.currency,
         checkoutUrl: `/products/${selected.productId}`,
       },
+    };
+  }
+
+  if (!wantsSuggest || isGreetingOrSmallTalk(message)) {
+    return {
+      intent: "general",
+      assistantMessage:
+        "Hi. Share destination city, number of days, budget, and interests, and I will create a personalized Turkey plan.",
+      recommendations: [],
+      booking: null,
     };
   }
 
@@ -276,6 +316,15 @@ export async function runChatAgent(message: string): Promise<ChatAgentResult> {
     if (!normalized) {
       return fallbackAgentResponse(message);
     }
+
+    if (normalized.intent === "general") {
+      return {
+        ...normalized,
+        recommendations: [],
+        booking: null,
+      };
+    }
+
     return normalized;
   } catch (error) {
     logger.warn("Chat agent structured output failed, using fallback", {
