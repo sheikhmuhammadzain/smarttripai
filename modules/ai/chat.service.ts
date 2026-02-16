@@ -78,9 +78,14 @@ export async function getAssistantSessionHistory(userId: string, sessionId: stri
   await connectToDatabase();
   const userObjectId = new Types.ObjectId(userId);
   const session = await ChatSessionModel.findOne({ userId: userObjectId, sessionId }).lean();
-  const messages = (session?.messages ?? [])
+  const rawMessages = (session?.messages ?? []) as Array<{
+    role?: unknown;
+    content?: unknown;
+    createdAt?: unknown;
+  }>;
+  const messages = rawMessages
     .filter((msg): msg is { role: "assistant" | "user"; content: string; createdAt?: Date } =>
-      (msg?.role === "assistant" || msg?.role === "user") && typeof msg?.content === "string",
+      (msg.role === "assistant" || msg.role === "user") && typeof msg.content === "string",
     )
     .map((msg) => ({
       role: msg.role,
