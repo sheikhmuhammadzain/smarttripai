@@ -1,8 +1,6 @@
 'use client';
 
-import 'maplibre-gl/dist/maplibre-gl.css';
-import { useMemo, useState } from 'react';
-import Map, { Layer, Marker, NavigationControl, Source } from 'react-map-gl/maplibre';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MAP_ROUTE_HEX } from '@/theme/colors';
 
 const MARKERS = [
@@ -13,8 +11,39 @@ const MARKERS = [
   { city: 'Antalya', lat: 36.8969, lon: 30.7133, label: 'Coastal Relaxation' },
 ] as const;
 
-const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 const MAP_ROUTE_COLOR = MAP_ROUTE_HEX;
+
+declare global {
+  interface Window {
+    __googleMapsScriptLoadingPromise?: Promise<void>;
+  }
+}
+
+function loadGoogleMapsScript(apiKey: string) {
+  if (typeof window === 'undefined') {
+    return Promise.reject(new Error('Window is not available'));
+  }
+
+  if ((window as typeof window & { google?: unknown }).google) {
+    return Promise.resolve();
+  }
+
+  if (window.__googleMapsScriptLoadingPromise) {
+    return window.__googleMapsScriptLoadingPromise;
+  }
+
+  window.__googleMapsScriptLoadingPromise = new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load Google Maps script'));
+    document.head.appendChild(script);
+  });
+
+  return window.__googleMapsScriptLoadingPromise;
+}
 
 function getDistanceKm(from: { lat: number; lon: number }, to: { lat: number; lon: number }) {
   const earthRadiusKm = 6371;
@@ -32,38 +61,21 @@ export default function TurkeyMap() {
   const [selectedCity, setSelectedCity] = useState<(typeof MARKERS)[number]>(MARKERS[0]);
   const [routeCities, setRouteCities] = useState<string[]>(['Istanbul', 'Cappadocia', 'Ephesus']);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<any>(null);
+  const markerRefs = useRef<any[]>([]);
+  const routeLineRef = useRef<any>(null);
+  const hasInitializedRef = useRef(false);
+  const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
-  const initialViewState = useMemo(
-    () => ({
-      latitude: selectedCity.lat,
-      longitude: selectedCity.lon,
-      zoom: 5.5,
-    }),
-    [selectedCity],
-  );
-
-  const routeCoordinates = useMemo(() => {
-    return routeCities
-      .map((city) => MARKERS.find((marker) => marker.city === city))
-      .filter((item): item is (typeof MARKERS)[number] => Boolean(item))
-      .map((marker) => [marker.lon, marker.lat]);
-  }, [routeCities]);
-
-  const routeGeoJson = useMemo(
-    () => ({
-      type: 'FeatureCollection' as const,
-      features: [
-        {
-          type: 'Feature' as const,
-          properties: {},
-          geometry: {
-            type: 'LineString' as const,
-            coordinates: routeCoordinates,
-          },
-        },
-      ],
-    }),
-    [routeCoordinates],
+  const routeCoordinates = useMemo(
+    () =>
+      routeCities
+        .map((city) => MARKERS.find((marker) => marker.city === city))
+        .filter((item): item is (typeof MARKERS)[number] => Boolean(item))
+        .map((marker) => ({ lat: marker.lat, lng: marker.lon })),
+    [routeCities],
   );
 
   const estimatedRouteDistance = useMemo(() => {
@@ -85,6 +97,72 @@ export default function TurkeyMap() {
   function toggleRouteCity(city: string) {
     setRouteCities((prev) => (prev.includes(city) ? prev.filter((item) => item !== city) : [...prev, city]));
   }
+
+  useEffect(() => {
+    if (hasInitializedRef.current) return;
+    if (!mapContainerRef.current) return;
+    if (!googleMapsKey) {
+      setMapError('Google Maps key missing. Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY.');
+      return;
+    }
+
+    let cancelled = false;
+
+    async function initGoogleMap() {
+      try {
+        await loadGoogleMapsScript(googleMapsKey);
+        if (cancelled || !mapContainerRef.current) return;
+
+        const map = new google.maps.Map(mapContainerRef.current, {
+          center: { lat: selectedCity.lat, lng: selectedCity.lon },
+          zoom: 5.5,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: true,
+          zoomControl: true,
+        });
+        mapRef.current = map;
+
+        markerRefs.current = MARKERS.map((marker) => {
+          const markerInstance = new google.maps.Marker({
+            position: { lat: marker.lat, lng: marker.lon },
+            map,
+            title: marker.city,
+          });
+          markerInstance.addListener('click', () => setSelectedCity(marker));
+          return markerInstance;
+        });
+
+        routeLineRef.current = new google.maps.Polyline({
+          path: routeCoordinates,
+          strokeColor: MAP_ROUTE_COLOR,
+          strokeOpacity: 0.85,
+          strokeWeight: 4,
+          map,
+        });
+
+        hasInitializedRef.current = true;
+      } catch (error) {
+        setMapError(error instanceof Error ? error.message : 'Failed to initialize Google Maps');
+      }
+    }
+
+    void initGoogleMap();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [googleMapsKey, routeCoordinates, selectedCity.lat, selectedCity.lon]);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    mapRef.current.panTo({ lat: selectedCity.lat, lng: selectedCity.lon });
+  }, [selectedCity]);
+
+  useEffect(() => {
+    if (!routeLineRef.current) return;
+    routeLineRef.current.setPath(routeCoordinates);
+  }, [routeCoordinates]);
 
   async function saveMapPreferences() {
     setSaveMessage(null);
@@ -116,45 +194,10 @@ export default function TurkeyMap() {
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-white">
-      <Map
-        key={selectedCity.city}
-        initialViewState={initialViewState}
-        mapStyle={MAP_STYLE}
-        reuseMaps
-        style={{ width: '100%', height: '100%' }}
-      >
-        <NavigationControl position="bottom-right" />
-
-        {routeCoordinates.length > 1 ? (
-          <Source id="route-line" type="geojson" data={routeGeoJson}>
-            <Layer
-              id="route-line-layer"
-              type="line"
-              paint={{
-                'line-color': MAP_ROUTE_COLOR,
-                'line-width': 3,
-                'line-opacity': 0.75,
-              }}
-            />
-          </Source>
-        ) : null}
-
-        {MARKERS.map((marker) => (
-          <Marker key={marker.city} latitude={marker.lat} longitude={marker.lon} anchor="bottom">
-            <button
-              type="button"
-              onClick={() => setSelectedCity(marker)}
-              className={`h-3.5 w-3.5 rounded-full border-2 ${
-                selectedCity.city === marker.city ? 'border-blue-700 bg-blue-500' : 'border-blue-500 bg-white'
-              }`}
-              aria-label={`Focus ${marker.city}`}
-            />
-          </Marker>
-        ))}
-      </Map>
+      <div ref={mapContainerRef} className="h-full w-full" />
 
       <div className="absolute left-3 right-3 top-3 rounded-xl border border-gray-200 bg-white/95 p-3 shadow-md backdrop-blur-sm">
-        <p className="mb-2 text-xs font-semibold text-gray-500">Route map (MapLibre + Carto)</p>
+        <p className="mb-2 text-xs font-semibold text-gray-500">Route map (Google Maps)</p>
         <div className="mb-2 flex flex-wrap gap-2">
           {MARKERS.map((marker) => {
             const active = selectedCity.city === marker.city;
@@ -201,6 +244,7 @@ export default function TurkeyMap() {
         >
           Save map preferences
         </button>
+        {mapError ? <p className="mt-1 text-xs text-red-700">{mapError}</p> : null}
         {saveMessage ? <p className="mt-1 text-xs text-gray-700">{saveMessage}</p> : null}
       </div>
     </div>

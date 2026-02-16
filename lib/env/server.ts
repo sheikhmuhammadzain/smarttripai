@@ -13,7 +13,8 @@ const envSchema = z.object({
   OPENROUTER_APP_NAME: z.string().optional(),
   OPENWEATHER_API_KEY: z.string().optional(),
   EXCHANGERATE_API_KEY: z.string().optional(),
-  MAPBOX_ACCESS_TOKEN: z.string().optional(),
+  GOOGLE_MAPS_API_KEY: z.string().optional(),
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().optional(),
   SENTRY_DSN: z.string().optional(),
   ADMIN_EMAILS: z.string().optional(),
 });

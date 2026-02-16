@@ -76,7 +76,7 @@ AI-Powered Travel Planner for Turkey
    and the classification of attractions.
    • Real-time APIs including:
    o Weather services (OpenWeatherMap)
-   o Currency exchange (ExchangeRate-API)
+   o Currency exchange (ExchangeRate-API) 
    o Maps and geolocation (Google Maps / Mapbox)
    o Public transport APIs (where possible)
    Government tourism sites will be used to collect information as well as, travel blogs, scholarly

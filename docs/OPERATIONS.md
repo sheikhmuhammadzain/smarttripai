@@ -10,7 +10,7 @@
 - `MONGODB_URI`
 - `NEXTAUTH_SECRET`
 - `NEXTAUTH_URL`
-- `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` (for client map rendering)
+- `GOOGLE_MAPS_API_KEY` (for Google Maps/Routes integrations)
 
 Optional providers:
 - `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `OPENROUTER_SITE_URL`, `OPENROUTER_APP_NAME`
