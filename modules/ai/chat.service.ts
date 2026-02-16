@@ -12,6 +12,12 @@ interface ChatInput {
   itineraryId?: string;
 }
 
+export interface AssistantHistoryMessage {
+  role: "assistant" | "user";
+  content: string;
+  createdAt: string;
+}
+
 function fallbackAssistantReply(message: string) {
   return `I can help with Turkey trip planning. You asked: "${message}". I recommend sharing destination, days, and budget for a tailored plan.`;
 }
@@ -31,7 +37,7 @@ async function loadConversation(input: ChatInput) {
 }
 
 async function persistConversation(input: ChatInput, userObjectId: Types.ObjectId, messages: Array<{ role: "user" | "assistant"; content: string; createdAt: Date }>) {
-  const trimmedMessages = messages.slice(-12);
+  const trimmedMessages = messages.slice(-120);
 
   const saved = await ChatSessionModel.findOneAndUpdate(
     {
@@ -65,7 +71,24 @@ async function persistConversation(input: ChatInput, userObjectId: Types.ObjectI
 }
 
 function mapToModelMessages(messages: Array<{ role: "user" | "assistant"; content: string }>) {
-  return messages.slice(-8).map((msg) => ({ role: msg.role, content: msg.content }));
+  return messages.slice(-40).map((msg) => ({ role: msg.role, content: msg.content }));
+}
+
+export async function getAssistantSessionHistory(userId: string, sessionId: string) {
+  await connectToDatabase();
+  const userObjectId = new Types.ObjectId(userId);
+  const session = await ChatSessionModel.findOne({ userId: userObjectId, sessionId }).lean();
+  const messages = (session?.messages ?? [])
+    .filter((msg): msg is { role: "assistant" | "user"; content: string; createdAt?: Date } =>
+      (msg?.role === "assistant" || msg?.role === "user") && typeof msg?.content === "string",
+    )
+    .map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+      createdAt: (msg.createdAt ?? new Date()).toISOString(),
+    })) satisfies AssistantHistoryMessage[];
+
+  return { sessionId, messages };
 }
 
 export async function chatWithAssistant(input: ChatInput) {

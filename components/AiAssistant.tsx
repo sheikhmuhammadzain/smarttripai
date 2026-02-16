@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { MessageSquare, X, Send, Sparkles } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ChatMessage {
   id: string;
@@ -30,26 +30,84 @@ interface ChatMessage {
   };
 }
 
+const WELCOME_MESSAGE: ChatMessage = {
+  id: "assistant-welcome",
+  role: "assistant",
+  content:
+    "Merhaba. I am your Turkey travel assistant. Tell me destination, days, and budget and I will tailor your plan.",
+};
+
 export default function AiAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "assistant-welcome",
-      role: "assistant",
-      content:
-        "Merhaba. I am your Turkey travel assistant. Tell me destination, days, and budget and I will tailor your plan.",
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-
-  const sessionId = useMemo(() => `session-${Date.now()}`, []);
+  const SESSION_STORAGE_KEY = "gyg_assistant_session_id_v1";
 
   useEffect(() => {
     if (!scrollRef.current) return;
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, isSending]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const existing = window.localStorage.getItem(SESSION_STORAGE_KEY);
+    if (existing) {
+      setSessionId(existing);
+      return;
+    }
+    const generated = `session-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    window.localStorage.setItem(SESSION_STORAGE_KEY, generated);
+    setSessionId(generated);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen || historyLoaded || !sessionId) return;
+    const sid = sessionId;
+
+    let cancelled = false;
+    async function loadHistory() {
+      try {
+        const response = await fetch(`/api/v1/assistant/chat?sessionId=${encodeURIComponent(sid)}`, {
+          cache: "no-store",
+        });
+        if (response.status === 401 || !response.ok) {
+          setHistoryLoaded(true);
+          return;
+        }
+
+        const payload = (await response.json()) as {
+          messages?: Array<{ role: "assistant" | "user"; content: string; createdAt: string }>;
+        };
+
+        if (cancelled) return;
+        if (!payload.messages || payload.messages.length === 0) {
+          setMessages([WELCOME_MESSAGE]);
+          setHistoryLoaded(true);
+          return;
+        }
+
+        setMessages(
+          payload.messages.map((item, index) => ({
+            id: `${item.role}-${index}-${item.createdAt}`,
+            role: item.role,
+            content: item.content,
+          })),
+        );
+        setHistoryLoaded(true);
+      } catch {
+        if (!cancelled) setHistoryLoaded(true);
+      }
+    }
+
+    void loadHistory();
+    return () => {
+      cancelled = true;
+    };
+  }, [historyLoaded, isOpen, sessionId]);
 
   function appendToMessage(messageId: string, delta: string) {
     setMessages((prev) =>
@@ -84,7 +142,7 @@ export default function AiAssistant() {
 
   async function sendMessage() {
     const trimmed = input.trim();
-    if (!trimmed || isSending) {
+    if (!trimmed || isSending || !sessionId) {
       return;
     }
 
