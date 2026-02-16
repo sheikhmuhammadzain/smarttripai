@@ -3,7 +3,7 @@
 ## Services
 - Next.js app + API routes (`/api/v1/*`)
 - MongoDB Atlas
-- OpenAI (optional fallback to deterministic)
+- OpenRouter/OpenAI (optional fallback to deterministic)
 - OpenWeather + ExchangeRate providers (optional fallback responses)
 
 ## Required Environment Variables
@@ -15,7 +15,9 @@
 Optional providers:
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 - `EMAIL_SERVER`, `EMAIL_FROM`
+- `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `OPENROUTER_SITE_URL`, `OPENROUTER_APP_NAME`
 - `OPENAI_API_KEY`
+- `OPENAI_MODEL`
 - `OPENWEATHER_API_KEY`
 - `EXCHANGERATE_API_KEY`
 - `SENTRY_DSN`
@@ -34,8 +36,8 @@ Optional providers:
 
 ## Incident Playbooks
 
-### OpenAI errors / rate limits
-1. Confirm `OPENAI_API_KEY` validity.
+### AI provider errors / rate limits
+1. Confirm `OPENROUTER_API_KEY` or `OPENAI_API_KEY` validity.
 2. Check logs for AI warnings.
 3. Service automatically falls back to deterministic itinerary/chat response.
 4. Keep API online; do not disable generation endpoint.

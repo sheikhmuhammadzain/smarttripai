@@ -6,7 +6,7 @@ Modular full-stack Next.js app with MongoDB, NextAuth, versioned APIs, itinerary
 - Next.js App Router (TypeScript)
 - MongoDB Atlas + Mongoose
 - NextAuth (Google + Email magic link support)
-- OpenAI (hybrid with deterministic fallback)
+- OpenAI/OpenRouter (hybrid with deterministic fallback)
 - MapLibre (`react-map-gl/maplibre`)
 - Zod validation + RFC7807-style API errors
 
@@ -46,7 +46,16 @@ Modular full-stack Next.js app with MongoDB, NextAuth, versioned APIs, itinerary
    - `NEXTAUTH_SECRET`
    - `NEXTAUTH_URL`
    - `ADMIN_EMAILS` (comma-separated admin emails for `/admin`)
-3. Install and run:
+3. Optional AI provider (pick one):
+   - OpenRouter:
+     - `OPENROUTER_API_KEY`
+     - `OPENROUTER_MODEL` (example: `meta-llama/llama-3.1-8b-instruct:free`)
+     - `OPENROUTER_SITE_URL`
+     - `OPENROUTER_APP_NAME`
+   - OpenAI:
+     - `OPENAI_API_KEY`
+     - `OPENAI_MODEL`
+4. Install and run:
 
 ```bash
 pnpm install

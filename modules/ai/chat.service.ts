@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { connectToDatabase } from "@/lib/db/mongoose";
 import { logger } from "@/lib/observability/logger";
 import { ChatSessionModel } from "@/modules/ai/chat-session.model";
-import { getOpenAIClient } from "@/modules/ai/openai-client";
+import { getAIModel, getOpenAIClient } from "@/modules/ai/openai-client";
 
 interface ChatInput {
   userId: string;
@@ -28,15 +28,16 @@ export async function chatWithAssistant(input: ChatInput) {
   messages.push({ role: "user", content: input.message, createdAt: new Date() });
 
   const client = getOpenAIClient();
+  const model = getAIModel();
   let assistantReply = fallbackAssistantReply(input.message);
 
-  if (client) {
+  if (client && model) {
     try {
-      const response = await client.responses.create({
-        model: "gpt-4.1-mini",
+      const response = await client.chat.completions.create({
+        model,
         temperature: 0.3,
-        max_output_tokens: 500,
-        input: [
+        max_tokens: 500,
+        messages: [
           {
             role: "system",
             content:
@@ -49,7 +50,7 @@ export async function chatWithAssistant(input: ChatInput) {
         ],
       });
 
-      const outputText = (response as { output_text?: string }).output_text;
+      const outputText = response.choices[0]?.message?.content;
       if (outputText?.trim()) {
         assistantReply = outputText.trim();
       }

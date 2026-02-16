@@ -1,5 +1,5 @@
 import type { GeneratedItinerary, ItineraryRequest } from "@/types/travel";
-import { getOpenAIClient } from "@/modules/ai/openai-client";
+import { getAIModel, getOpenAIClient } from "@/modules/ai/openai-client";
 import { logger } from "@/lib/observability/logger";
 
 function extractJsonFromText(value: string): string | null {
@@ -16,16 +16,17 @@ export async function enhanceItineraryWithAI(
   deterministicPlan: GeneratedItinerary,
 ): Promise<GeneratedItinerary> {
   const client = getOpenAIClient();
-  if (!client) {
+  const model = getAIModel();
+  if (!client || !model) {
     return deterministicPlan;
   }
 
   try {
-    const response = await client.responses.create({
-      model: "gpt-4.1-mini",
+    const response = await client.chat.completions.create({
+      model,
       temperature: 0.2,
-      max_output_tokens: 1200,
-      input: [
+      max_tokens: 1200,
+      messages: [
         {
           role: "system",
           content:
@@ -41,7 +42,7 @@ export async function enhanceItineraryWithAI(
       ],
     });
 
-    const outputText = (response as { output_text?: string }).output_text;
+    const outputText = response.choices[0]?.message?.content;
     if (!outputText) {
       return deterministicPlan;
     }
