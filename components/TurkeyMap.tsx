@@ -24,7 +24,7 @@ function loadGoogleMapsScript(apiKey: string) {
     return Promise.reject(new Error('Window is not available'));
   }
 
-  if ((window as typeof window & { google?: unknown }).google) {
+  if (window.google?.maps) {
     return Promise.resolve();
   }
 
@@ -63,9 +63,8 @@ export default function TurkeyMap() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<any>(null);
-  const markerRefs = useRef<any[]>([]);
-  const routeLineRef = useRef<any>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const routeLineRef = useRef<google.maps.Polyline | null>(null);
   const hasInitializedRef = useRef(false);
   const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -105,12 +104,13 @@ export default function TurkeyMap() {
       setMapError('Google Maps key missing. Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY.');
       return;
     }
+    const apiKey = googleMapsKey;
 
     let cancelled = false;
 
     async function initGoogleMap() {
       try {
-        await loadGoogleMapsScript(googleMapsKey);
+        await loadGoogleMapsScript(apiKey);
         if (cancelled || !mapContainerRef.current) return;
 
         const map = new google.maps.Map(mapContainerRef.current, {
@@ -123,14 +123,13 @@ export default function TurkeyMap() {
         });
         mapRef.current = map;
 
-        markerRefs.current = MARKERS.map((marker) => {
+        MARKERS.forEach((marker) => {
           const markerInstance = new google.maps.Marker({
             position: { lat: marker.lat, lng: marker.lon },
             map,
             title: marker.city,
           });
           markerInstance.addListener('click', () => setSelectedCity(marker));
-          return markerInstance;
         });
 
         routeLineRef.current = new google.maps.Polyline({
