@@ -77,6 +77,27 @@ export const userPreferencesPatchSchema = z.object({
     .optional(),
 });
 
+export const userAccountPatchSchema = z
+  .object({
+    name: z.string().trim().min(2).max(80).optional(),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^\+?[0-9 ()-]{7,20}$/, "Invalid phone number format")
+      .or(z.literal(""))
+      .nullable()
+      .optional(),
+  })
+  .refine((value) => value.name !== undefined || value.phone !== undefined, {
+    message: "At least one field is required",
+  });
+
+export const userPasswordPatchSchema = z.object({
+  currentPassword: z.string().min(6),
+  newPassword: z.string().min(8).max(128),
+  confirmPassword: z.string().min(8).max(128),
+});
+
 export const feedbackCreateSchema = z.object({
   email: z.string().email().optional(),
   category: z.enum(["ux", "itinerary", "assistant", "realtime", "other"]),

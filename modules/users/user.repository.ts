@@ -13,6 +13,7 @@ interface UserCollectionRow {
   _id: ObjectId;
   name?: string | null;
   email?: string | null;
+  phone?: string | null;
   image?: string | null;
   emailVerified?: Date | null;
   passwordHash?: string;
@@ -60,6 +61,65 @@ export async function updateUserById(userId: string, patch: { name?: string; ema
       $set: {
         ...(patch.name !== undefined ? { name: patch.name } : {}),
         ...(patch.email !== undefined ? { email: patch.email.toLowerCase() } : {}),
+        updatedAt: new Date(),
+      },
+    },
+    { returnDocument: "after" },
+  );
+
+  return updated;
+}
+
+export async function getUserById(userId: string) {
+  if (!ObjectId.isValid(userId)) {
+    return null;
+  }
+
+  const client = await getMongoClientPromise();
+  const db = client.db();
+  const collection = db.collection<UserCollectionRow>("users");
+  return collection.findOne({ _id: new ObjectId(userId) });
+}
+
+export async function updateUserAccountById(userId: string, patch: { name?: string; email?: string; phone?: string | null }) {
+  if (!ObjectId.isValid(userId)) {
+    return null;
+  }
+
+  const client = await getMongoClientPromise();
+  const db = client.db();
+  const collection = db.collection<UserCollectionRow>("users");
+
+  const updated = await collection.findOneAndUpdate(
+    { _id: new ObjectId(userId) },
+    {
+      $set: {
+        ...(patch.name !== undefined ? { name: patch.name } : {}),
+        ...(patch.email !== undefined ? { email: patch.email.toLowerCase() } : {}),
+        ...(patch.phone !== undefined ? { phone: patch.phone } : {}),
+        updatedAt: new Date(),
+      },
+    },
+    { returnDocument: "after" },
+  );
+
+  return updated;
+}
+
+export async function updateUserPasswordById(userId: string, passwordHash: string) {
+  if (!ObjectId.isValid(userId)) {
+    return null;
+  }
+
+  const client = await getMongoClientPromise();
+  const db = client.db();
+  const collection = db.collection<UserCollectionRow>("users");
+
+  const updated = await collection.findOneAndUpdate(
+    { _id: new ObjectId(userId) },
+    {
+      $set: {
+        passwordHash,
         updatedAt: new Date(),
       },
     },

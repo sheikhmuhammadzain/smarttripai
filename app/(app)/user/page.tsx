@@ -1,11 +1,13 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import PageScaffold from "@/components/PageScaffold";
+import UserAccountSettingsCard from "@/components/UserAccountSettingsCard";
 import UserPreferencesCard from "@/components/UserPreferencesCard";
 import { getAuthSession } from "@/lib/auth/get-session";
 import { listItinerariesService } from "@/modules/itineraries/itinerary.service";
 import { itineraryTitle } from "@/modules/itineraries/presenter";
 import { listUserOrdersService } from "@/modules/orders/order.service";
 import { getUserPreferencesService } from "@/modules/users/user-preference.service";
+import { getUserService } from "@/modules/users/user.service";
 import type { InterestTag } from "@/types/travel";
 
 export default async function UserPanelPage() {
@@ -25,10 +27,11 @@ export default async function UserPanelPage() {
     );
   }
 
-  const [itineraries, orders, preferences] = await Promise.all([
+  const [itineraries, orders, preferences, account] = await Promise.all([
     listItinerariesService(userId, undefined, 8),
     listUserOrdersService(userId, undefined, 8),
     getUserPreferencesService(userId),
+    getUserService(userId),
   ]);
 
   return (
@@ -36,8 +39,16 @@ export default async function UserPanelPage() {
       <section className="mb-6 grid gap-4 md:grid-cols-3">
         <StatCard label="Saved itineraries" value={String(itineraries.data.length)} />
         <StatCard label="Recent orders" value={String(orders.data.length)} />
-        <StatCard label="Email" value={session.user?.email ?? "N/A"} mono />
+        <StatCard label="Email" value={account.email ?? "N/A"} mono />
       </section>
+
+      <UserAccountSettingsCard
+        initial={{
+          name: account.name ?? "",
+          email: account.email ?? "",
+          phone: account.phone ?? "",
+        }}
+      />
 
       <UserPreferencesCard
         initial={{
