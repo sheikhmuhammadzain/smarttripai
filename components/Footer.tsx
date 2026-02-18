@@ -16,7 +16,7 @@ export default function Footer() {
                    <li><Link href="/legal" className="hover:text-white transition-colors">Legal Information</Link></li>
                    <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
                    <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-                   <li><a href="#" className="hover:text-white transition-colors">Cookie Preferences</a></li>
+                   <li><Link href="/privacy#cookies" className="hover:text-white transition-colors">Cookie Preferences</Link></li>
                 </ul>
              </div>
 
@@ -27,7 +27,7 @@ export default function Footer() {
                    <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
                    <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
                    <li><Link href="/press" className="hover:text-white transition-colors">Press</Link></li>
-                   <li><a href="#" className="hover:text-white transition-colors">Gift Cards</a></li>
+                   <li><Link href="/partners/affiliate" className="hover:text-white transition-colors">Gift Cards</Link></li>
                 </ul>
              </div>
 
@@ -43,7 +43,13 @@ export default function Footer() {
              <div>
                 <h4 className="font-bold text-gray-200 mb-4 uppercase tracking-wider text-xs">Mobile</h4>
                 <div className="flex flex-col gap-3">
-                   <button className="flex items-center gap-3 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors border border-gray-700 w-fit">
+                   <a
+                     href="https://apps.apple.com/"
+                     target="_blank"
+                     rel="noreferrer"
+                     className="flex items-center gap-3 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors border border-gray-700 w-fit"
+                     aria-label="Download on the App Store"
+                   >
                       <Image
                         src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
                         alt="App Store"
@@ -52,8 +58,14 @@ export default function Footer() {
                         className="h-6 w-auto"
                         unoptimized
                       />
-                   </button>
-                   <button className="flex items-center gap-3 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors border border-gray-700 w-fit">
+                   </a>
+                   <a
+                     href="https://play.google.com/store"
+                     target="_blank"
+                     rel="noreferrer"
+                     className="flex items-center gap-3 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors border border-gray-700 w-fit"
+                     aria-label="Get it on Google Play"
+                   >
                       <Image
                         src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
                         alt="Google Play"
@@ -62,7 +74,7 @@ export default function Footer() {
                         className="h-6 w-auto"
                         unoptimized
                       />
-                   </button>
+                   </a>
                 </div>
              </div>
           </div>
@@ -79,11 +91,11 @@ export default function Footer() {
              </div>
 
              <div className="flex items-center gap-4">
-                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white"><Facebook className="w-4 h-4" /></a>
-                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white"><Twitter className="w-4 h-4" /></a>
-                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white"><Instagram className="w-4 h-4" /></a>
-                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white"><Youtube className="w-4 h-4" /></a>
-                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white"><Linkedin className="w-4 h-4" /></a>
+                <a href="https://www.facebook.com/getyourguide" target="_blank" rel="noreferrer" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white" aria-label="GetYourGuide on Facebook"><Facebook className="w-4 h-4" /></a>
+                <a href="https://x.com/getyourguide" target="_blank" rel="noreferrer" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white" aria-label="GetYourGuide on X"><Twitter className="w-4 h-4" /></a>
+                <a href="https://www.instagram.com/getyourguide" target="_blank" rel="noreferrer" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white" aria-label="GetYourGuide on Instagram"><Instagram className="w-4 h-4" /></a>
+                <a href="https://www.youtube.com/getyourguide" target="_blank" rel="noreferrer" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white" aria-label="GetYourGuide on YouTube"><Youtube className="w-4 h-4" /></a>
+                <a href="https://www.linkedin.com/company/getyourguide" target="_blank" rel="noreferrer" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white" aria-label="GetYourGuide on LinkedIn"><Linkedin className="w-4 h-4" /></a>
              </div>
           </div>
        </div>

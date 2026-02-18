@@ -19,6 +19,7 @@ export default function Header() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [wishlistCount, setWishlistCount] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
   const accountRef = useRef<HTMLDivElement | null>(null);
   const { preferences, setPreferences } = useAppPreferences();
 
@@ -128,6 +129,30 @@ export default function Header() {
     };
   }, []);
 
+  useEffect(() => {
+    function readCartCount() {
+      try {
+        const raw = window.localStorage.getItem('gyg_cart_v1');
+        if (!raw) return 0;
+        const items = JSON.parse(raw) as Array<{ quantity?: number }>;
+        if (!Array.isArray(items)) return 0;
+        return items.reduce((sum, item) => sum + (Number(item?.quantity) || 0), 0);
+      } catch {
+        return 0;
+      }
+    }
+
+    setCartCount(readCartCount());
+
+    function onCartChanged(event: Event) {
+      const custom = event as CustomEvent<{ itemCount?: number }>;
+      setCartCount(custom.detail?.itemCount ?? readCartCount());
+    }
+
+    window.addEventListener('cart:changed', onCartChanged as EventListener);
+    return () => window.removeEventListener('cart:changed', onCartChanged as EventListener);
+  }, []);
+
   async function handleLogout() {
     await signOut({ callbackUrl: '/auth/signin' });
   }
@@ -159,10 +184,10 @@ export default function Header() {
               aria-label="Search destination"
               className="flex-1 h-full outline-none text-gray-700 placeholder-gray-500 font-medium text-[15px]"
             />
-              <button type="submit" aria-label="Plan trip" className="h-9 px-6 bg-brand hover:bg-brand-hover text-white font-bold rounded-full transition-colors text-[14px] flex items-center gap-2">
-                Search
-              </button>
-            </form>
+            <button type="submit" aria-label="Plan trip" className="h-9 px-6 bg-brand hover:bg-brand-hover text-white font-bold rounded-full transition-colors text-[14px] flex items-center gap-2">
+              Search
+            </button>
+          </form>
         </div>
 
 
@@ -171,9 +196,8 @@ export default function Header() {
           <Link href="/wishlist" className="p-1.5 md:p-0 flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group" aria-label="View wishlist">
             <div className="relative">
               <Heart
-                className={`w-5 h-5 md:w-6 md:h-6 stroke-[1.6] ${
-                  wishlistCount > 0 ? 'fill-red-500 text-red-500' : ''
-                }`}
+                className={`w-5 h-5 md:w-6 md:h-6 stroke-[1.6] ${wishlistCount > 0 ? 'fill-red-500 text-red-500' : ''
+                  }`}
                 aria-hidden="true"
               />
               {wishlistCount > 0 ? (
@@ -185,7 +209,14 @@ export default function Header() {
             <span className="text-[11px] font-medium hidden md:block">Wishlist</span>
           </Link>
           <Link href="/cart" className="p-1.5 md:p-0 flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group" aria-label="View cart">
-            <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" aria-hidden="true" />
+            <div className="relative">
+              <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" aria-hidden="true" />
+              {cartCount > 0 ? (
+                <span className="absolute -right-2 -top-1 inline-flex min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                  {cartCount > 9 ? '9+' : cartCount}
+                </span>
+              ) : null}
+            </div>
             <span className="text-[11px] font-medium hidden md:block">Cart</span>
           </Link>
           <button
