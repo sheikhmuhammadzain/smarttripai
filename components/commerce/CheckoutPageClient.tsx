@@ -165,6 +165,7 @@ export default function CheckoutPageClient() {
         </div>
 
         <button
+          type="submit"
           disabled={isSubmitting}
           className="mt-6 rounded-full bg-brand px-6 py-2.5 font-semibold text-white disabled:opacity-70"
         >

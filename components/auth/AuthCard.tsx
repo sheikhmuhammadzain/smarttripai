@@ -102,6 +102,7 @@ export default function AuthCard({ mode }: AuthCardProps) {
         </label>
 
         <button
+          type="submit"
           disabled={isLoading}
           className="w-full rounded-full bg-brand px-5 py-2.5 font-semibold text-white disabled:opacity-70"
         >

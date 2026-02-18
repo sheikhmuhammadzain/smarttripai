@@ -605,8 +605,21 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
                 <span className="truncate font-semibold text-text-heading">Admin Operations</span>
               </div>
               <div className="flex w-full items-center gap-2 sm:w-auto">
-                <button className="rounded-lg border border-border-default bg-white px-3 py-2 text-xs font-semibold text-text-body">Manage</button>
-                <button className="rounded-lg border border-border-default bg-white px-3 py-2 text-xs font-semibold text-text-body">Share</button>
+                <Link
+                  href="/admin"
+                  className="rounded-lg border border-border-default bg-white px-3 py-2 text-xs font-semibold text-text-body"
+                >
+                  Manage
+                </Link>
+                <button
+                  onClick={() => {
+                    void navigator.clipboard.writeText(typeof window !== "undefined" ? window.location.href : "");
+                    setMessage("Admin link copied");
+                  }}
+                  className="rounded-lg border border-border-default bg-white px-3 py-2 text-xs font-semibold text-text-body"
+                >
+                  Share
+                </button>
               </div>
             </div>
           </header>
@@ -629,7 +642,7 @@ export default function AdminPanelClient(props: AdminPanelClientProps) {
               <div className="mb-2 flex items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-text-heading">{chartModel.title}</p>
                 <div className="flex items-center gap-1">
-                  <button className="rounded-md bg-surface-brand-soft px-2 py-1 text-xs font-semibold text-text-brand">6M</button>
+                  <span className="rounded-md bg-surface-brand-soft px-2 py-1 text-xs font-semibold text-text-brand">6M</span>
                 </div>
               </div>
               <div className="no-scrollbar max-w-full overflow-x-auto">

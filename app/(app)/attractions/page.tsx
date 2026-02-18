@@ -47,7 +47,7 @@ export default async function AttractionsPage({
             className="h-10 w-full rounded-lg border border-gray-300 px-3 outline-none focus:border-blue-600"
           />
         </label>
-        <button className="md:col-span-3 w-fit rounded-full bg-brand px-5 py-2 font-semibold text-white">
+        <button type="submit" className="md:col-span-3 w-fit rounded-full bg-brand px-5 py-2 font-semibold text-white">
           Apply Filters
         </button>
       </form>
