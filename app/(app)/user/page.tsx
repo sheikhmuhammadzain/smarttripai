@@ -1,4 +1,5 @@
-import Link from "next/link";
+﻿import Link from "next/link";
+import CurrencyAmount from "@/components/CurrencyAmount";
 import PageScaffold from "@/components/PageScaffold";
 import UserAccountSettingsCard from "@/components/UserAccountSettingsCard";
 import UserPreferencesCard from "@/components/UserPreferencesCard";
@@ -86,7 +87,7 @@ export default async function UserPanelPage() {
               <article key={order.id} className="rounded-lg border border-gray-100 p-3">
                 <p className="font-medium">{order.orderCode}</p>
                 <p className="text-xs text-gray-500">
-                  {order.total} {order.currency} | {order.customer.email} | {new Date(order.createdAt).toLocaleString()}
+                  <CurrencyAmount amount={order.total} baseCurrency={order.currency} /> | {order.customer.email} | {new Date(order.createdAt).toLocaleString()}
                 </p>
               </article>
             ))}

@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { products } from "@/lib/data";
-import { useAppPreferences } from "@/lib/preferences-client";
 import ProductCard from "./ProductCard";
 
 interface WishlistResponse {
@@ -12,8 +11,6 @@ interface WishlistResponse {
 
 export default function ProductList() {
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
-  const [conversionRates, setConversionRates] = useState<Record<string, number>>({});
-  const { preferences } = useAppPreferences();
 
   useEffect(() => {
     let cancelled = false;
@@ -43,48 +40,6 @@ export default function ProductList() {
   }, []);
 
   const wishlistSet = useMemo(() => new Set(wishlistIds), [wishlistIds]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadRates() {
-      const baseCurrencies = Array.from(new Set(products.map((item) => item.currency)));
-      const nextRates: Record<string, number> = {};
-
-      await Promise.all(
-        baseCurrencies.map(async (base) => {
-          if (base === preferences.currency) {
-            nextRates[base] = 1;
-            return;
-          }
-
-          try {
-            const response = await fetch(
-              `/api/v1/realtime/currency?base=${encodeURIComponent(base)}&target=${encodeURIComponent(preferences.currency)}`,
-              { cache: "no-store" },
-            );
-            if (!response.ok) {
-              nextRates[base] = 1;
-              return;
-            }
-            const body = (await response.json()) as { rate?: number };
-            nextRates[base] = typeof body.rate === "number" && Number.isFinite(body.rate) ? body.rate : 1;
-          } catch {
-            nextRates[base] = 1;
-          }
-        }),
-      );
-
-      if (!cancelled) {
-        setConversionRates(nextRates);
-      }
-    }
-
-    void loadRates();
-    return () => {
-      cancelled = true;
-    };
-  }, [preferences.currency]);
 
   async function toggleWishlist(productId: string) {
     try {
@@ -119,9 +74,6 @@ export default function ProductList() {
           product={product}
           isWishlisted={wishlistSet.has(product.id)}
           onToggleWishlist={toggleWishlist}
-          language={preferences.language}
-          currency={preferences.currency}
-          conversionRates={conversionRates}
         />
       ))}
     </div>

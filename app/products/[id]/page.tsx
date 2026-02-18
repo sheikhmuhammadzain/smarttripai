@@ -1,8 +1,9 @@
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
 import Image from "next/image";
 import AddToCartButton from "@/components/commerce/AddToCartButton";
+import CurrencyAmount from "@/components/CurrencyAmount";
 import PageScaffold from "@/components/PageScaffold";
-import { formatPrice, getProductById } from "@/lib/data";
+import { getProductById } from "@/lib/data";
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,9 +22,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
         <div className="space-y-5 rounded-2xl border border-gray-200 bg-white p-6">
           <p className="text-sm text-gray-600">
-            {product.location} • {product.category} • {product.duration}
+            {product.location} | {product.category} | {product.duration}
           </p>
-          <p className="text-2xl font-bold">{formatPrice(product)} per traveler</p>
+          <p className="text-2xl font-bold">
+            <CurrencyAmount amount={product.price} baseCurrency={product.currency} /> per traveler
+          </p>
           <p className="text-sm text-gray-700">
             Rated {product.rating} ({product.reviews} reviews)
           </p>

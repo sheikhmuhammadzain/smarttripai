@@ -1,5 +1,6 @@
 ﻿import Link from "next/link";
 import { redirect } from "next/navigation";
+import CurrencyAmount from "@/components/CurrencyAmount";
 import PageScaffold from "@/components/PageScaffold";
 import { getAuthSession } from "@/lib/auth/get-session";
 import { isAdminSession } from "@/modules/auth/guards";
@@ -104,7 +105,7 @@ function DashboardContent({
               <div key={order.id} className="rounded-lg border border-gray-100 p-3 text-sm">
                 <p className="font-medium">{order.orderCode}</p>
                 <p className="text-gray-600">
-                  {order.total} {order.currency} | {new Date(order.createdAt).toLocaleString()}
+                  <CurrencyAmount amount={order.total} baseCurrency={order.currency} /> | {new Date(order.createdAt).toLocaleString()}
                 </p>
               </div>
             ))}
@@ -124,7 +125,7 @@ function DashboardContent({
               <p className="mb-3 line-clamp-3 text-sm text-gray-600">{itinerary.notes || "No notes"}</p>
               {parsed ? (
                 <p className="mb-3 text-xs text-gray-500">
-                  {parsed.days.length} days | {parsed.totalEstimatedCostTRY} TRY
+                  {parsed.days.length} days | <CurrencyAmount amount={parsed.totalEstimatedCostTRY} baseCurrency="TRY" />
                 </p>
               ) : null}
               <Link

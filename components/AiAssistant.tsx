@@ -4,6 +4,7 @@ import { MessageSquare, X, Send, Bot, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import CurrencyAmount from "@/components/CurrencyAmount";
 
 interface ChatMessage {
   id: string;
@@ -374,7 +375,7 @@ export default function AiAssistant() {
                             <p className="mt-0.5 text-gray-400">{item.location} · ⭐ {item.rating.toFixed(1)}</p>
                           </div>
                           <p className="shrink-0 font-semibold text-brand">
-                            {item.price} {item.currency}
+                            <CurrencyAmount amount={item.price} baseCurrency={item.currency} />
                           </p>
                         </a>
                       ))}
@@ -387,7 +388,8 @@ export default function AiAssistant() {
                       href={message.agent.booking.checkoutUrl}
                       className="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-brand-hover"
                     >
-                      Book now · {message.agent.booking.estimatedTotal} {message.agent.booking.currency}
+                      Book now ·{" "}
+                      <CurrencyAmount amount={message.agent.booking.estimatedTotal} baseCurrency={message.agent.booking.currency} />
                     </a>
                   )}
                 </div>
@@ -465,4 +467,3 @@ function TypingDots() {
     </span>
   );
 }
-

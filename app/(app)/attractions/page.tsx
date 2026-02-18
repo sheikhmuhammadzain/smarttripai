@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import CurrencyAmount from "@/components/CurrencyAmount";
 import PageScaffold from "@/components/PageScaffold";
 import { listAttractionsService } from "@/modules/attractions/attraction.service";
 
@@ -61,8 +62,8 @@ export default async function AttractionsPage({
             <article key={item.id} className="rounded-xl border border-gray-200 bg-white p-5">
               <h2 className="text-lg font-semibold">{item.name}</h2>
               <p className="mt-1 text-sm text-gray-600">
-                {item.city} â€¢ {item.avgDurationMin} min â€¢ {item.ticketPriceRange?.min ?? 0}-
-                {item.ticketPriceRange?.max ?? 0} {item.ticketPriceRange?.currency ?? "TRY"}
+                {item.city} | {item.avgDurationMin} min | <CurrencyAmount amount={item.ticketPriceRange?.min ?? 0} baseCurrency={item.ticketPriceRange?.currency ?? "TRY"} />-
+                <CurrencyAmount amount={item.ticketPriceRange?.max ?? 0} baseCurrency={item.ticketPriceRange?.currency ?? "TRY"} />
               </p>
               <p className="mt-3 text-sm text-gray-700">{item.description}</p>
               <p className="mt-3 text-xs text-gray-500">Tags: {item.tags.join(", ")}</p>
@@ -79,4 +80,3 @@ export default async function AttractionsPage({
     </PageScaffold>
   );
 }
-

@@ -237,46 +237,44 @@ export default function ItineraryGenerator() {
     }
   }
 
+  /* ── shared select class ── */
+  const selectCls =
+    'w-full h-11 pl-10 pr-4 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 font-medium outline-none appearance-none cursor-pointer transition-colors focus:border-brand focus:ring-2 focus:ring-brand/10';
+
   return (
-    <div className="w-full bg-blue-50/50 p-6 md:p-8 rounded-2xl border border-blue-100 shadow-lg mb-8">
-      <div className="flex items-center gap-4 mb-6">
-        <div className="p-2.5 bg-brand text-white rounded-xl shadow-md">
-          <Sparkles className="w-6 h-6" />
+    <div className="w-full bg-white border border-gray-200 rounded-2xl p-6 md:p-8 mb-8">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-7">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand">
+          <Sparkles className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h2 className="text-xl md:text-2xl font-bold text-text-heading">AI Itinerary Planner</h2>
-          <p className="text-sm text-gray-500">Plan your perfect trip to Turkey in seconds</p>
+          <h2 className="text-lg font-bold text-gray-900 leading-tight">AI Itinerary Planner</h2>
+          <p className="text-xs text-gray-400 mt-0.5">Plan your perfect trip to Turkey in seconds</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="relative">
-          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Where to?</label>
-          <div className="relative group">
-            <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors w-5 h-5" />
-            <select
-              value={destination}
-              onChange={(event) => setDestination(event.target.value)}
-              className="w-full h-12 pl-11 pr-4 bg-white border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 text-gray-700 outline-none appearance-none cursor-pointer text-sm font-medium"
-            >
+      {/* Row 1 — 4 core fields */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* Where to */}
+        <div>
+          <label className="block text-[10px] font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">Where to?</label>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
+            <select value={destination} onChange={(e) => setDestination(e.target.value)} className={selectCls}>
               {DESTINATIONS.map((item) => (
-                <option key={item} value={item}>
-                  {item.charAt(0).toUpperCase() + item.slice(1)}
-                </option>
+                <option key={item} value={item}>{item.charAt(0).toUpperCase() + item.slice(1)}</option>
               ))}
             </select>
           </div>
         </div>
 
-        <div className="relative">
-          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">How long?</label>
-          <div className="relative group">
-            <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors w-5 h-5" />
-            <select
-              value={duration}
-              onChange={(event) => setDuration(event.target.value)}
-              className="w-full h-12 pl-11 pr-4 bg-white border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 text-gray-700 outline-none appearance-none cursor-pointer text-sm font-medium"
-            >
+        {/* How long */}
+        <div>
+          <label className="block text-[10px] font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">How long?</label>
+          <div className="relative">
+            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
+            <select value={duration} onChange={(e) => setDuration(e.target.value)} className={selectCls}>
               <option value="1-3">1-3 Days</option>
               <option value="4-7">4-7 Days</option>
               <option value="8-14">8-14 Days</option>
@@ -285,15 +283,12 @@ export default function ItineraryGenerator() {
           </div>
         </div>
 
-        <div className="relative">
-          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Interest</label>
-          <div className="relative group">
-            <Sparkles className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors w-5 h-5" />
-            <select
-              value={interest}
-              onChange={(event) => setInterest(event.target.value as InterestTag)}
-              className="w-full h-12 pl-11 pr-4 bg-white border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 text-gray-700 outline-none appearance-none cursor-pointer text-sm font-medium"
-            >
+        {/* Interest */}
+        <div>
+          <label className="block text-[10px] font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">Interest</label>
+          <div className="relative">
+            <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
+            <select value={interest} onChange={(e) => setInterest(e.target.value as InterestTag)} className={selectCls}>
               <option value="culture">Culture & History</option>
               <option value="adventure">Adventure</option>
               <option value="food">Food & Culinary</option>
@@ -303,15 +298,12 @@ export default function ItineraryGenerator() {
           </div>
         </div>
 
-        <div className="relative">
-          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Budget</label>
-          <div className="relative group">
-            <DollarSign className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors w-5 h-5" />
-            <select
-              value={budget}
-              onChange={(event) => setBudget(event.target.value as BudgetLevel)}
-              className="w-full h-12 pl-11 pr-4 bg-white border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 text-gray-700 outline-none appearance-none cursor-pointer text-sm font-medium"
-            >
+        {/* Budget */}
+        <div>
+          <label className="block text-[10px] font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">Budget</label>
+          <div className="relative">
+            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
+            <select value={budget} onChange={(e) => setBudget(e.target.value as BudgetLevel)} className={selectCls}>
               <option value="budget">Budget Friendly</option>
               <option value="standard">Standard</option>
               <option value="luxury">Luxury</option>
@@ -320,116 +312,132 @@ export default function ItineraryGenerator() {
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase text-gray-600">Transport from</span>
+      {/* Row 2 — Transport */}
+      <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-[10px] font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">Transport from</label>
           <select
             value={transportFrom}
-            onChange={(event) => setTransportFrom(event.target.value)}
-            className="h-10 w-full rounded-lg border border-gray-300 px-3 outline-none focus:border-blue-600"
+            onChange={(e) => setTransportFrom(e.target.value)}
+            className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm text-gray-800 font-medium outline-none appearance-none cursor-pointer focus:border-brand focus:ring-2 focus:ring-brand/10 transition-colors bg-white"
           >
             {DESTINATIONS.map((item) => (
-              <option key={`from-${item}`} value={item}>
-                {item.charAt(0).toUpperCase() + item.slice(1)}
-              </option>
+              <option key={`from-${item}`} value={item}>{item.charAt(0).toUpperCase() + item.slice(1)}</option>
             ))}
           </select>
-        </label>
+        </div>
 
-        <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase text-gray-600">Transport mode</span>
+        <div>
+          <label className="block text-[10px] font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">Transport mode</label>
           <select
             value={transportMode}
-            onChange={(event) => setTransportMode(event.target.value as 'car' | 'bus' | 'flight')}
-            className="h-10 w-full rounded-lg border border-gray-300 px-3 outline-none focus:border-blue-600"
+            onChange={(e) => setTransportMode(e.target.value as 'car' | 'bus' | 'flight')}
+            className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm text-gray-800 font-medium outline-none appearance-none cursor-pointer focus:border-brand focus:ring-2 focus:ring-brand/10 transition-colors bg-white"
           >
             <option value="bus">Bus</option>
             <option value="car">Car</option>
             <option value="flight">Flight</option>
           </select>
-        </label>
-      </div>
-
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="rounded-xl border border-blue-100 bg-white p-3 flex items-center gap-3">
-          <CloudSun className="w-5 h-5 text-blue-600" />
-          <div>
-            <p className="text-xs text-gray-500">Weather ({weather?.city ?? WEATHER_CITY_MAP[destination]})</p>
-            <p className="text-sm font-semibold">
-              {realtimeLoading ? 'Loading...' : weather ? `${Math.round(weather.temperatureC)}C, ${weather.description}` : 'Unavailable'}
-            </p>
-            {weather?.hourly?.[0] ? (
-              <p className="text-xs text-gray-500">Next: {Math.round(weather.hourly[0].temperatureC)}C at {new Date(weather.hourly[0].time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-blue-100 bg-white p-3 flex items-center gap-3">
-          <Banknote className="w-5 h-5 text-blue-600" />
-          <div>
-            <p className="text-xs text-gray-500">Currency (USD to TRY)</p>
-            <p className="text-sm font-semibold">
-              {realtimeLoading ? 'Loading...' : currency ? `1 ${currency.base} = ${currency.rate.toFixed(2)} ${currency.target}` : 'Unavailable'}
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-blue-100 bg-white p-3 flex items-center gap-3">
-          <Bus className="w-5 h-5 text-blue-600" />
-          <div>
-            <p className="text-xs text-gray-500">Transport ({transportFrom} to {destination})</p>
-            <p className="text-sm font-semibold">
-              {realtimeLoading ? 'Loading...' : transport ? `${transport.distanceKm} km, ~${transport.estimatedDurationHours}h` : 'Unavailable'}
-            </p>
-            {transport?.recommendation ? <p className="text-xs text-gray-500">{transport.recommendation}</p> : null}
-          </div>
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-end gap-3">
-        <button
-          disabled={loading}
-          onClick={handleGenerate}
-          className="bg-brand hover:bg-brand-hover disabled:opacity-70 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform active:scale-95 duration-100"
-        >
-          <Sparkles className="w-5 h-5 fill-current" />
-          {loading ? 'Generating...' : 'Generate My Itinerary'}
-        </button>
+      {/* Row 3 — Live info strips */}
+      <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* Weather */}
+        <div className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+          <CloudSun className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+          <div className="min-w-0">
+            <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Weather ({weather?.city ?? WEATHER_CITY_MAP[destination]})</p>
+            <p className="mt-0.5 text-sm font-semibold text-gray-800 truncate">
+              {realtimeLoading ? <span className="animate-pulse text-gray-300">—</span> : weather ? `${Math.round(weather.temperatureC)}°C, ${weather.description}` : 'Unavailable'}
+            </p>
+            {weather?.hourly?.[0] && (
+              <p className="text-[11px] text-gray-400">
+                Next: {Math.round(weather.hourly[0].temperatureC)}°C at{' '}
+                {new Date(weather.hourly[0].time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </p>
+            )}
+          </div>
+        </div>
 
-        {result && (
+        {/* Currency */}
+        <div className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+          <Banknote className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+          <div className="min-w-0">
+            <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Currency (USD to TRY)</p>
+            <p className="mt-0.5 text-sm font-semibold text-gray-800">
+              {realtimeLoading ? <span className="animate-pulse text-gray-300">—</span> : currency ? `1 ${currency.base} = ${currency.rate.toFixed(2)} ${currency.target}` : 'Unavailable'}
+            </p>
+          </div>
+        </div>
+
+        {/* Transport info */}
+        <div className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+          <Bus className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+          <div className="min-w-0">
+            <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Transport ({transportFrom} → {destination})</p>
+            <p className="mt-0.5 text-sm font-semibold text-gray-800">
+              {realtimeLoading ? <span className="animate-pulse text-gray-300">—</span> : transport ? `${transport.distanceKm} km, ~${transport.estimatedDurationHours}h` : 'Unavailable'}
+            </p>
+            {transport?.recommendation && (
+              <p className="text-[11px] text-gray-400 line-clamp-2">{transport.recommendation}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Divider + Actions */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-5">
+        <div className="flex flex-wrap gap-2">
+          {error && <p className="text-xs text-red-500">{error}</p>}
+          {saveResult && <p className="text-xs text-gray-500">{saveResult}</p>}
+          {savedItineraryId && (
+            <Link
+              href={`/itineraries/${savedItineraryId}`}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-gray-300 hover:bg-gray-50"
+            >
+              View saved itinerary →
+            </Link>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 ml-auto">
+          {result && (
+            <button
+              disabled={saving}
+              onClick={handleSave}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+            >
+              <Save className="w-3.5 h-3.5" />
+              {saving ? 'Saving…' : 'Save'}
+            </button>
+          )}
           <button
-            disabled={saving}
-            onClick={handleSave}
-            className="bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-70 text-text-heading font-bold py-3 px-6 rounded-full shadow-sm transition-all flex items-center gap-2"
+            disabled={loading}
+            onClick={handleGenerate}
+            className="inline-flex items-center gap-2 rounded-lg bg-brand px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-hover active:scale-95 disabled:opacity-50"
           >
-            <Save className="w-4 h-4" />
-            {saving ? 'Saving...' : 'Save Itinerary'}
+            <Sparkles className="w-4 h-4 fill-current" />
+            {loading ? 'Generating…' : 'Generate My Itinerary'}
           </button>
-        )}
+        </div>
       </div>
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
-      {saveResult && <p className="mt-4 text-sm text-gray-700">{saveResult}</p>}
-      {savedItineraryId ? (
-        <Link
-          href={`/itineraries/${savedItineraryId}`}
-          className="mt-2 inline-flex rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700"
-        >
-          Open saved itinerary
-        </Link>
-      ) : null}
-
+      {/* Results preview */}
       {result && (
-        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-5">
-          <h3 className="font-bold text-lg mb-1">{result.title}</h3>
-          <p className="text-sm text-gray-600 mb-4">Estimated total: {result.totalEstimatedCostTRY} TRY</p>
-          <div className="space-y-3">
+        <div className="mt-5 rounded-xl border border-gray-200 bg-white p-5">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <h3 className="font-bold text-base text-gray-900">{result.title}</h3>
+            <span className="shrink-0 text-xs font-medium text-gray-400">{result.totalEstimatedCostTRY} TRY</span>
+          </div>
+          <div className="space-y-2">
             {result.days.slice(0, 3).map((day) => (
-              <div key={day.day} className="rounded-lg border border-gray-100 p-3">
-                <p className="font-semibold text-sm">Day {day.day} - {day.city}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {day.items.length} activities, {day.notes[0] ?? 'Curated by AI'}
-                </p>
+              <div key={day.day} className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/10 text-[11px] font-bold text-brand">{day.day}</span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-800 truncate">{day.city}</p>
+                  <p className="text-[11px] text-gray-400">{day.items.length} activities · {day.notes[0] ?? 'Curated by AI'}</p>
+                </div>
               </div>
             ))}
           </div>

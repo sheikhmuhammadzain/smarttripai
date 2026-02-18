@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { formatPrice, products } from "@/lib/data";
+import CurrencyAmount from "@/components/CurrencyAmount";
+import { products } from "@/lib/data";
 
 interface WishlistResponse {
   items: string[];
@@ -94,10 +95,12 @@ export default function WishlistPageClient() {
         <article key={product.id} className="rounded-xl border border-gray-200 bg-white p-4">
           <h2 className="text-lg font-semibold">{product.title}</h2>
           <p className="mt-1 text-sm text-gray-600">
-            {product.location} â€¢ {product.duration}
+            {product.location} | {product.duration}
           </p>
           <p className="mt-2 text-sm text-gray-700">{product.summary}</p>
-          <p className="mt-3 text-sm font-semibold">{formatPrice(product)}</p>
+          <p className="mt-3 text-sm font-semibold">
+            <CurrencyAmount amount={product.price} baseCurrency={product.currency} />
+          </p>
           <div className="mt-4 flex gap-2">
             <Link
               href={`/products/${product.id}`}
