@@ -4,9 +4,11 @@
 import { Heart, ShoppingCart, Globe, User, LogOut, ChevronDown, Shield, Settings, LogIn } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { GETYOURGUIDE_LOGO_DATA_URI } from '@/components/branding/logo';
+import { products } from '@/lib/data';
 import LanguageCurrencyDialog from '@/components/LanguageCurrencyDialog';
 import { useAppPreferences } from '@/lib/preferences-client';
 
@@ -21,8 +23,13 @@ export default function Header() {
   const [wishlistCount, setWishlistCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);
   const [activeQuery, setActiveQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
   const accountRef = useRef<HTMLDivElement | null>(null);
+  const searchRef = useRef<HTMLFormElement | null>(null);
   const { preferences, setPreferences } = useAppPreferences();
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -34,6 +41,46 @@ export default function Header() {
       setActiveQuery('');
     }
   }, []);
+
+  useEffect(() => {
+    setSearchInput(activeQuery);
+  }, [activeQuery]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+    }, 280);
+
+    return () => window.clearTimeout(timer);
+  }, [searchInput]);
+
+  useEffect(() => {
+    function onPointerDown(event: MouseEvent) {
+      if (!searchRef.current) return;
+      if (!searchRef.current.contains(event.target as Node)) {
+        setSearchFocused(false);
+      }
+    }
+
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
+  }, []);
+
+  const headerSuggestions = debouncedSearch.length < 2
+    ? []
+    : products
+      .filter((product) => {
+        const haystack = `${product.title} ${product.location} ${product.category} ${product.summary}`.toLowerCase();
+        return haystack.includes(debouncedSearch.toLowerCase());
+      })
+      .slice(0, 6);
+
+  function submitSearch(value?: string) {
+    const query = (value ?? searchInput).trim();
+    if (!query) return;
+    setSearchFocused(false);
+    router.push(`/search?q=${encodeURIComponent(query)}`);
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -186,20 +233,50 @@ export default function Header() {
 
         {/* Search Bar - conditionally visible */}
         <div className={`hidden md:block flex-1 max-w-[640px] transition-opacity duration-300 ${showSearch ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
-          <form action="/" role="search" className="relative flex items-center w-full h-11 rounded-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow bg-white overflow-hidden pl-5 pr-1 py-1 group focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500">
+          <form
+            ref={searchRef}
+            action="/search"
+            role="search"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitSearch();
+            }}
+            className="relative flex items-center w-full h-11 rounded-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow bg-white overflow-visible pl-5 pr-1 py-1 group focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500"
+          >
             {/* Find places text usually goes here but screenshot shows just placeholder */}
             <input
               type="search"
               name="q"
               id="header-search-destination"
               placeholder="Find places and things to do"
-              defaultValue={activeQuery}
+              value={searchInput}
+              onFocus={() => setSearchFocused(true)}
+              onChange={(event) => setSearchInput(event.target.value)}
               aria-label="Search destination"
               className="flex-1 h-full outline-none text-gray-700 placeholder-gray-500 font-medium text-[15px]"
             />
             <button type="submit" aria-label="Plan trip" className="h-9 px-6 bg-brand hover:bg-brand-hover text-white font-bold rounded-full transition-colors text-[14px] flex items-center gap-2">
               Search
             </button>
+
+            {searchFocused && headerSuggestions.length > 0 ? (
+              <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-2xl border border-gray-200 bg-white shadow-2xl">
+                <ul className="max-h-80 overflow-y-auto py-2">
+                  {headerSuggestions.map((product) => (
+                    <li key={product.id}>
+                      <button
+                        type="button"
+                        onClick={() => submitSearch(product.title)}
+                        className="w-full px-4 py-2.5 text-left hover:bg-gray-50"
+                      >
+                        <p className="text-sm font-semibold text-gray-900">{product.title}</p>
+                        <p className="text-xs text-gray-500">{product.location} | {product.category}</p>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </form>
         </div>
 

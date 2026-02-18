@@ -4,14 +4,7 @@ import Footer from '@/components/Footer';
 import LandingInteractiveSection from '@/components/LandingInteractiveSection';
 import AiAssistantLazy from '@/components/AiAssistantLazy';
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string; destination?: string }>;
-}) {
-  const queryParams = await searchParams;
-  const searchQuery = (queryParams.q ?? queryParams.destination ?? '').trim();
-
+export default function Home() {
   return (
     <div className="min-h-screen bg-white font-sans text-text-heading">
       <Header />
@@ -20,7 +13,7 @@ export default async function Home({
         <HeroSection />
 
         <div className="max-w-[1320px] mx-auto px-4 md:px-6 pt-6 pb-20">
-          <LandingInteractiveSection searchQuery={searchQuery} />
+          <LandingInteractiveSection />
         </div>
       </main>
 

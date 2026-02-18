@@ -1,8 +1,57 @@
-﻿import { Star } from 'lucide-react';
+﻿'use client';
+
+import { Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { products } from '@/lib/data';
 
 export default function HeroSection() {
+  const router = useRouter();
+  const [input, setInput] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [focused, setFocused] = useState(false);
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedQuery(input.trim());
+    }, 280);
+
+    return () => window.clearTimeout(timer);
+  }, [input]);
+
+  useEffect(() => {
+    function onPointerDown(event: MouseEvent) {
+      if (!formRef.current) return;
+      if (!formRef.current.contains(event.target as Node)) {
+        setFocused(false);
+      }
+    }
+
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
+  }, []);
+
+  const suggestions = useMemo(() => {
+    if (debouncedQuery.length < 2) return [];
+    const q = debouncedQuery.toLowerCase();
+    return products
+      .filter((product) => {
+        const haystack = `${product.title} ${product.location} ${product.category} ${product.summary}`.toLowerCase();
+        return haystack.includes(q);
+      })
+      .slice(0, 6);
+  }, [debouncedQuery]);
+
+  function submitSearch(value?: string) {
+    const q = (value ?? input).trim();
+    if (!q) return;
+    setFocused(false);
+    router.push(`/search?q=${encodeURIComponent(q)}`);
+  }
+
   return (
     <div className="relative">
       <div className="relative w-full min-h-[640px] md:h-[580px]">
@@ -24,13 +73,21 @@ export default function HeroSection() {
 
           <div className="max-w-[640px] w-full mb-6 md:mb-12">
             <form
-              action="/"
-              className="relative flex items-center w-full h-14 md:h-16 rounded-full bg-white shadow-lg overflow-hidden pl-4 md:pl-6 pr-2"
+              ref={formRef}
+              action="/search"
+              onSubmit={(event) => {
+                event.preventDefault();
+                submitSearch();
+              }}
+              className="relative flex items-center w-full h-14 md:h-16 rounded-full bg-white shadow-lg overflow-visible pl-4 md:pl-6 pr-2"
             >
               <div className="flex-1 flex items-center h-full">
                 <input
                   name="q"
                   type="text"
+                  value={input}
+                  onFocus={() => setFocused(true)}
+                  onChange={(event) => setInput(event.target.value)}
                   placeholder="Find places and things to do in Turkey"
                   className="w-full h-full outline-none text-gray-700 placeholder-gray-500 font-medium text-base md:text-lg bg-transparent"
                 />
@@ -41,6 +98,25 @@ export default function HeroSection() {
               >
                 Search
               </button>
+
+              {focused && suggestions.length > 0 ? (
+                <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-50 rounded-2xl border border-gray-200 bg-white shadow-2xl">
+                  <ul className="max-h-80 overflow-y-auto py-2">
+                    {suggestions.map((product) => (
+                      <li key={product.id}>
+                        <button
+                          type="button"
+                          onClick={() => submitSearch(product.title)}
+                          className="w-full px-4 py-2.5 text-left hover:bg-gray-50"
+                        >
+                          <p className="text-sm font-semibold text-gray-900">{product.title}</p>
+                          <p className="text-xs text-gray-500">{product.location} | {product.category}</p>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </form>
           </div>
 
