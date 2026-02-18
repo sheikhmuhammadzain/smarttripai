@@ -31,6 +31,9 @@ export async function GET(request: Request) {
     if (error instanceof z.ZodError) {
       return problemResponse(fromZodError(error, instance));
     }
+    if (error instanceof SyntaxError) {
+      return problemResponse(fromUnknownError(new ApiError(400, "INVALID_JSON", "Malformed JSON body"), instance));
+    }
     return problemResponse(fromUnknownError(error, instance));
   }
 }
@@ -65,6 +68,9 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return problemResponse(fromZodError(error, instance));
+    }
+    if (error instanceof SyntaxError) {
+      return problemResponse(fromUnknownError(new ApiError(400, "INVALID_JSON", "Malformed JSON body"), instance));
     }
     return problemResponse(fromUnknownError(error, instance));
   }

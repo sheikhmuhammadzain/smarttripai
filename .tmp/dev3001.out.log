@@ -1,0 +1,13 @@
+
+> get-your-guide@0.1.0 dev C:\Users\ibrahim laptops\Desktop\projects\get-your-guide
+> next dev "-p" "3001"
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://172.29.160.1:3001
+- Environments: .env.local
+
+✓ Starting...
+  Suggestion: If you intended to restart next dev, terminate the other process, and then try again.
+[?25h
+ ELIFECYCLE  Command failed with exit code 1.

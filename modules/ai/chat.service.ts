@@ -97,11 +97,33 @@ export async function getAssistantSessionHistory(userId: string, sessionId: stri
 }
 
 export async function chatWithAssistant(input: ChatInput) {
-  const { userObjectId, messages } = await loadConversation(input);
+  let userObjectId: Types.ObjectId | null = null;
+  const fallbackMessages: Array<{ role: "user" | "assistant"; content: string; createdAt: Date }> = [
+    { role: "user", content: input.message, createdAt: new Date() },
+  ];
+  let messages = fallbackMessages;
   let agent: ChatAgentResult | null = null;
 
-  const client = getOpenRouterClient();
-  const model = getOpenRouterModel();
+  try {
+    const loaded = await loadConversation(input);
+    userObjectId = loaded.userObjectId;
+    messages = loaded.messages;
+  } catch (error) {
+    logger.warn("Assistant conversation load failed, using ephemeral context", {
+      error: error instanceof Error ? error.message : "unknown",
+    });
+  }
+
+  let client: ReturnType<typeof getOpenRouterClient> = null;
+  let model: ReturnType<typeof getOpenRouterModel> = null;
+  try {
+    client = getOpenRouterClient();
+    model = getOpenRouterModel();
+  } catch (error) {
+    logger.warn("Assistant model client init failed", {
+      error: error instanceof Error ? error.message : "unknown",
+    });
+  }
   let assistantReply = fallbackAssistantReply(input.message);
 
   try {
@@ -115,7 +137,7 @@ export async function chatWithAssistant(input: ChatInput) {
     // Keep default/fallback behavior.
   }
 
-  if ((!agent || !assistantReply.trim()) && client && model) {
+  if ((!agent || agent.intent === "general" || !assistantReply.trim()) && client && model) {
     try {
       const result = client.callModel({
         model,
@@ -127,8 +149,10 @@ export async function chatWithAssistant(input: ChatInput) {
       });
 
       const outputText = await result.getText();
-      if (outputText?.trim()) {
+      if (outputText?.trim() && outputText.trim().length >= 20) {
         assistantReply = outputText.trim();
+      } else if (agent?.assistantMessage?.trim()) {
+        assistantReply = agent.assistantMessage.trim();
       }
     } catch (error) {
       logger.warn("Assistant OpenRouter call failed, using fallback response", {
@@ -138,12 +162,28 @@ export async function chatWithAssistant(input: ChatInput) {
   }
 
   messages.push({ role: "assistant", content: assistantReply, createdAt: new Date() });
-  const persisted = await persistConversation(input, userObjectId, messages);
+  let sessionId = input.sessionId;
+  let suggestions = [
+    "Refine itinerary by city",
+    "Adjust budget assumptions",
+    "Add weather-aware suggestions",
+  ];
+  if (userObjectId) {
+    try {
+      const persisted = await persistConversation(input, userObjectId, messages);
+      sessionId = persisted.sessionId;
+      suggestions = persisted.suggestions;
+    } catch (error) {
+      logger.warn("Assistant conversation persistence failed", {
+        error: error instanceof Error ? error.message : "unknown",
+      });
+    }
+  }
 
   return {
-    sessionId: persisted.sessionId,
+    sessionId,
     reply: assistantReply,
-    suggestions: persisted.suggestions,
+    suggestions,
     agent,
   };
 }
@@ -153,11 +193,33 @@ export async function chatWithAssistantStream(
   onDelta: (delta: string) => void | Promise<void>,
   options?: { signal?: AbortSignal },
 ) {
-  const { userObjectId, messages } = await loadConversation(input);
+  let userObjectId: Types.ObjectId | null = null;
+  const fallbackMessages: Array<{ role: "user" | "assistant"; content: string; createdAt: Date }> = [
+    { role: "user", content: input.message, createdAt: new Date() },
+  ];
+  let messages = fallbackMessages;
   let agent: ChatAgentResult | null = null;
 
-  const client = getOpenRouterClient();
-  const model = getOpenRouterModel();
+  try {
+    const loaded = await loadConversation(input);
+    userObjectId = loaded.userObjectId;
+    messages = loaded.messages;
+  } catch (error) {
+    logger.warn("Assistant stream conversation load failed, using ephemeral context", {
+      error: error instanceof Error ? error.message : "unknown",
+    });
+  }
+
+  let client: ReturnType<typeof getOpenRouterClient> = null;
+  let model: ReturnType<typeof getOpenRouterModel> = null;
+  try {
+    client = getOpenRouterClient();
+    model = getOpenRouterModel();
+  } catch (error) {
+    logger.warn("Assistant stream model client init failed", {
+      error: error instanceof Error ? error.message : "unknown",
+    });
+  }
   let assistantReply = "";
 
   try {
@@ -236,12 +298,28 @@ export async function chatWithAssistantStream(
   }
 
   messages.push({ role: "assistant", content: assistantReply, createdAt: new Date() });
-  const persisted = await persistConversation(input, userObjectId, messages);
+  let sessionId = input.sessionId;
+  let suggestions = [
+    "Refine itinerary by city",
+    "Adjust budget assumptions",
+    "Add weather-aware suggestions",
+  ];
+  if (userObjectId) {
+    try {
+      const persisted = await persistConversation(input, userObjectId, messages);
+      sessionId = persisted.sessionId;
+      suggestions = persisted.suggestions;
+    } catch (error) {
+      logger.warn("Assistant stream conversation persistence failed", {
+        error: error instanceof Error ? error.message : "unknown",
+      });
+    }
+  }
 
   return {
-    sessionId: persisted.sessionId,
+    sessionId,
     reply: assistantReply,
-    suggestions: persisted.suggestions,
+    suggestions,
     agent,
   };
 }

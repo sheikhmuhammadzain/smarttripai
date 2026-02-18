@@ -1,0 +1,36 @@
+
+> get-your-guide@0.1.0 dev C:\Users\ibrahim laptops\Desktop\projects\get-your-guide
+> next dev
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://172.29.160.1:3000
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 1641ms
+ GET / 200 in 2.1s (compile: 1594ms, render: 548ms)
+ GET /api/v1/users/me 200 in 5.2s (compile: 1341ms, render: 3.9s)
+ GET /api/v1/wishlist 200 in 6.8s (compile: 1376ms, render: 5.4s)
+ GET /api/v1/admin/overview 403 in 83ms (compile: 62ms, render: 22ms)
+ GET /api/v1/realtime/currency?base=USD&target=TRY 200 in 5.8s (compile: 87ms, render: 5.7s)
+ GET /api/v1/realtime/transport?from=istanbul&to=istanbul&mode=bus 200 in 2.1s (compile: 38ms, render: 2.0s)
+ GET /api/v1/realtime/currency?base=USD&target=TRY 200 in 894ms (compile: 4ms, render: 891ms)
+ GET /api/v1/realtime/transport?from=istanbul&to=istanbul&mode=bus 200 in 908ms (compile: 9ms, render: 900ms)
+ GET /api/v1/realtime/weather?city=Istanbul&hours=6 200 in 7.0s (compile: 59ms, render: 7.0s)
+ GET /api/v1/wishlist 200 in 8.7s (compile: 1393ms, render: 7.3s)
+ GET /api/v1/users/me/preferences 200 in 7.3s (compile: 51ms, render: 7.3s)
+ GET /api/v1/realtime/weather?city=Istanbul&hours=6 200 in 493ms (compile: 1893µs, render: 491ms)
+ GET /api/v1/users/me/preferences 200 in 329ms (compile: 2ms, render: 327ms)
+ POST /api/v1/assistant/chat/stream 500 in 475ms (compile: 463ms, render: 12ms)
+ POST /api/v1/assistant/chat 500 in 93ms (compile: 50ms, render: 44ms)
+ POST /api/v1/assistant/chat/stream 500 in 768ms (compile: 731ms, render: 37ms)
+ POST /api/v1/assistant/chat 500 in 444ms (compile: 420ms, render: 25ms)
+ POST /api/v1/assistant/chat 200 in 2.9s (compile: 3ms, render: 2.9s)
+ POST /api/v1/assistant/chat/stream 200 in 8.4s (compile: 4ms, render: 8.4s)
+ POST /api/v1/assistant/chat/stream 200 in 10.7s (compile: 4ms, render: 10.7s)
+ POST /api/v1/assistant/chat 400 in 365ms (compile: 329ms, render: 36ms)
+ POST /api/v1/assistant/chat 200 in 4.4s (compile: 360ms, render: 4.0s)
+ POST /api/v1/assistant/chat/stream 400 in 334ms (compile: 306ms, render: 28ms)
+ POST /api/v1/assistant/chat 200 in 9.2s (compile: 390ms, render: 8.9s)
+ POST /api/v1/assistant/chat 200 in 8.3s (compile: 251ms, render: 8.1s)
