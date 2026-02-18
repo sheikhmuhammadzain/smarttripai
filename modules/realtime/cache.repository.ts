@@ -28,6 +28,6 @@ export async function setCachedPayload<T>(source: string, key: string, payload: 
         expiresAt,
       },
     },
-    { upsert: true, new: true, setDefaultsOnInsert: true },
+    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
   );
 }

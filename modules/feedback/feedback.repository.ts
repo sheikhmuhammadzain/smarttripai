@@ -66,7 +66,7 @@ export async function updateFeedbackById(
       ...(patch.message !== undefined ? { message: patch.message } : {}),
       ...(patch.rating !== undefined ? { rating: patch.rating } : {}),
     },
-    { new: true },
+    { returnDocument: "after" },
   ).lean();
 
   return updated;

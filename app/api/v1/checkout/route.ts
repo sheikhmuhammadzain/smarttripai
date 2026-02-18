@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     });
 
     const total = normalized.reduce((sum, item) => sum + item.lineTotal, 0);
-    const orderCode = `GYG-${Date.now()}`;
+    const orderCode = `GYG-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
     const currency = getProductById(normalized[0].productId)?.currency ?? "EUR";
 
     const order = await createOrderService({
@@ -68,6 +68,7 @@ export async function POST(request: Request) {
       `/checkout/success?orderId=${encodeURIComponent(order.orderCode)}`,
     );
   } catch (error) {
+    console.error("[checkout] failed to create order", error);
     if (error instanceof z.ZodError) {
       return problemResponse(fromZodError(error, instance));
     }

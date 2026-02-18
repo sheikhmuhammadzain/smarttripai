@@ -22,7 +22,7 @@ export async function toggleWishlistProduct(userId: string, productId: string) {
   const updated = await WishlistModel.findOneAndUpdate(
     { userId: toMongoUserId(userId) },
     { $set: { productIds: next } },
-    { upsert: true, new: true, setDefaultsOnInsert: true },
+    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
   ).lean();
 
   return {
@@ -36,7 +36,7 @@ export async function removeWishlistProduct(userId: string, productId: string) {
   const updated = await WishlistModel.findOneAndUpdate(
     { userId: toMongoUserId(userId) },
     { $pull: { productIds: productId } },
-    { new: true },
+    { returnDocument: "after" },
   ).lean();
 
   return updated?.productIds ?? [];

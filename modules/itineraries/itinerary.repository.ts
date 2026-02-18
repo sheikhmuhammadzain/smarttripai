@@ -112,7 +112,7 @@ export async function updateUserItineraryById(params: {
       ...(params.status ? { status: params.status } : {}),
       $inc: { version: 1 },
     },
-    { new: true },
+    { returnDocument: "after" },
   ).lean();
 
   if (!updated) {
@@ -157,7 +157,7 @@ export async function updateAnyItineraryById(params: {
       ...(params.status ? { status: params.status } : {}),
       $inc: { version: 1 },
     },
-    { new: true },
+    { returnDocument: "after" },
   ).lean();
 
   if (!updated) {

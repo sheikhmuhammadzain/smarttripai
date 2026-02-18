@@ -108,7 +108,7 @@ export async function updateOrderById(
       ...(patch.status ? { status: patch.status } : {}),
       ...(patch.customerEmail ? { "customer.email": patch.customerEmail.toLowerCase() } : {}),
     },
-    { new: true },
+    { returnDocument: "after" },
   ).lean();
 
   if (!updated) {

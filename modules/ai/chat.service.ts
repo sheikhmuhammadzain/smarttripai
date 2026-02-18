@@ -55,7 +55,7 @@ async function persistConversation(input: ChatInput, userObjectId: Types.ObjectI
     },
     {
       upsert: true,
-      new: true,
+      returnDocument: "after",
       setDefaultsOnInsert: true,
     },
   ).lean();

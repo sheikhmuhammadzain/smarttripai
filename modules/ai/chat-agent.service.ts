@@ -236,7 +236,83 @@ export async function runChatAgent(message: string): Promise<ChatAgentResult> {
       url: `/products/${product.id}`,
     }));
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const requestBody = {
+      model: env.OPENROUTER_MODEL ?? "meta-llama/llama-3.1-8b-instruct:free",
+      temperature: 0.2,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a Turkey travel chat agent. Return ONLY valid JSON. Help users with recommendations and booking guidance using provided product catalog.",
+        },
+        {
+          role: "user",
+          content: JSON.stringify({
+            userMessage: message,
+            productCatalog: catalog,
+            rules: [
+              "If user asks for recommendation, set intent=recommendation and include 1-3 recommendations.",
+              "If user asks to book/reserve, set intent=booking and include booking action for one product.",
+              "If no clear task, intent=general and answer naturally and concisely based on user message.",
+            ],
+          }),
+        },
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "chat_agent_response",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              intent: { type: "string", enum: ["recommendation", "booking", "general"] },
+              assistantMessage: { type: "string" },
+              recommendations: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    productId: { type: "string" },
+                    title: { type: "string" },
+                    location: { type: "string" },
+                    price: { type: "number" },
+                    currency: { type: "string" },
+                    rating: { type: "number" },
+                    reason: { type: "string" },
+                    url: { type: "string" },
+                  },
+                  required: ["productId", "title", "location", "price", "currency", "rating", "reason", "url"],
+                  additionalProperties: false,
+                },
+              },
+              booking: {
+                anyOf: [
+                  { type: "null" },
+                  {
+                    type: "object",
+                    properties: {
+                      productId: { type: "string" },
+                      title: { type: "string" },
+                      quantity: { type: "number" },
+                      estimatedTotal: { type: "number" },
+                      currency: { type: "string" },
+                      checkoutUrl: { type: "string" },
+                    },
+                    required: ["productId", "title", "quantity", "estimatedTotal", "currency", "checkoutUrl"],
+                    additionalProperties: false,
+                  },
+                ],
+              },
+            },
+            required: ["intent", "assistantMessage", "recommendations", "booking"],
+            additionalProperties: false,
+          },
+        },
+      },
+    };
+
+    let response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
@@ -244,82 +320,34 @@ export async function runChatAgent(message: string): Promise<ChatAgentResult> {
         ...(env.OPENROUTER_SITE_URL ? { "HTTP-Referer": env.OPENROUTER_SITE_URL } : {}),
         ...(env.OPENROUTER_APP_NAME ? { "X-Title": env.OPENROUTER_APP_NAME } : {}),
       },
-      body: JSON.stringify({
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok && response.status === 400) {
+      const fallbackBody = {
         model: env.OPENROUTER_MODEL ?? "meta-llama/llama-3.1-8b-instruct:free",
         temperature: 0.2,
         messages: [
           {
             role: "system",
             content:
-              "You are a Turkey travel chat agent. Return ONLY valid JSON. Help users with recommendations and booking guidance using provided product catalog.",
+              "You are a Turkey travel chat agent. Return ONLY valid JSON object with keys: intent, assistantMessage, recommendations, booking.",
           },
-          {
-            role: "user",
-            content: JSON.stringify({
-              userMessage: message,
-              productCatalog: catalog,
-              rules: [
-                "If user asks for recommendation, set intent=recommendation and include 1-3 recommendations.",
-                "If user asks to book/reserve, set intent=booking and include booking action for one product.",
-                "If no clear task, intent=general and answer naturally and concisely based on user message.",
-              ],
-            }),
-          },
+          requestBody.messages[1],
         ],
-        response_format: {
-          type: "json_schema",
-          json_schema: {
-            name: "chat_agent_response",
-            strict: true,
-            schema: {
-              type: "object",
-              properties: {
-                intent: { type: "string", enum: ["recommendation", "booking", "general"] },
-                assistantMessage: { type: "string" },
-                recommendations: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      productId: { type: "string" },
-                      title: { type: "string" },
-                      location: { type: "string" },
-                      price: { type: "number" },
-                      currency: { type: "string" },
-                      rating: { type: "number" },
-                      reason: { type: "string" },
-                      url: { type: "string" },
-                    },
-                    required: ["productId", "title", "location", "price", "currency", "rating", "reason", "url"],
-                    additionalProperties: false,
-                  },
-                },
-                booking: {
-                  anyOf: [
-                    { type: "null" },
-                    {
-                      type: "object",
-                      properties: {
-                        productId: { type: "string" },
-                        title: { type: "string" },
-                        quantity: { type: "number" },
-                        estimatedTotal: { type: "number" },
-                        currency: { type: "string" },
-                        checkoutUrl: { type: "string" },
-                      },
-                      required: ["productId", "title", "quantity", "estimatedTotal", "currency", "checkoutUrl"],
-                      additionalProperties: false,
-                    },
-                  ],
-                },
-              },
-              required: ["intent", "assistantMessage", "recommendations", "booking"],
-              additionalProperties: false,
-            },
-          },
+      };
+
+      response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
+          "content-type": "application/json",
+          ...(env.OPENROUTER_SITE_URL ? { "HTTP-Referer": env.OPENROUTER_SITE_URL } : {}),
+          ...(env.OPENROUTER_APP_NAME ? { "X-Title": env.OPENROUTER_APP_NAME } : {}),
         },
-      }),
-    });
+        body: JSON.stringify(fallbackBody),
+      });
+    }
 
     if (!response.ok) {
       throw new Error(`Chat agent failed with ${response.status}`);

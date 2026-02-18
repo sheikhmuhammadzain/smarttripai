@@ -35,7 +35,7 @@ export async function upsertUserPreferences(userId: string, patch: PreferencesPa
       ...(patch.preferredInterests !== undefined ? { preferredInterests: patch.preferredInterests } : {}),
       ...(patch.savedMap !== undefined ? { savedMap: patch.savedMap } : {}),
     },
-    { upsert: true, new: true, setDefaultsOnInsert: true },
+    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
   ).lean();
 
   return updated;
