@@ -1,7 +1,9 @@
 ﻿"use client";
 
-import { MessageSquare, X, Send, Sparkles } from "lucide-react";
+import { MessageSquare, X, Send, Bot, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface ChatMessage {
   id: string;
@@ -285,119 +287,182 @@ export default function AiAssistant() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6 sm:gap-4">
+    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3 sm:bottom-7 sm:right-7">
+      {/* Chat Window */}
       {isOpen && (
-        <div className="h-[72vh] max-h-[680px] w-[min(92vw,430px)] rounded-3xl border border-gray-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.24)] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-10 duration-200">
-          <div className="bg-gradient-to-r from-brand to-blue-500 px-4 py-4 flex items-center justify-between text-white">
+        <div
+          className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl"
+          style={{
+            width: "min(92vw, 400px)",
+            height: "min(80vh, 640px)",
+            boxShadow: "0 24px 64px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.06)",
+          }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3.5">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/20 rounded-xl">
-                <Sparkles className="w-5 h-5" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand">
+                <Bot className="h-4 w-4 text-white" />
               </div>
               <div>
-                <h3 className="font-bold text-base leading-none">Turkey AI Agent</h3>
-                <p className="mt-1 text-xs opacity-95">Online</p>
+                <p className="text-sm font-semibold text-gray-900 leading-none">Turkey AI Agent</p>
+                <p className="mt-0.5 text-xs text-emerald-500 font-medium">● Online</p>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1.5 hover:bg-white/20 rounded-full transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+              aria-label="Close"
             >
-              <X className="w-5 h-5" />
+              <ChevronDown className="h-4 w-4" />
             </button>
           </div>
 
-          <div ref={scrollRef} className="flex-1 bg-gradient-to-b from-slate-50 to-slate-100/60 px-3 py-4 sm:px-4 overflow-y-auto flex flex-col gap-4">
+          {/* Messages */}
+          <div
+            ref={scrollRef}
+            className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-4"
+            style={{ scrollbarWidth: "thin", scrollbarColor: "#e5e7eb transparent" }}
+          >
             {messages.map((message) => (
-              <div key={message.id} className={message.role === "assistant" ? "max-w-[88%]" : "max-w-[88%] self-end"}>
-                <div
-                  className={
-                    message.role === "assistant"
-                      ? "flex gap-2"
-                      : "flex gap-2 self-end flex-row-reverse"
-                  }
-                >
-                  {message.role === "assistant" && (
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 border border-blue-200 shadow-sm">
-                      <Sparkles className="w-4 h-4 text-brand" />
-                    </div>
-                  )}
+              <div
+                key={message.id}
+                className={`flex gap-2.5 ${message.role === "user" ? "flex-row-reverse" : ""}`}
+              >
+                {/* Avatar */}
+                {message.role === "assistant" && (
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 border border-blue-100">
+                    <Bot className="h-3.5 w-3.5 text-brand" />
+                  </div>
+                )}
+
+                <div className={`flex flex-col gap-1.5 ${message.role === "user" ? "items-end" : "items-start"} max-w-[82%]`}>
+                  {/* Bubble */}
                   <div
                     className={
-                      message.role === "assistant"
-                        ? "bg-white px-3.5 py-3 rounded-2xl rounded-tl-none border border-gray-200 shadow-sm text-[15px] leading-7 text-gray-700"
-                        : "bg-brand text-white px-3.5 py-3 rounded-2xl rounded-tr-none shadow-md text-[15px] leading-7"
+                      message.role === "user"
+                        ? "rounded-2xl rounded-tr-sm bg-brand px-3.5 py-2.5 text-sm text-white"
+                        : "rounded-2xl rounded-tl-sm border border-gray-100 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-800"
                     }
                   >
-                    {message.content || (message.role === "assistant" && isSending ? "..." : "")}
+                    {message.role === "assistant" ? (
+                      message.content ? (
+                        <div className="prose-chat">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
+                      ) : isSending ? (
+                        <TypingDots />
+                      ) : null
+                    ) : (
+                      <span>{message.content}</span>
+                    )}
                   </div>
+
+                  {/* Product cards */}
+                  {message.role === "assistant" && message.agent?.recommendations && message.agent.recommendations.length > 0 && (
+                    <div className="w-full space-y-1.5 pt-1">
+                      {message.agent.recommendations.slice(0, 3).map((item) => (
+                        <a
+                          key={`${message.id}-${item.productId}`}
+                          href={item.url}
+                          className="group flex items-start gap-2.5 rounded-xl border border-gray-200 bg-white p-2.5 text-xs transition-colors hover:border-brand/40 hover:bg-blue-50/40"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-gray-800 truncate group-hover:text-brand transition-colors">{item.title}</p>
+                            <p className="mt-0.5 text-gray-400">{item.location} · ⭐ {item.rating.toFixed(1)}</p>
+                          </div>
+                          <p className="shrink-0 font-semibold text-brand">
+                            {item.price} {item.currency}
+                          </p>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Booking CTA */}
+                  {message.role === "assistant" && message.agent?.booking && (
+                    <a
+                      href={message.agent.booking.checkoutUrl}
+                      className="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-brand-hover"
+                    >
+                      Book now · {message.agent.booking.estimatedTotal} {message.agent.booking.currency}
+                    </a>
+                  )}
                 </div>
-
-                {message.role === "assistant" && message.agent ? (
-                  <div className="ml-10 mt-2 space-y-2">
-                    {message.agent.recommendations.length > 0 ? (
-                      <div className="grid gap-2">
-                        {message.agent.recommendations.slice(0, 3).map((item) => (
-                          <a
-                            key={`${message.id}-${item.productId}`}
-                            href={item.url}
-                            className="block rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs shadow-sm hover:border-blue-300"
-                          >
-                            <p className="font-semibold text-text-primary">{item.title}</p>
-                            <p className="mt-0.5 text-text-muted">{item.location} • {item.rating.toFixed(1)}★</p>
-                            <p className="mt-1 font-semibold text-brand">From {item.price} {item.currency}</p>
-                          </a>
-                        ))}
-                      </div>
-                    ) : null}
-
-                    {message.agent.booking ? (
-                      <a
-                        href={message.agent.booking.checkoutUrl}
-                        className="inline-flex items-center rounded-full bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-hover"
-                      >
-                        Book {message.agent.booking.title} ({message.agent.booking.estimatedTotal} {message.agent.booking.currency})
-                      </a>
-                    ) : null}
-                  </div>
-                ) : null}
               </div>
             ))}
+
+            {/* Standalone typing indicator when no placeholder exists yet */}
+            {isSending && messages[messages.length - 1]?.role === "user" && (
+              <div className="flex gap-2.5">
+                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 border border-blue-100">
+                  <Bot className="h-3.5 w-3.5 text-brand" />
+                </div>
+                <div className="rounded-2xl rounded-tl-sm border border-gray-100 bg-gray-50 px-3.5 py-2.5">
+                  <TypingDots />
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="p-3 sm:p-3.5 bg-white border-t border-gray-200">
-            <div className="relative flex items-center gap-2">
+          {/* Input */}
+          <div className="border-t border-gray-100 bg-white p-3">
+            <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 focus-within:border-brand/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand/10 transition-all">
               <input
                 type="text"
                 value={input}
-                onChange={(event) => setInput(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
                     void sendMessage();
                   }
                 }}
-                placeholder="Ask anything about Turkey..."
-                className="w-full pl-4 pr-12 py-3.5 bg-slate-50 border border-gray-300 rounded-xl focus:outline-none focus:border-brand focus:ring-2 focus:ring-blue-100 text-[15px]"
+                placeholder="Ask anything about Turkey…"
+                className="flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none"
               />
               <button
-                disabled={isSending}
+                disabled={isSending || !input.trim()}
                 onClick={() => void sendMessage()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-70"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand text-white transition-all hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Send"
               >
-                <Send className="w-4 h-4" />
+                <Send className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
         </div>
       )}
 
+      {/* FAB */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="h-14 w-14 sm:h-16 sm:w-16 bg-brand hover:bg-brand-hover text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center group relative"
+        className="flex h-13 w-13 items-center justify-center rounded-full bg-brand text-white shadow-lg transition-all hover:bg-brand-hover hover:shadow-xl active:scale-95"
+        aria-label={isOpen ? "Close assistant" : "Open assistant"}
       >
-        {isOpen ? <X className="w-7 h-7" /> : <MessageSquare className="w-7 h-7 fill-current" />}
+        {isOpen ? (
+          <X className="h-5 w-5" />
+        ) : (
+          <MessageSquare className="h-5 w-5 fill-current" />
+        )}
       </button>
     </div>
+  );
+}
+
+function TypingDots() {
+  return (
+    <span className="flex items-center gap-1 py-0.5">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-bounce"
+          style={{ animationDelay: `${i * 0.15}s`, animationDuration: "0.9s" }}
+        />
+      ))}
+    </span>
   );
 }
 

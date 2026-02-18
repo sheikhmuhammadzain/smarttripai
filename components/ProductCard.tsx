@@ -3,15 +3,34 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
-import { formatPrice, type Product } from "@/lib/data";
+import { type Product } from "@/lib/data";
+import { getLanguageLocale, type AppLanguage, type AppCurrency } from "@/lib/preferences-client";
 
 interface ProductCardProps {
   product: Product;
   isWishlisted: boolean;
   onToggleWishlist: (productId: string) => void;
+  language: AppLanguage;
+  currency: AppCurrency;
+  conversionRates: Record<string, number>;
 }
 
-export default function ProductCard({ product, isWishlisted, onToggleWishlist }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  isWishlisted,
+  onToggleWishlist,
+  language,
+  currency,
+  conversionRates,
+}: ProductCardProps) {
+  const baseRate = conversionRates[product.currency] ?? 1;
+  const converted = Math.round(product.price * baseRate);
+  const formattedPrice = new Intl.NumberFormat(getLanguageLocale(language), {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(converted);
+
   return (
     <Link
       href={`/products/${product.id}`}
@@ -85,7 +104,7 @@ export default function ProductCard({ product, isWishlisted, onToggleWishlist }:
 
         <div className="mt-1">
           <span className="text-xs text-gray-500">From </span>
-          <span className="font-bold text-text-heading">{formatPrice(product)}</span>
+          <span className="font-bold text-text-heading">{formattedPrice}</span>
           <span className="text-xs text-gray-500"> per person</span>
         </div>
 

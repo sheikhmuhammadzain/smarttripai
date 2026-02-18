@@ -7,16 +7,20 @@ import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { GETYOURGUIDE_LOGO_DATA_URI } from '@/components/branding/logo';
+import LanguageCurrencyDialog from '@/components/LanguageCurrencyDialog';
+import { useAppPreferences } from '@/lib/preferences-client';
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [accountLoading, setAccountLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [wishlistCount, setWishlistCount] = useState(0);
   const accountRef = useRef<HTMLDivElement | null>(null);
+  const { preferences, setPreferences } = useAppPreferences();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -184,9 +188,15 @@ export default function Header() {
             <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" aria-hidden="true" />
             <span className="text-[11px] font-medium hidden md:block">Cart</span>
           </Link>
-          <button className="p-1.5 md:p-0 flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group" aria-label="Change language and currency">
+          <button
+            onClick={() => setPreferencesOpen(true)}
+            className="p-1.5 md:p-0 flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group"
+            aria-label="Change language and currency"
+          >
             <Globe className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" aria-hidden="true" />
-            <span className="text-[11px] font-medium hidden md:block">EN/USD $</span>
+            <span className="text-[11px] font-medium hidden md:block">
+              {preferences.language.toUpperCase()}/{preferences.currency}
+            </span>
           </button>
           <div ref={accountRef} className="relative">
             <button
@@ -295,6 +305,13 @@ export default function Header() {
           </Link>
         </nav>
       </div>
+
+      <LanguageCurrencyDialog
+        open={preferencesOpen}
+        preferences={preferences}
+        onClose={() => setPreferencesOpen(false)}
+        onChange={setPreferences}
+      />
     </header>
   );
 }

@@ -111,3 +111,121 @@ a {
   mask-image: linear-gradient(to right, black 85%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
 }
+
+/* ---------- AI chat message markdown ---------- */
+.prose-chat {
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.6;
+  color: inherit;
+}
+
+.prose-chat p {
+  margin: 0 0 0.5rem;
+}
+
+.prose-chat p:last-child {
+  margin-bottom: 0;
+}
+
+.prose-chat ul,
+.prose-chat ol {
+  margin: 0.4rem 0 0.5rem 1.1rem;
+  padding: 0;
+}
+
+.prose-chat li {
+  margin-bottom: 0.2rem;
+}
+
+.prose-chat strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.prose-chat em {
+  font-style: italic;
+}
+
+.prose-chat code {
+  font-size: 0.75rem;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+}
+
+.prose-chat pre {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-size: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.prose-chat pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+.prose-chat blockquote {
+  border-left: 3px solid #e5e7eb;
+  padding-left: 0.75rem;
+  margin: 0.4rem 0;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.prose-chat h1,
+.prose-chat h2,
+.prose-chat h3 {
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0.6rem 0 0.25rem;
+  color: #111827;
+}
+
+.prose-chat h1 {
+  font-size: 0.9375rem;
+}
+.prose-chat h2 {
+  font-size: 0.875rem;
+}
+.prose-chat h3 {
+  font-size: 0.8125rem;
+}
+
+.prose-chat a {
+  color: #0071eb;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-chat table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.prose-chat th,
+.prose-chat td {
+  border: 1px solid #e5e7eb;
+  padding: 0.3rem 0.5rem;
+  text-align: left;
+}
+
+.prose-chat th {
+  background: #f9fafb;
+  font-weight: 600;
+}
+
+.prose-chat hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 0.6rem 0;
+}

@@ -1,15 +1,17 @@
-﻿"use client";
+"use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getProductById } from "@/lib/data";
-import { computeCartTotal } from "@/modules/commerce/cart";
+import { getLanguageLocale, useAppPreferences } from "@/lib/preferences-client";
 import { useCartState } from "@/components/commerce/cart-client";
 
 export default function CheckoutPageClient() {
   const router = useRouter();
   const { items, clearCart } = useCartState();
+  const { preferences } = useAppPreferences();
+  const [conversionRates, setConversionRates] = useState<Record<string, number>>({});
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -17,13 +19,70 @@ export default function CheckoutPageClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const total = useMemo(() => computeCartTotal(items), [items]);
-  const currency = getProductById(items[0]?.productId ?? "")?.currency ?? "EUR";
-  const formattedTotal = new Intl.NumberFormat("en-US", {
+  const convertedTotal = useMemo(
+    () =>
+      items.reduce((sum, item) => {
+        const product = getProductById(item.productId);
+        if (!product) return sum;
+        const rate = conversionRates[product.currency] ?? 1;
+        return sum + product.price * item.quantity * rate;
+      }, 0),
+    [conversionRates, items],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadRates() {
+      const bases = Array.from(
+        new Set(
+          items
+            .map((item) => getProductById(item.productId)?.currency)
+            .filter((value): value is string => Boolean(value)),
+        ),
+      );
+
+      const nextRates: Record<string, number> = {};
+      await Promise.all(
+        bases.map(async (base) => {
+          if (base === preferences.currency) {
+            nextRates[base] = 1;
+            return;
+          }
+
+          try {
+            const response = await fetch(
+              `/api/v1/realtime/currency?base=${encodeURIComponent(base)}&target=${encodeURIComponent(preferences.currency)}`,
+              { cache: "no-store" },
+            );
+            if (!response.ok) {
+              nextRates[base] = 1;
+              return;
+            }
+            const body = (await response.json()) as { rate?: number };
+            nextRates[base] = typeof body.rate === "number" && Number.isFinite(body.rate) ? body.rate : 1;
+          } catch {
+            nextRates[base] = 1;
+          }
+        }),
+      );
+
+      if (!cancelled) {
+        setConversionRates(nextRates);
+      }
+    }
+
+    void loadRates();
+    return () => {
+      cancelled = true;
+    };
+  }, [items, preferences.currency]);
+
+  const formattedTotal = new Intl.NumberFormat(getLanguageLocale(preferences.language), {
     style: "currency",
-    currency,
+    currency: preferences.currency,
     maximumFractionDigits: 0,
-  }).format(total);
+  }).format(Math.round(convertedTotal));
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -117,6 +176,9 @@ export default function CheckoutPageClient() {
       <aside className="h-fit rounded-xl border border-gray-200 bg-gray-50 p-5">
         <p className="text-sm text-gray-600">Order Summary</p>
         <p className="mt-1 text-2xl font-bold">{formattedTotal}</p>
+        <p className="mt-1 text-xs text-gray-500">
+          Charged amount may vary by payment processor conversion at checkout.
+        </p>
         <ul className="mt-3 space-y-2 text-sm text-gray-700">
           {items.map((item) => {
             const product = getProductById(item.productId);
@@ -133,4 +195,3 @@ export default function CheckoutPageClient() {
     </div>
   );
 }
-
