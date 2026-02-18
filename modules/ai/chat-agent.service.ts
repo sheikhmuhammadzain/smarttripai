@@ -53,6 +53,25 @@ function isGreetingOrSmallTalk(message: string) {
   return smallTalkSet.has(compact);
 }
 
+function fallbackGeneralAssistantMessage(message: string) {
+  const normalized = message.trim().toLowerCase();
+  const compact = normalized.replace(/[^\p{L}\p{N}\s]/gu, "").trim();
+
+  if (compact === "who are you") {
+    return "I am your Turkey travel assistant. I can help you choose destinations, build day-by-day plans, suggest activities, and guide bookings.";
+  }
+
+  if (compact === "what can you do") {
+    return "I can recommend Turkey experiences, build a trip itinerary by budget and interests, and help you decide what to book first.";
+  }
+
+  if (compact === "how are you") {
+    return "I am ready to help you plan your Turkey trip. Tell me your destination, trip length, and budget.";
+  }
+
+  return "Hi. Tell me your destination, trip length, budget, and interests, and I will create a personalized Turkey plan.";
+}
+
 function wantsRecommendations(message: string) {
   const lower = message.toLowerCase();
   return /\b(recommend|suggest|best|top|where to go|things to do|plan|itinerary|trip|tour|activity|activities)\b/.test(lower);
@@ -94,8 +113,7 @@ function fallbackAgentResponse(message: string): ChatAgentResult {
   if (!wantsSuggest || isGreetingOrSmallTalk(message)) {
     return {
       intent: "general",
-      assistantMessage:
-        "Hi. Share destination city, number of days, budget, and interests, and I will create a personalized Turkey plan.",
+      assistantMessage: fallbackGeneralAssistantMessage(message),
       recommendations: [],
       booking: null,
     };
@@ -243,7 +261,7 @@ export async function runChatAgent(message: string): Promise<ChatAgentResult> {
               rules: [
                 "If user asks for recommendation, set intent=recommendation and include 1-3 recommendations.",
                 "If user asks to book/reserve, set intent=booking and include booking action for one product.",
-                "If no clear task, intent=general and provide concise clarification prompt.",
+                "If no clear task, intent=general and answer naturally and concisely based on user message.",
               ],
             }),
           },

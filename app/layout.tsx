@@ -62,6 +62,11 @@ export const metadata: Metadata = {
     google: 'your-google-verification-code',
     yandex: 'your-yandex-verification-code',
   },
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -106,8 +111,6 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="canonical" href="https://getyourguide.com" />
-        <link rel="icon" href="/globe.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content={BRAND_HEX} />
         <script
           type="application/ld+json"

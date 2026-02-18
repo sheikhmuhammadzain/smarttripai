@@ -106,7 +106,11 @@ export async function chatWithAssistant(input: ChatInput) {
 
   try {
     agent = await runChatAgent(input.message);
-    assistantReply = agent.assistantMessage || assistantReply;
+    if (agent.intent === "recommendation" || agent.intent === "booking") {
+      assistantReply = agent.assistantMessage || assistantReply;
+    } else if (!client || !model) {
+      assistantReply = agent.assistantMessage || assistantReply;
+    }
   } catch {
     // Keep default/fallback behavior.
   }
@@ -162,7 +166,17 @@ export async function chatWithAssistantStream(
     // Ignore agent failure and fallback to model streaming.
   }
 
-  if (agent?.assistantMessage) {
+  if (agent?.assistantMessage && (agent.intent === "recommendation" || agent.intent === "booking")) {
+    const chunks = agent.assistantMessage.match(/.{1,20}(\s|$)/g) ?? [agent.assistantMessage];
+    for (const chunk of chunks) {
+      if (options?.signal?.aborted) {
+        break;
+      }
+      assistantReply += chunk;
+      await onDelta(chunk);
+      await new Promise((resolve) => setTimeout(resolve, 18));
+    }
+  } else if (agent?.assistantMessage && (!client || !model)) {
     const chunks = agent.assistantMessage.match(/.{1,20}(\s|$)/g) ?? [agent.assistantMessage];
     for (const chunk of chunks) {
       if (options?.signal?.aborted) {
