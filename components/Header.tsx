@@ -1,7 +1,7 @@
 ﻿
 'use client';
 
-import { Heart, ShoppingCart, Globe, User, LogOut, ChevronDown, Shield, Settings, LogIn } from 'lucide-react';
+import { Heart, ShoppingCart, Globe, Settings, User, LogOut, LogIn, Shield, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -14,8 +14,9 @@ import { useAppPreferences } from '@/lib/preferences-client';
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
-  const [accountOpen, setAccountOpen] = useState(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement | null>(null);
   const [accountLoading, setAccountLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -26,7 +27,6 @@ export default function Header() {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
-  const accountRef = useRef<HTMLDivElement | null>(null);
   const searchRef = useRef<HTMLFormElement | null>(null);
   const { preferences, setPreferences } = useAppPreferences();
   const router = useRouter();
@@ -139,18 +139,6 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    function onPointerDown(event: MouseEvent) {
-      if (!accountRef.current) return;
-      if (!accountRef.current.contains(event.target as Node)) {
-        setAccountOpen(false);
-      }
-    }
-
-    document.addEventListener('mousedown', onPointerDown);
-    return () => document.removeEventListener('mousedown', onPointerDown);
-  }, []);
-
-  useEffect(() => {
     let cancelled = false;
 
     async function loadWishlistCount() {
@@ -215,6 +203,17 @@ export default function Header() {
   async function handleLogout() {
     await signOut({ callbackUrl: '/auth/signin' });
   }
+
+  useEffect(() => {
+    function onPointerDown(event: MouseEvent) {
+      if (!accountRef.current) return;
+      if (!accountRef.current.contains(event.target as Node)) {
+        setAccountOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
@@ -325,56 +324,58 @@ export default function Header() {
               className="p-1.5 md:p-0 flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 group"
               aria-label="Open account menu"
             >
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5">
                 <User className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" aria-hidden="true" />
-                <ChevronDown className="h-3.5 w-3.5 hidden md:block" aria-hidden="true" />
+                <ChevronDown className="h-3 w-3 hidden md:block" aria-hidden="true" />
               </div>
-              <span className="text-[11px] font-medium hidden md:block">Dashboard</span>
+              <span className="text-[11px] font-medium hidden md:block">
+                {isAuthenticated ? (userName ?? 'Account') : 'Account'}
+              </span>
             </button>
 
-            {accountOpen ? (
-              <div className="absolute right-0 top-[50px] md:top-[58px] w-56 sm:w-64 rounded-2xl border border-gray-200 bg-white p-2 shadow-2xl">
+            {accountOpen && (
+              <div className="absolute right-0 top-[calc(100%+10px)] w-56 rounded-2xl border border-gray-200 bg-white p-1.5 shadow-xl">
                 {accountLoading ? (
-                  <p className="px-3 py-2 text-sm text-gray-500">Loading...</p>
+                  <p className="px-3 py-2 text-sm text-gray-400">Loading…</p>
                 ) : isAuthenticated ? (
                   <>
-                    <div className="mb-1 rounded-xl bg-gray-50 px-3 py-2">
-                      <p className="text-xs uppercase tracking-wide text-gray-500">Signed in</p>
-                      <p className="text-sm font-semibold text-gray-900">{userName ?? 'Traveler'}</p>
+                    <div className="mb-1 rounded-xl bg-gray-50 px-3 py-2.5">
+                      <p className="text-[10px] uppercase tracking-widest text-gray-400">Signed in as</p>
+                      <p className="mt-0.5 text-sm font-semibold text-gray-900 truncate">{userName ?? 'Traveler'}</p>
                     </div>
-
                     <Link
                       href="/dashboard"
                       onClick={() => setAccountOpen(false)}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
-                      <User className="h-4 w-4" />
+                      <User className="h-4 w-4 text-gray-400" />
                       Dashboard
                     </Link>
                     <Link
-                      href="/user"
+                      href="/user/settings"
                       onClick={() => setAccountOpen(false)}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
-                      <Settings className="h-4 w-4" />
-                      User Panel
+                      <Settings className="h-4 w-4 text-gray-400" />
+                      Settings
                     </Link>
-                    {isAdmin ? (
+                    {isAdmin && (
                       <Link
                         href="/admin"
                         onClick={() => setAccountOpen(false)}
-                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       >
-                        <Shield className="h-4 w-4" />
+                        <Shield className="h-4 w-4 text-gray-400" />
                         Admin Panel
                       </Link>
-                    ) : null}
+                    )}
+                    <div className="my-1 border-t border-gray-100" />
                     <button
                       onClick={() => void handleLogout()}
-                      className="mt-1 flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-700 hover:bg-red-50"
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
                     >
                       <LogOut className="h-4 w-4" />
-                      Logout
+                      Sign out
                     </button>
                   </>
                 ) : (
@@ -382,23 +383,23 @@ export default function Header() {
                     <Link
                       href="/auth/signin"
                       onClick={() => setAccountOpen(false)}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
-                      <LogIn className="h-4 w-4" />
+                      <LogIn className="h-4 w-4 text-gray-400" />
                       Sign In
                     </Link>
                     <Link
                       href="/auth/signup"
                       onClick={() => setAccountOpen(false)}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
-                      <User className="h-4 w-4" />
+                      <User className="h-4 w-4 text-gray-400" />
                       Create Account
                     </Link>
                   </>
                 )}
               </div>
-            ) : null}
+            )}
           </div>
         </nav>
       </div>
