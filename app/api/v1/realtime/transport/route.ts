@@ -13,9 +13,10 @@ export async function GET(request: Request) {
       from: url.searchParams.get("from"),
       to: url.searchParams.get("to"),
       mode: url.searchParams.get("mode") ?? "bus",
+      departureAt: url.searchParams.get("departureAt") ?? undefined,
     });
 
-    const transport = await getTransportGuidance(query.from, query.to, query.mode);
+    const transport = await getTransportGuidance(query.from, query.to, query.mode, query.departureAt);
     return ok(transport);
   } catch (error) {
     if (error instanceof z.ZodError) {

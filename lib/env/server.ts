@@ -14,6 +14,7 @@ const envSchema = z.object({
   OPENWEATHER_API_KEY: z.string().optional(),
   EXCHANGERATE_API_KEY: z.string().optional(),
   GOOGLE_MAPS_API_KEY: z.string().optional(),
+  GOOGLE_DISTANCE_MATRIX_API_KEY: z.string().optional(),
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().optional(),
   SENTRY_DSN: z.string().optional(),
   ADMIN_EMAILS: z.string().optional(),

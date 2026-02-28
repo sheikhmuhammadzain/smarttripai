@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ShoppingCart, ArrowRight, Check } from "lucide-react";
 import { useCartState } from "@/components/commerce/cart-client";
 
 interface AddToCartButtonProps {
@@ -11,32 +12,64 @@ interface AddToCartButtonProps {
 export default function AddToCartButton({ productId }: AddToCartButtonProps) {
   const { addItem } = useCartState();
   const [quantity, setQuantity] = useState(1);
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState(false);
 
   function handleAdd() {
     addItem(productId, quantity);
-    setFeedback("Added to cart");
-    window.setTimeout(() => setFeedback(null), 1500);
+    setFeedback(true);
+    window.setTimeout(() => setFeedback(false), 2000);
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <input
-        type="number"
-        min={1}
-        max={10}
-        value={quantity}
-        onChange={(event) => setQuantity(Number(event.target.value))}
-        className="h-11 w-24 rounded-lg border border-gray-300 px-3"
-      />
-      <button onClick={handleAdd} className="rounded-full bg-brand px-6 py-2.5 font-semibold text-white">
-        Add to cart
-      </button>
-      <Link href="/cart" className="rounded-full border border-gray-300 px-6 py-2.5 font-semibold text-gray-700">
-        Go to cart
+    <div className="space-y-3">
+      {/* Quantity + Add */}
+      <div className="flex items-center gap-2.5">
+        <div className="flex items-center rounded-lg border border-border-default overflow-hidden">
+          <button
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            className="px-3 py-2.5 text-sm font-medium text-text-body transition-colors hover:bg-surface-subtle"
+            aria-label="Decrease quantity"
+          >
+            −
+          </button>
+          <span className="min-w-[2.5rem] text-center text-sm font-semibold text-text-primary border-x border-border-default py-2.5">
+            {quantity}
+          </span>
+          <button
+            onClick={() => setQuantity(Math.min(10, quantity + 1))}
+            className="px-3 py-2.5 text-sm font-medium text-text-body transition-colors hover:bg-surface-subtle"
+            aria-label="Increase quantity"
+          >
+            +
+          </button>
+        </div>
+
+        <button
+          onClick={handleAdd}
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+        >
+          {feedback ? (
+            <>
+              <Check className="h-4 w-4" />
+              Added
+            </>
+          ) : (
+            <>
+              <ShoppingCart className="h-4 w-4" />
+              Add to Cart
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Go to cart link */}
+      <Link
+        href="/cart"
+        className="flex items-center justify-center gap-1.5 rounded-lg border border-border-default px-5 py-2.5 text-sm font-medium text-text-body transition-colors hover:bg-surface-subtle"
+      >
+        View Cart
+        <ArrowRight className="h-3.5 w-3.5" />
       </Link>
-      {feedback ? <p className="text-sm text-gray-700">{feedback}</p> : null}
     </div>
   );
 }
-

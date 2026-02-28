@@ -38,7 +38,11 @@ export default function AuthCard({ mode }: AuthCardProps) {
     });
 
     if (!response || response.error) {
-      setError(isSignup ? "Account creation failed. Try a different email." : "Sign in failed. Check your email and password.");
+      setError(
+        isSignup
+          ? "Account creation failed. Use a unique email and a strong password (upper, lower, number, symbol)."
+          : "Sign in failed. Check your email and password.",
+      );
       setIsLoading(false);
       return;
     }
@@ -99,6 +103,11 @@ export default function AuthCard({ mode }: AuthCardProps) {
             className="h-11 w-full rounded-lg border border-gray-300 px-3 outline-none focus:border-blue-600"
             placeholder="Enter password"
           />
+          {isSignup ? (
+            <p className="mt-1 text-xs text-gray-500">
+              Use at least 8 characters with uppercase, lowercase, number, and symbol.
+            </p>
+          ) : null}
         </label>
 
         <button

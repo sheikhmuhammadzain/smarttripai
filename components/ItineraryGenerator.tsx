@@ -47,15 +47,19 @@ interface TransportData {
   distanceKm: number;
   estimatedDurationHours: number;
   recommendation: string;
+  source?: 'google-distance-matrix' | 'heuristic';
 }
 
 export default function ItineraryGenerator() {
-  const [destination, setDestination] = useState<string>('istanbul');
+  const [destinations, setDestinations] = useState<string[]>(['istanbul']);
   const [duration, setDuration] = useState<string>('4-7');
   const [interest, setInterest] = useState<InterestTag>('culture');
   const [budget, setBudget] = useState<BudgetLevel>('standard');
   const [transportFrom, setTransportFrom] = useState<string>('istanbul');
   const [transportMode, setTransportMode] = useState<'car' | 'bus' | 'flight'>('bus');
+  const [transportDepartureDate, setTransportDepartureDate] = useState<string>(() =>
+    new Date().toISOString().slice(0, 10),
+  );
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [realtimeLoading, setRealtimeLoading] = useState(false);
@@ -69,6 +73,22 @@ export default function ItineraryGenerator() {
   const [transport, setTransport] = useState<TransportData | null>(null);
 
   const daysSelected = useMemo(() => DURATION_DAYS[duration] ?? 5, [duration]);
+  const primaryDestination = destinations[0] ?? 'istanbul';
+
+  function toggleDestination(city: string) {
+    setDestinations((prev) => {
+      if (prev.includes(city)) {
+        if (prev.length === 1) {
+          return prev;
+        }
+        return prev.filter((item) => item !== city);
+      }
+      if (prev.length >= 4) {
+        return prev;
+      }
+      return [...prev, city];
+    });
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -93,9 +113,16 @@ export default function ItineraryGenerator() {
         if (body.preferredBudget) {
           setBudget(body.preferredBudget);
         }
-        if (body.preferredCities?.[0]) {
-          setDestination(body.preferredCities[0]);
-          setTransportFrom(body.preferredCities[0]);
+        if (body.preferredCities?.length) {
+          const normalizedCities = body.preferredCities
+            .map((city) => city.toLowerCase())
+            .filter((city): city is string => DESTINATIONS.includes(city as (typeof DESTINATIONS)[number]))
+            .slice(0, 4);
+
+          if (normalizedCities.length) {
+            setDestinations(normalizedCities);
+            setTransportFrom(normalizedCities[0]);
+          }
         }
         if (body.preferredInterests?.[0]) {
           setInterest(body.preferredInterests[0]);
@@ -119,14 +146,14 @@ export default function ItineraryGenerator() {
       setRealtimeLoading(true);
 
       try {
-        const city = WEATHER_CITY_MAP[destination] ?? destination;
+        const city = WEATHER_CITY_MAP[primaryDestination] ?? primaryDestination;
         const [weatherResponse, currencyResponse, transportResponse] = await Promise.all([
           fetch(`/api/v1/realtime/weather?city=${encodeURIComponent(city)}&hours=6`),
           fetch('/api/v1/realtime/currency?base=USD&target=TRY'),
           fetch(
             `/api/v1/realtime/transport?from=${encodeURIComponent(transportFrom)}&to=${encodeURIComponent(
-              destination,
-            )}&mode=${transportMode}`,
+              primaryDestination,
+            )}&mode=${transportMode}&departureAt=${encodeURIComponent(`${transportDepartureDate}T09:00:00.000Z`)}`,
           ),
         ]);
 
@@ -156,7 +183,7 @@ export default function ItineraryGenerator() {
     return () => {
       cancelled = true;
     };
-  }, [destination, transportFrom, transportMode]);
+  }, [primaryDestination, transportDepartureDate, transportFrom, transportMode]);
 
   async function handleGenerate() {
     setLoading(true);
@@ -169,7 +196,7 @@ export default function ItineraryGenerator() {
     endDate.setDate(startDate.getDate() + Math.max(1, daysSelected - 1));
 
     const payload: ItineraryRequest = {
-      destinations: [destination],
+      destinations,
       startDate: startDate.toISOString().slice(0, 10),
       endDate: endDate.toISOString().slice(0, 10),
       budgetLevel: budget,
@@ -256,17 +283,34 @@ export default function ItineraryGenerator() {
 
       {/* Row 1 — 4 core fields */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {/* Where to */}
+        {/* Destinations */}
         <div>
-          <label className="block text-[10px] font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">Where to?</label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
-            <select value={destination} onChange={(e) => setDestination(e.target.value)} className={selectCls}>
-              {DESTINATIONS.map((item) => (
-                <option key={item} value={item}>{item.charAt(0).toUpperCase() + item.slice(1)}</option>
-              ))}
-            </select>
+          <label className="block text-[10px] font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">
+            Destinations (up to 4)
+          </label>
+          <div className="flex flex-wrap gap-1.5 rounded-lg border border-gray-200 bg-white p-2">
+            <MapPin className="mt-1 h-4 w-4 text-gray-300" />
+            {DESTINATIONS.map((item) => {
+              const active = destinations.includes(item);
+              return (
+                <button
+                  key={`destination-${item}`}
+                  type="button"
+                  onClick={() => toggleDestination(item)}
+                  className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
+                    active
+                      ? 'border-brand bg-brand text-white'
+                      : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {item.charAt(0).toUpperCase() + item.slice(1)}
+                </button>
+              );
+            })}
           </div>
+          <p className="mt-1 text-[11px] text-gray-400">
+            Route: {destinations.map((item) => item.charAt(0).toUpperCase() + item.slice(1)).join(' -> ')}
+          </p>
         </div>
 
         {/* How long */}
@@ -313,7 +357,7 @@ export default function ItineraryGenerator() {
       </div>
 
       {/* Row 2 — Transport */}
-      <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <label className="block text-[10px] font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">Transport from</label>
           <select
@@ -339,6 +383,16 @@ export default function ItineraryGenerator() {
             <option value="flight">Flight</option>
           </select>
         </div>
+
+        <div>
+          <label className="block text-[10px] font-semibold text-gray-400 mb-1.5 uppercase tracking-widest">Departure date</label>
+          <input
+            type="date"
+            value={transportDepartureDate}
+            onChange={(e) => setTransportDepartureDate(e.target.value)}
+            className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm text-gray-800 font-medium outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-colors bg-white"
+          />
+        </div>
       </div>
 
       {/* Row 3 — Live info strips */}
@@ -347,7 +401,7 @@ export default function ItineraryGenerator() {
         <div className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
           <CloudSun className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
           <div className="min-w-0">
-            <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Weather ({weather?.city ?? WEATHER_CITY_MAP[destination]})</p>
+            <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Weather ({weather?.city ?? WEATHER_CITY_MAP[primaryDestination]})</p>
             <p className="mt-0.5 text-sm font-semibold text-gray-800 truncate">
               {realtimeLoading ? <span className="animate-pulse text-gray-300">—</span> : weather ? `${Math.round(weather.temperatureC)}°C, ${weather.description}` : 'Unavailable'}
             </p>
@@ -375,12 +429,17 @@ export default function ItineraryGenerator() {
         <div className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
           <Bus className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
           <div className="min-w-0">
-            <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Transport ({transportFrom} → {destination})</p>
+            <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Transport ({transportFrom} → {primaryDestination})</p>
             <p className="mt-0.5 text-sm font-semibold text-gray-800">
               {realtimeLoading ? <span className="animate-pulse text-gray-300">—</span> : transport ? `${transport.distanceKm} km, ~${transport.estimatedDurationHours}h` : 'Unavailable'}
             </p>
             {transport?.recommendation && (
               <p className="text-[11px] text-gray-400 line-clamp-2">{transport.recommendation}</p>
+            )}
+            {transport?.source && (
+              <p className="text-[11px] text-gray-400">
+                Source: {transport.source === 'google-distance-matrix' ? 'Google Distance Matrix' : 'Estimated fallback'}
+              </p>
             )}
           </div>
         </div>

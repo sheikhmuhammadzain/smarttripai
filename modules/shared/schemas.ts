@@ -61,6 +61,7 @@ export const transportQuerySchema = z.object({
   from: z.string().trim().min(1),
   to: z.string().trim().min(1),
   mode: z.enum(["car", "bus", "flight"]).default("bus"),
+  departureAt: z.string().datetime().optional(),
 });
 
 export const userPreferencesPatchSchema = z.object({
@@ -94,7 +95,14 @@ export const userAccountPatchSchema = z
 
 export const userPasswordPatchSchema = z.object({
   currentPassword: z.string().min(6),
-  newPassword: z.string().min(8).max(128),
+  newPassword: z
+    .string()
+    .min(8)
+    .max(128)
+    .regex(/[a-z]/, "Password must include a lowercase letter")
+    .regex(/[A-Z]/, "Password must include an uppercase letter")
+    .regex(/\d/, "Password must include a number")
+    .regex(/[^A-Za-z0-9]/, "Password must include a symbol"),
   confirmPassword: z.string().min(8).max(128),
 });
 

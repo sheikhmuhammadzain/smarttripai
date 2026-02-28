@@ -4,6 +4,7 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getMongoClientPromise } from "@/lib/db/mongodb-client";
 import { getServerEnv } from "@/lib/env/server";
+import { checkRateLimit } from "@/lib/rate-limit/memory-rate-limit";
 
 function ensureDevAuthEnv(env: ReturnType<typeof getServerEnv>) {
   if (env.NODE_ENV === "production") {
@@ -22,6 +23,37 @@ function ensureDevAuthEnv(env: ReturnType<typeof getServerEnv>) {
 function buildProviders(): NonNullable<NextAuthOptions["providers"]> {
   const providers: NonNullable<NextAuthOptions["providers"]> = [];
 
+  function getClientIp(request: unknown) {
+    if (!request || typeof request !== "object") {
+      return "anonymous";
+    }
+
+    const headerBag = (request as { headers?: unknown }).headers;
+    if (!headerBag) {
+      return "anonymous";
+    }
+
+    if (headerBag instanceof Headers) {
+      return (headerBag.get("x-forwarded-for") ?? "anonymous").split(",")[0]?.trim() || "anonymous";
+    }
+
+    if (typeof headerBag === "object") {
+      const forwardedFor = (headerBag as Record<string, unknown>)["x-forwarded-for"];
+      if (typeof forwardedFor === "string") {
+        return forwardedFor.split(",")[0]?.trim() || "anonymous";
+      }
+      if (Array.isArray(forwardedFor) && typeof forwardedFor[0] === "string") {
+        return forwardedFor[0].split(",")[0]?.trim() || "anonymous";
+      }
+    }
+
+    return "anonymous";
+  }
+
+  function hasStrongPassword(value: string) {
+    return /[a-z]/.test(value) && /[A-Z]/.test(value) && /\d/.test(value) && /[^A-Za-z0-9]/.test(value);
+  }
+
   providers.push(
     CredentialsProvider({
       name: "Email and Password",
@@ -31,7 +63,7 @@ function buildProviders(): NonNullable<NextAuthOptions["providers"]> {
         intent: { label: "Intent", type: "text" },
         name: { label: "Name", type: "text" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         const email =
           typeof credentials?.email === "string"
             ? credentials.email.trim().toLowerCase()
@@ -48,6 +80,15 @@ function buildProviders(): NonNullable<NextAuthOptions["providers"]> {
         if (!email || !password) {
           return null;
         }
+        const clientIp = getClientIp(req);
+        const rateLimit = checkRateLimit({
+          key: `auth:${intent}:${clientIp}:${email}`,
+          limit: intent === "signup" ? 8 : 20,
+          windowMs: 1000 * 60 * 15,
+        });
+        if (!rateLimit.allowed) {
+          return null;
+        }
 
         const client = await getMongoClientPromise();
         const db = client.db();
@@ -61,6 +102,9 @@ function buildProviders(): NonNullable<NextAuthOptions["providers"]> {
 
         if (intent === "signup") {
           if (existing) {
+            return null;
+          }
+          if (password.length < 8 || !hasStrongPassword(password)) {
             return null;
           }
 

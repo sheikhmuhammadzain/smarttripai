@@ -69,6 +69,14 @@ function fallbackGeneralAssistantMessage(message: string) {
     return "I am ready to help you plan your Turkey trip. Tell me your destination, trip length, and budget.";
   }
 
+  if (/\b(safe|safety|security|scam|emergency|crime)\b/.test(normalized)) {
+    return "For Turkey safety: use licensed taxis/apps, keep valuables secure in crowded areas, carry passport copies, and check official local advisories before intercity travel.";
+  }
+
+  if (/\b(culture|custom|etiquette|dress|mosque|ramadan|local tips)\b/.test(normalized)) {
+    return "For local etiquette in Turkey: dress modestly at mosques, remove shoes where required, greet politely, and confirm service charges before paying in tourist zones.";
+  }
+
   return "Hi. Tell me your destination, trip length, budget, and interests, and I will create a personalized Turkey plan.";
 }
 
@@ -247,7 +255,7 @@ export async function runChatAgent(message: string): Promise<ChatAgentResult> {
         {
           role: "system",
           content:
-            "You are a Turkey travel chat agent. Return ONLY valid JSON. Help users with recommendations and booking guidance using provided product catalog.",
+            "You are a Turkey travel chat agent. Return ONLY valid JSON. Help users with recommendations, booking guidance, local culture etiquette, and safety tips using provided product catalog.",
         },
         {
           role: "user",

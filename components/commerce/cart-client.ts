@@ -34,9 +34,11 @@ export function useCartState() {
         writeCart(next)
         const itemCount = next.reduce((sum, item) => sum + item.quantity, 0)
         if (typeof window !== "undefined") {
-          window.dispatchEvent(
-            new CustomEvent("cart:changed", {detail: {itemCount}}),
-          )
+          queueMicrotask(() => {
+            window.dispatchEvent(
+              new CustomEvent("cart:changed", {detail: {itemCount}}),
+            )
+          })
         }
         return next
       })

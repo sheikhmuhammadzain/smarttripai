@@ -131,6 +131,12 @@ paths:
           schema:
             type: string
             enum: [car, bus, flight]
+        - in: query
+          name: departureAt
+          schema:
+            type: string
+            format: date-time
+          description: Optional departure datetime used for transit schedule estimation.
       responses:
         "200":
           description: Transport estimate

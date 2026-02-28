@@ -55,6 +55,10 @@ Modular full-stack Next.js app with MongoDB, NextAuth, versioned APIs, itinerary
    - OpenAI:
      - `OPENAI_API_KEY`
      - `OPENAI_MODEL`
+5. Optional realtime integrations:
+   - Weather: `OPENWEATHER_API_KEY`
+   - Currency: `EXCHANGERATE_API_KEY`
+   - Transport (Google Distance Matrix): `GOOGLE_DISTANCE_MATRIX_API_KEY` (or `GOOGLE_MAPS_API_KEY`)
 4. Install and run:
 
 ```bash

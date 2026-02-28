@@ -1,3 +1,4 @@
+import { getServerEnv } from "@/lib/env/server";
 import { getCachedPayload, setCachedPayload } from "@/modules/realtime/cache.repository";
 
 const TRANSPORT_TTL_MS = 1000 * 60 * 60 * 24;
@@ -36,23 +37,140 @@ function speedByMode(mode: "car" | "bus" | "flight") {
   return 55;
 }
 
-export async function getTransportGuidance(from: string, to: string, mode: "car" | "bus" | "flight") {
+type TransportSource = "google-distance-matrix" | "heuristic";
+
+interface TransportPayload {
+  from: string;
+  to: string;
+  mode: "car" | "bus" | "flight";
+  distanceKm: number;
+  estimatedDurationHours: number;
+  recommendation: string;
+  source: TransportSource;
+}
+
+function defaultRecommendation(mode: "car" | "bus" | "flight") {
+  if (mode === "flight") {
+    return "Book at least 2 weeks early for better domestic fares.";
+  }
+  if (mode === "car") {
+    return "Plan for toll roads and rest stops on long intercity drives.";
+  }
+  return "Use overnight buses for long routes to save accommodation cost.";
+}
+
+function mapToGoogleMode(mode: "car" | "bus" | "flight") {
+  if (mode === "car") return "driving";
+  if (mode === "bus") return "transit";
+  return null;
+}
+
+async function getGoogleDistanceMatrix(
+  apiKey: string,
+  from: string,
+  to: string,
+  mode: "car" | "bus" | "flight",
+  departureAt?: string,
+): Promise<TransportPayload | null> {
+  const googleMode = mapToGoogleMode(mode);
+  if (!googleMode) {
+    return null;
+  }
+
+  const url = new URL("https://maps.googleapis.com/maps/api/distancematrix/json");
+  url.searchParams.set("origins", `${from}, Turkey`);
+  url.searchParams.set("destinations", `${to}, Turkey`);
+  url.searchParams.set("units", "metric");
+  url.searchParams.set("mode", googleMode);
+  url.searchParams.set("key", apiKey);
+  if (googleMode === "transit") {
+    if (departureAt) {
+      const departureEpoch = Math.floor(new Date(departureAt).getTime() / 1000);
+      if (Number.isFinite(departureEpoch) && departureEpoch > 0) {
+        url.searchParams.set("departure_time", String(departureEpoch));
+      } else {
+        url.searchParams.set("departure_time", "now");
+      }
+    } else {
+      url.searchParams.set("departure_time", "now");
+    }
+  }
+
+  const response = await fetch(url.toString(), { method: "GET", cache: "no-store" });
+  if (!response.ok) {
+    return null;
+  }
+
+  const payload = (await response.json()) as {
+    status?: string;
+    rows?: Array<{
+      elements?: Array<{
+        status?: string;
+        distance?: { value?: number };
+        duration?: { value?: number };
+      }>;
+    }>;
+  };
+
+  if (payload.status !== "OK") {
+    return null;
+  }
+
+  const element = payload.rows?.[0]?.elements?.[0];
+  if (!element || element.status !== "OK") {
+    return null;
+  }
+
+  const distanceMeters = element.distance?.value ?? 0;
+  const durationSeconds = element.duration?.value ?? 0;
+  if (!distanceMeters || !durationSeconds) {
+    return null;
+  }
+
+  return {
+    from,
+    to,
+    mode,
+    distanceKm: Math.round(distanceMeters / 1000),
+    estimatedDurationHours: Number((durationSeconds / 3600).toFixed(1)),
+    recommendation:
+      mode === "bus"
+        ? "Transit estimate is based on current schedules and service availability."
+        : defaultRecommendation(mode),
+    source: "google-distance-matrix",
+  };
+}
+
+export async function getTransportGuidance(
+  from: string,
+  to: string,
+  mode: "car" | "bus" | "flight",
+  departureAt?: string,
+) {
   const normalizedFrom = from.trim().toLowerCase();
   const normalizedTo = to.trim().toLowerCase();
   const cacheKey = `transport:${normalizedFrom}:${normalizedTo}:${mode}`;
 
-  const cached = await getCachedPayload<{
-    from: string;
-    to: string;
-    mode: string;
-    distanceKm: number;
-    estimatedDurationHours: number;
-    recommendation: string;
-    source: "heuristic";
-  }>("transport", cacheKey);
+  const cached = await getCachedPayload<TransportPayload>("transport", cacheKey);
 
   if (cached) {
     return cached;
+  }
+
+  const { GOOGLE_DISTANCE_MATRIX_API_KEY, GOOGLE_MAPS_API_KEY } = getServerEnv();
+  const googleDistanceApiKey = GOOGLE_DISTANCE_MATRIX_API_KEY ?? GOOGLE_MAPS_API_KEY;
+  if (googleDistanceApiKey) {
+    const providerPayload = await getGoogleDistanceMatrix(
+      googleDistanceApiKey,
+      from,
+      to,
+      mode,
+      departureAt,
+    );
+    if (providerPayload) {
+      await setCachedPayload("transport", cacheKey, providerPayload, TRANSPORT_TTL_MS);
+      return providerPayload;
+    }
   }
 
   const fromCoordinates = cityCoordinates[normalizedFrom] ?? cityCoordinates.istanbul;
@@ -61,20 +179,13 @@ export async function getTransportGuidance(from: string, to: string, mode: "car"
   const distanceKm = haversineKm(fromCoordinates, toCoordinates);
   const estimatedDurationHours = Number((distanceKm / speedByMode(mode)).toFixed(1));
 
-  const recommendation =
-    mode === "flight"
-      ? "Book at least 2 weeks early for better domestic fares."
-      : mode === "car"
-        ? "Plan for toll roads and rest stops on long intercity drives."
-        : "Use overnight buses for long routes to save accommodation cost.";
-
   const payload = {
     from,
     to,
     mode,
     distanceKm,
     estimatedDurationHours,
-    recommendation,
+    recommendation: defaultRecommendation(mode),
     source: "heuristic" as const,
   };
 
