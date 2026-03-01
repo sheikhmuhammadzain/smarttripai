@@ -297,11 +297,10 @@ export default function ItineraryGenerator() {
                   key={`destination-${item}`}
                   type="button"
                   onClick={() => toggleDestination(item)}
-                  className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
-                    active
+                  className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${active
                       ? 'border-brand bg-brand text-white'
                       : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   {item.charAt(0).toUpperCase() + item.slice(1)}
                 </button>
@@ -395,52 +394,123 @@ export default function ItineraryGenerator() {
         </div>
       </div>
 
-      {/* Row 3 — Live info strips */}
-      <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
-        {/* Weather */}
-        <div className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
-          <CloudSun className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
-          <div className="min-w-0">
-            <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Weather ({weather?.city ?? WEATHER_CITY_MAP[primaryDestination]})</p>
-            <p className="mt-0.5 text-sm font-semibold text-gray-800 truncate">
-              {realtimeLoading ? <span className="animate-pulse text-gray-300">—</span> : weather ? `${Math.round(weather.temperatureC)}°C, ${weather.description}` : 'Unavailable'}
-            </p>
-            {weather?.hourly?.[0] && (
-              <p className="text-[11px] text-gray-400">
-                Next: {Math.round(weather.hourly[0].temperatureC)}°C at{' '}
-                {new Date(weather.hourly[0].time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      {/* Row 3 — Live Data Cards */}
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* Weather Card */}
+        <div className="relative overflow-hidden rounded-2xl border border-border-soft bg-white p-4">
+          <div className="flex items-start gap-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50">
+              <CloudSun className="h-5 w-5 text-sky-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+                  Weather
+                </p>
+                {!realtimeLoading && weather && (
+                  <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Live
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-sm font-bold text-text-primary truncate">
+                {realtimeLoading ? (
+                  <span className="inline-block h-4 w-28 animate-pulse rounded bg-surface-subtle" />
+                ) : weather ? (
+                  `${Math.round(weather.temperatureC)}°C — ${weather.description}`
+                ) : (
+                  <span className="text-text-subtle">Unavailable</span>
+                )}
               </p>
-            )}
+              <p className="mt-0.5 text-[11px] text-text-muted">
+                {weather?.city ?? WEATHER_CITY_MAP[primaryDestination]}
+                {weather?.hourly?.[0] && (
+                  <span className="ml-1.5 text-text-subtle">
+                    · Next {Math.round(weather.hourly[0].temperatureC)}°C at{' '}
+                    {new Date(weather.hourly[0].time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                )}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Currency */}
-        <div className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
-          <Banknote className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
-          <div className="min-w-0">
-            <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Currency (USD to TRY)</p>
-            <p className="mt-0.5 text-sm font-semibold text-gray-800">
-              {realtimeLoading ? <span className="animate-pulse text-gray-300">—</span> : currency ? `1 ${currency.base} = ${currency.rate.toFixed(2)} ${currency.target}` : 'Unavailable'}
-            </p>
+        {/* Currency Card */}
+        <div className="relative overflow-hidden rounded-2xl border border-border-soft bg-white p-4">
+          <div className="flex items-start gap-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
+              <Banknote className="h-5 w-5 text-emerald-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+                  Exchange Rate
+                </p>
+                {!realtimeLoading && currency && (
+                  <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Live
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-sm font-bold text-text-primary">
+                {realtimeLoading ? (
+                  <span className="inline-block h-4 w-32 animate-pulse rounded bg-surface-subtle" />
+                ) : currency ? (
+                  <>
+                    1 {currency.base} = <span className="text-emerald-600">{currency.rate.toFixed(2)}</span> {currency.target}
+                  </>
+                ) : (
+                  <span className="text-text-subtle">Unavailable</span>
+                )}
+              </p>
+              <p className="mt-0.5 text-[11px] text-text-muted">
+                USD → TRY
+                <span className="ml-1.5 text-text-subtle">· Updated in real-time</span>
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Transport info */}
-        <div className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
-          <Bus className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
-          <div className="min-w-0">
-            <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Transport ({transportFrom} → {primaryDestination})</p>
-            <p className="mt-0.5 text-sm font-semibold text-gray-800">
-              {realtimeLoading ? <span className="animate-pulse text-gray-300">—</span> : transport ? `${transport.distanceKm} km, ~${transport.estimatedDurationHours}h` : 'Unavailable'}
-            </p>
-            {transport?.recommendation && (
-              <p className="text-[11px] text-gray-400 line-clamp-2">{transport.recommendation}</p>
-            )}
-            {transport?.source && (
-              <p className="text-[11px] text-gray-400">
-                Source: {transport.source === 'google-distance-matrix' ? 'Google Distance Matrix' : 'Estimated fallback'}
+        {/* Transport Card */}
+        <div className="relative overflow-hidden rounded-2xl border border-border-soft bg-white p-4">
+          <div className="flex items-start gap-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-50">
+              <Bus className="h-5 w-5 text-violet-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+                  Transport
+                </p>
+                {!realtimeLoading && transport?.source && (
+                  <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-semibold ${transport.source === 'google-distance-matrix'
+                      ? 'bg-emerald-50 text-emerald-600'
+                      : 'bg-amber-50 text-amber-600'
+                    }`}>
+                    {transport.source === 'google-distance-matrix' ? 'Google Maps' : 'Estimate'}
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-sm font-bold text-text-primary">
+                {realtimeLoading ? (
+                  <span className="inline-block h-4 w-24 animate-pulse rounded bg-surface-subtle" />
+                ) : transport ? (
+                  <>
+                    {transport.distanceKm} km <span className="font-normal text-text-muted">·</span> ~{transport.estimatedDurationHours}h
+                  </>
+                ) : (
+                  <span className="text-text-subtle">Unavailable</span>
+                )}
               </p>
-            )}
+              <p className="mt-0.5 text-[11px] text-text-muted truncate">
+                {transportFrom.charAt(0).toUpperCase() + transportFrom.slice(1)} → {primaryDestination.charAt(0).toUpperCase() + primaryDestination.slice(1)}
+                {transport?.recommendation && (
+                  <span className="ml-1.5 text-text-subtle hidden sm:inline">· {transport.recommendation}</span>
+                )}
+              </p>
+            </div>
           </div>
         </div>
       </div>
