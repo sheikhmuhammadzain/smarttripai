@@ -4,6 +4,7 @@ import { Sparkles, MapPin, DollarSign, Clock, Save, CloudSun, Banknote, Bus } fr
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import type { BudgetLevel, GeneratedItinerary, InterestTag, ItineraryRequest } from '@/types/travel';
+import { useAppPreferences } from '@/lib/preferences-client';
 
 const DESTINATIONS = ['cappadocia', 'istanbul', 'ephesus', 'pamukkale', 'antalya', 'bodrum'] as const;
 
@@ -77,6 +78,8 @@ function readPersistedState(): Partial<PlannerPersistedState> {
 }
 
 export default function ItineraryGenerator() {
+  const { preferences } = useAppPreferences();
+  const userCurrency = preferences.currency;
   const saved = useMemo(() => readPersistedState(), []);
 
   const [destinations, setDestinations] = useState<string[]>(
@@ -200,7 +203,7 @@ export default function ItineraryGenerator() {
         const city = WEATHER_CITY_MAP[primaryDestination] ?? primaryDestination;
         const [weatherResponse, currencyResponse, transportResponse] = await Promise.all([
           fetch(`/api/v1/realtime/weather?city=${encodeURIComponent(city)}&hours=6`),
-          fetch('/api/v1/realtime/currency?base=USD&target=TRY'),
+          fetch(`/api/v1/realtime/currency?base=${encodeURIComponent(userCurrency)}&target=TRY`),
           fetch(
             `/api/v1/realtime/transport?from=${encodeURIComponent(transportFrom)}&to=${encodeURIComponent(
               primaryDestination,
@@ -234,7 +237,7 @@ export default function ItineraryGenerator() {
     return () => {
       cancelled = true;
     };
-  }, [primaryDestination, transportDepartureDate, transportFrom, transportMode]);
+  }, [primaryDestination, transportDepartureDate, transportFrom, transportMode, userCurrency]);
 
   async function handleGenerate() {
     setLoading(true);
@@ -450,7 +453,7 @@ export default function ItineraryGenerator() {
         {/* Weather Card */}
         <div className="relative overflow-hidden rounded-2xl border border-border-soft bg-surface-base p-4">
           <div className="flex items-start gap-3.5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle">
               <CloudSun className="h-5 w-5 text-sky-500" />
             </div>
             <div className="flex-1 min-w-0">
@@ -459,7 +462,7 @@ export default function ItineraryGenerator() {
                   Weather
                 </p>
                 {!realtimeLoading && weather && (
-                  <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600">
+                  <span className="flex items-center gap-1 rounded-full bg-surface-subtle px-1.5 py-0.5 text-[9px] font-semibold text-emerald-500">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Live
                   </span>
@@ -490,7 +493,7 @@ export default function ItineraryGenerator() {
         {/* Currency Card */}
         <div className="relative overflow-hidden rounded-2xl border border-border-soft bg-surface-base p-4">
           <div className="flex items-start gap-3.5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle">
               <Banknote className="h-5 w-5 text-emerald-500" />
             </div>
             <div className="flex-1 min-w-0">
@@ -499,7 +502,7 @@ export default function ItineraryGenerator() {
                   Exchange Rate
                 </p>
                 {!realtimeLoading && currency && (
-                  <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600">
+                  <span className="flex items-center gap-1 rounded-full bg-surface-subtle px-1.5 py-0.5 text-[9px] font-semibold text-emerald-500">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Live
                   </span>
@@ -517,7 +520,7 @@ export default function ItineraryGenerator() {
                 )}
               </p>
               <p className="mt-0.5 text-[11px] text-text-muted">
-                USD → TRY
+                {userCurrency} → TRY
                 <span className="ml-1.5 text-text-subtle">· Updated in real-time</span>
               </p>
             </div>
@@ -527,7 +530,7 @@ export default function ItineraryGenerator() {
         {/* Transport Card */}
         <div className="relative overflow-hidden rounded-2xl border border-border-soft bg-surface-base p-4">
           <div className="flex items-start gap-3.5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-50">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle">
               <Bus className="h-5 w-5 text-violet-500" />
             </div>
             <div className="flex-1 min-w-0">
@@ -537,8 +540,8 @@ export default function ItineraryGenerator() {
                 </p>
                 {!realtimeLoading && transport?.source && (
                   <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-semibold ${transport.source === 'google-distance-matrix'
-                    ? 'bg-emerald-50 text-emerald-600'
-                    : 'bg-amber-50 text-amber-600'
+                    ? 'bg-surface-subtle text-emerald-500'
+                    : 'bg-surface-subtle text-amber-500'
                     }`}>
                     {transport.source === 'google-distance-matrix' ? 'Google Maps' : 'Estimate'}
                   </span>
