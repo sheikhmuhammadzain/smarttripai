@@ -424,19 +424,19 @@ export default function Header() {
       <div className="max-w-[1320px] mx-auto px-3 sm:px-4 md:px-6">
         <nav className="flex items-center gap-5 md:gap-8 py-3 text-[13px] md:text-[14px] text-text-muted font-medium border-t border-border-subtle overflow-x-auto no-scrollbar whitespace-nowrap" aria-label="Secondary navigation">
           <Link href="/attractions" className="hover:text-text-primary flex items-center gap-1 group">
-            Places to see
+            Explore Destinations
             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:text-blue-600 transition-colors" aria-hidden="true">
               <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </Link>
           <Link href="/planner" className="hover:text-text-primary flex items-center gap-1 group">
-            Things to do
+            Activities & Experiences
             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:text-blue-600 transition-colors" aria-hidden="true">
               <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </Link>
           <Link href="/assistant" className="hover:text-text-primary flex items-center gap-1 group">
-            Trip inspiration
+            Travel Guides
             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:text-blue-600 transition-colors" aria-hidden="true">
               <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
