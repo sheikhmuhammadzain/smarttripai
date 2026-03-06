@@ -20,8 +20,9 @@ export default function ProductCard({
   return (
     <Link
       href={`/products/${product.id}`}
-      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-border-soft bg-surface-base transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl"
+      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-border-soft bg-surface-base transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg hover:border-border-default"
     >
+      {/* Image */}
       <div className="relative aspect-[4/3] w-full overflow-hidden">
         <Image
           src={product.image}
@@ -29,9 +30,11 @@ export default function ProductCard({
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
+        {/* bottom gradient for contrast */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/30 via-transparent to-transparent" />
 
         {product.badge ? (
-          <div className="absolute left-3 top-3 rounded-sm bg-brand-hover px-2 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-sm">
+          <div className="absolute left-3 top-3 rounded-full bg-brand px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-md">
             {product.badge}
           </div>
         ) : null}
@@ -43,33 +46,33 @@ export default function ProductCard({
             event.stopPropagation();
             onToggleWishlist(product.id);
           }}
-          className={`absolute right-3 top-3 z-10 rounded-full p-2 shadow-sm transition-colors ${isWishlisted ? "bg-red-50 hover:bg-red-100" : "bg-surface-base hover:bg-surface-subtle"
-            }`}
+          className={`absolute right-3 top-3 z-10 rounded-full p-2 shadow-md backdrop-blur-sm transition-colors ${
+            isWishlisted ? "bg-white/90 hover:bg-white" : "bg-white/70 hover:bg-white/90"
+          }`}
           aria-label={`Save ${product.title} to wishlist`}
         >
           <Heart
-            className={`h-5 w-5 stroke-[1.8] ${isWishlisted ? "fill-red-500 text-red-500" : "text-text-muted"
-              }`}
+            className={`h-4 w-4 stroke-2 ${isWishlisted ? "fill-red-500 text-red-500" : "text-text-muted"}`}
           />
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="line-clamp-3 text-[16px] font-bold leading-[1.4] text-text-heading transition-colors group-hover:text-brand">
+      {/* Body */}
+      <div className="flex flex-1 flex-col p-4 gap-1.5">
+        <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-text-heading transition-colors group-hover:text-brand">
           {product.title}
         </h3>
 
-        <div className="text-sm font-normal text-text-muted">
-          {product.duration}
-          {product.features && product.features.length > 0 ? (
-            <>
-              <span className="mx-1">•</span>
-              {product.features.join(" • ")}
-            </>
-          ) : null}
-        </div>
+        {product.features && product.features.length > 0 ? (
+          <p className="text-xs text-text-muted line-clamp-1">
+            {product.duration} · {product.features.join(" · ")}
+          </p>
+        ) : (
+          <p className="text-xs text-text-muted">{product.duration}</p>
+        )}
 
-        <div className="mt-auto flex items-center gap-1 pt-2">
+        {/* Rating */}
+        <div className="mt-auto pt-3 flex items-center gap-1.5">
           <div className="flex text-yellow-400">
             {[...Array(5)].map((_, i) => (
               <svg
@@ -81,22 +84,24 @@ export default function ProductCard({
               </svg>
             ))}
           </div>
-          <span className="text-xs font-medium text-text-muted">
-            {product.rating} ({product.reviews})
-          </span>
+          <span className="text-xs font-semibold text-text-body">{product.rating}</span>
+          <span className="text-xs text-text-subtle">({product.reviews.toLocaleString()})</span>
         </div>
 
-        <div className="mt-1">
-          <span className="text-xs text-text-muted">From </span>
-          <CurrencyAmount amount={product.price} baseCurrency={product.currency} className="font-bold text-text-heading" />
-          <span className="text-xs text-text-muted"> per person</span>
-        </div>
-
-        {product.bookedText ? (
-          <div className="mt-3 w-fit rounded bg-surface-brand-soft px-2 py-1.5 text-xs font-medium text-brand">
-            {product.bookedText}
+        {/* Price + booked row */}
+        <div className="flex items-end justify-between gap-2 pt-1 border-t border-border-soft mt-1">
+          <div>
+            <span className="text-[11px] text-text-subtle">From </span>
+            <CurrencyAmount amount={product.price} baseCurrency={product.currency} className="text-base font-extrabold text-text-heading" />
+            <span className="text-[11px] text-text-subtle"> / person</span>
           </div>
-        ) : null}
+
+          {product.bookedText ? (
+            <span className="shrink-0 rounded-full bg-brand/8 px-2.5 py-1 text-[10px] font-semibold text-brand">
+              {product.bookedText}
+            </span>
+          ) : null}
+        </div>
       </div>
     </Link>
   );

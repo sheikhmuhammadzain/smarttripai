@@ -323,17 +323,19 @@ export default function ItineraryGenerator() {
     'w-full h-11 pl-10 pr-4 bg-surface-base border border-border-default rounded-lg text-sm text-text-body font-medium outline-none appearance-none cursor-pointer transition-colors focus:border-brand focus:ring-2 focus:ring-brand/10';
 
   return (
-    <div className="w-full bg-surface-base border border-border-default rounded-2xl p-6 md:p-8 mb-8">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-7">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand">
+    <div className="w-full bg-surface-base border border-border-default rounded-2xl overflow-hidden mb-8 shadow-sm">
+      {/* Header banner */}
+      <div className="flex items-center gap-4 px-6 md:px-8 py-5 bg-gradient-to-r from-brand/8 via-brand/4 to-transparent border-b border-border-soft">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand shadow-md shadow-brand/30">
           <Sparkles className="w-5 h-5 text-white" />
         </div>
         <div>
           <h2 className="text-lg font-bold text-text-primary leading-tight">AI Itinerary Planner</h2>
-          <p className="text-xs text-text-subtle mt-0.5">Plan your perfect trip to Turkey in seconds</p>
+          <p className="text-xs text-text-muted mt-0.5">Plan your perfect trip to Turkey in seconds</p>
         </div>
       </div>
+
+      <div className="p-6 md:p-8">
 
       {/* Row 1 — 4 core fields */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -626,6 +628,7 @@ export default function ItineraryGenerator() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

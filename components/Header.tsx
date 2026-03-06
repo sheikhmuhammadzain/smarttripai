@@ -219,7 +219,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border-soft transition-colors">
-      <div className="max-w-[1320px] mx-auto px-3 sm:px-4 md:px-6 h-[72px] md:h-[80px] flex items-center justify-between gap-2 md:gap-4">
+      <div className="max-w-330 mx-auto px-3 sm:px-4 md:px-6 h-18 md:h-20 flex items-center justify-between gap-2 md:gap-4">
         {/* Logo */}
         <Link href="/" className="shrink-0 flex items-center gap-1" aria-label="Smart Trip AI Home">
           <Image
@@ -233,7 +233,7 @@ export default function Header() {
         </Link>
 
         {/* Search Bar - conditionally visible */}
-        <div className={`hidden md:block flex-1 max-w-[640px] transition-opacity duration-300 ${showSearch ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+        <div className={`hidden md:block flex-1 max-w-160 transition-opacity duration-300 ${showSearch ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
           <form
             ref={searchRef}
             action="/search"
@@ -291,7 +291,7 @@ export default function Header() {
                 aria-hidden="true"
               />
               {wishlistCount > 0 ? (
-                <span className="absolute -right-2 -top-1 inline-flex min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                <span className="absolute -right-2 -top-1 inline-flex min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                   {wishlistCount > 9 ? '9+' : wishlistCount}
                 </span>
               ) : null}
@@ -302,7 +302,7 @@ export default function Header() {
             <div className="relative">
               <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" aria-hidden="true" />
               {cartCount > 0 ? (
-                <span className="absolute -right-2 -top-1 inline-flex min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                <span className="absolute -right-2 -top-1 inline-flex min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                   {cartCount > 9 ? '9+' : cartCount}
                 </span>
               ) : null}
@@ -421,25 +421,19 @@ export default function Header() {
       </div>
 
       {/* Sub-navigation */}
-      <div className="max-w-[1320px] mx-auto px-3 sm:px-4 md:px-6">
+      <div className="max-w-330 mx-auto px-3 sm:px-4 md:px-6">
         <nav className="flex items-center gap-5 md:gap-8 py-3 text-[13px] md:text-[14px] text-text-muted font-medium border-t border-border-subtle overflow-x-auto no-scrollbar whitespace-nowrap" aria-label="Secondary navigation">
-          <Link href="/attractions" className="hover:text-text-primary flex items-center gap-1 group">
+          <Link href="/attractions" className="relative group hover:text-text-primary transition-colors pb-0.75">
             Explore Destinations
-            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:text-blue-600 transition-colors" aria-hidden="true">
-              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-brand rounded-full group-hover:w-full transition-[width] duration-200" />
           </Link>
-          <Link href="/planner" className="hover:text-text-primary flex items-center gap-1 group">
+          <Link href="/planner" className="relative group hover:text-text-primary transition-colors pb-0.75">
             Activities & Experiences
-            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:text-blue-600 transition-colors" aria-hidden="true">
-              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-brand rounded-full group-hover:w-full transition-[width] duration-200" />
           </Link>
-          <Link href="/assistant" className="hover:text-text-primary flex items-center gap-1 group">
+          <Link href="/assistant" className="relative group hover:text-text-primary transition-colors pb-0.75">
             Travel Guides
-            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:text-blue-600 transition-colors" aria-hidden="true">
-              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-brand rounded-full group-hover:w-full transition-[width] duration-200" />
           </Link>
         </nav>
       </div>

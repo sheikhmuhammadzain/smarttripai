@@ -1,101 +1,58 @@
 ﻿
-import { Facebook, Twitter, Instagram, Youtube, Linkedin, Globe, ShieldCheck } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Youtube, Linkedin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { SMARTTRIPAI_LOGO_DATA_URI } from '@/components/branding/logo';
 
 export default function Footer() {
    return (
-      <footer className="bg-[#1a1d24] text-white pt-16 pb-8 text-sm">
-         <div className="max-w-[1320px] mx-auto px-4 md:px-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+      <footer className="bg-surface-base border-t border-border-soft pt-10 pb-6 text-sm">
+         <div className="max-w-300 mx-auto px-4 md:px-6">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8 mb-8">
 
                <div>
-                  <h4 className="font-bold text-gray-200 mb-4 uppercase tracking-wider text-xs">Support</h4>
-                  <ul className="space-y-2 text-gray-400">
-                     <li><Link href="/help" className="hover:text-white transition-colors">Help Center</Link></li>
-                     <li><Link href="/legal" className="hover:text-white transition-colors">Legal Information</Link></li>
-                     <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                     <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-                     <li><Link href="/privacy#cookies" className="hover:text-white transition-colors">Cookie Preferences</Link></li>
-                  </ul>
+                  <Link href="/" aria-label="Smart Trip AI Home">
+                     <Image
+                        src={SMARTTRIPAI_LOGO_DATA_URI}
+                        alt="Smart Trip AI"
+                        width={80}
+                        height={96}
+                        className="h-12 w-auto mb-2"
+                        unoptimized
+                     />
+                  </Link>
+                  <p className="text-text-muted text-xs max-w-56">Discover Turkey's best tours, experiences, and attractions.</p>
                </div>
 
-               <div>
-                  <h4 className="font-bold text-gray-200 mb-4 uppercase tracking-wider text-xs">Company</h4>
-                  <ul className="space-y-2 text-gray-400">
-                     <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
-                     <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
-                     <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-                     <li><Link href="/press" className="hover:text-white transition-colors">Press</Link></li>
-                     <li><Link href="/partners/affiliate" className="hover:text-white transition-colors">Gift Cards</Link></li>
-                  </ul>
-               </div>
+               <div className="flex gap-12">
+                  <div>
+                     <h4 className="font-semibold text-text-primary mb-3 text-xs uppercase tracking-wider">Explore</h4>
+                     <ul className="space-y-2 text-text-muted">
+                        <li><Link href="/products" className="hover:text-text-primary transition-colors">Tours & Activities</Link></li>
+                        <li><Link href="/(app)/attractions" className="hover:text-text-primary transition-colors">Attractions</Link></li>
+                        <li><Link href="/about" className="hover:text-text-primary transition-colors">About Us</Link></li>
+                     </ul>
+                  </div>
 
-               <div>
-                  <h4 className="font-bold text-gray-200 mb-4 uppercase tracking-wider text-xs">Work With Us</h4>
-                  <ul className="space-y-2 text-gray-400">
-                     <li><Link href="/partners/supply" className="hover:text-white transition-colors">As a Supply Partner</Link></li>
-                     <li><Link href="/partners/creator" className="hover:text-white transition-colors">As a Content Creator</Link></li>
-                     <li><Link href="/partners/affiliate" className="hover:text-white transition-colors">As an Affiliate Partner</Link></li>
-                  </ul>
-               </div>
-
-               <div>
-                  <h4 className="font-bold text-gray-200 mb-4 uppercase tracking-wider text-xs">Mobile</h4>
-                  <div className="flex flex-col gap-3">
-                     <a
-                        href="https://apps.apple.com/"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-3 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors border border-gray-700 w-fit"
-                        aria-label="Download on the App Store"
-                     >
-                        <Image
-                           src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
-                           alt="App Store"
-                           width={102}
-                           height={30}
-                           className="h-6 w-auto"
-                           unoptimized
-                        />
-                     </a>
-                     <a
-                        href="https://play.google.com/store"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-3 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors border border-gray-700 w-fit"
-                        aria-label="Get it on Google Play"
-                     >
-                        <Image
-                           src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
-                           alt="Google Play"
-                           width={101}
-                           height={30}
-                           className="h-6 w-auto"
-                           unoptimized
-                        />
-                     </a>
+                  <div>
+                     <h4 className="font-semibold text-text-primary mb-3 text-xs uppercase tracking-wider">Legal</h4>
+                     <ul className="space-y-2 text-text-muted">
+                        <li><Link href="/privacy" className="hover:text-text-primary transition-colors">Privacy Policy</Link></li>
+                        <li><Link href="/terms" className="hover:text-text-primary transition-colors">Terms of Service</Link></li>
+                     </ul>
                   </div>
                </div>
             </div>
 
-            <div className="border-t border-gray-700/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-               <div className="flex flex-col gap-2">
-                  <div className="text-gray-400 text-xs">
-                     &copy; 2025 Smart Trip AI.
-                  </div>
-                  <div className="flex items-center gap-4 text-gray-400 text-xs">
-                     <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> English (US)</span>
-                     <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> USD</span>
-                  </div>
-               </div>
+            <div className="border-t border-border-soft pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+               <p className="text-text-muted text-xs">&copy; 2025 Smart Trip AI. All rights reserved.</p>
 
-               <div className="flex items-center gap-4">
-                  <a href="https://www.facebook.com/smarttripai" target="_blank" rel="noreferrer" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white" aria-label="Smart Trip AI on Facebook"><Facebook className="w-4 h-4" /></a>
-                  <a href="https://x.com/smarttripai" target="_blank" rel="noreferrer" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white" aria-label="Smart Trip AI on X"><Twitter className="w-4 h-4" /></a>
-                  <a href="https://www.instagram.com/smarttripai" target="_blank" rel="noreferrer" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white" aria-label="Smart Trip AI on Instagram"><Instagram className="w-4 h-4" /></a>
-                  <a href="https://www.youtube.com/smarttripai" target="_blank" rel="noreferrer" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white" aria-label="Smart Trip AI on YouTube"><Youtube className="w-4 h-4" /></a>
-                  <a href="https://www.linkedin.com/company/smarttripai" target="_blank" rel="noreferrer" className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white" aria-label="Smart Trip AI on LinkedIn"><Linkedin className="w-4 h-4" /></a>
+               <div className="flex items-center gap-1">
+                  <a href="https://www.facebook.com/smarttripai" target="_blank" rel="noreferrer" className="p-2 rounded-full text-text-muted hover:text-brand hover:bg-brand/10 transition-colors" aria-label="Facebook"><Facebook className="w-4 h-4" /></a>
+                  <a href="https://x.com/smarttripai" target="_blank" rel="noreferrer" className="p-2 rounded-full text-text-muted hover:text-brand hover:bg-brand/10 transition-colors" aria-label="X / Twitter"><Twitter className="w-4 h-4" /></a>
+                  <a href="https://www.instagram.com/smarttripai" target="_blank" rel="noreferrer" className="p-2 rounded-full text-text-muted hover:text-brand hover:bg-brand/10 transition-colors" aria-label="Instagram"><Instagram className="w-4 h-4" /></a>
+                  <a href="https://www.youtube.com/smarttripai" target="_blank" rel="noreferrer" className="p-2 rounded-full text-text-muted hover:text-brand hover:bg-brand/10 transition-colors" aria-label="YouTube"><Youtube className="w-4 h-4" /></a>
+                  <a href="https://www.linkedin.com/company/smarttripai" target="_blank" rel="noreferrer" className="p-2 rounded-full text-text-muted hover:text-brand hover:bg-brand/10 transition-colors" aria-label="LinkedIn"><Linkedin className="w-4 h-4" /></a>
                </div>
             </div>
          </div>

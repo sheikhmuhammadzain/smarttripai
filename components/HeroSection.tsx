@@ -1,11 +1,20 @@
 ﻿'use client';
 
-import { Star } from 'lucide-react';
+import { Search } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { products } from '@/lib/data';
+
+const DESTINATIONS = [
+  { label: 'Istanbul', q: 'istanbul' },
+  { label: 'Cappadocia', q: 'cappadocia' },
+  { label: 'Ephesus', q: 'ephesus' },
+  { label: 'Pamukkale', q: 'pamukkale' },
+  { label: 'Antalya', q: 'antalya' },
+  { label: 'Bodrum', q: 'bodrum' },
+];
 
 export default function HeroSection() {
   const router = useRouter();
@@ -18,7 +27,6 @@ export default function HeroSection() {
     const timer = window.setTimeout(() => {
       setDebouncedQuery(input.trim());
     }, 280);
-
     return () => window.clearTimeout(timer);
   }, [input]);
 
@@ -29,7 +37,6 @@ export default function HeroSection() {
         setFocused(false);
       }
     }
-
     document.addEventListener('mousedown', onPointerDown);
     return () => document.removeEventListener('mousedown', onPointerDown);
   }, []);
@@ -53,112 +60,107 @@ export default function HeroSection() {
   }
 
   return (
-    <div className="relative">
-      <div className="relative w-full min-h-[640px] md:h-[580px]">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://picsum.photos/1920/800"
-            alt="Turkey travel inspiration"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/20" />
-        </div>
+    <div className="relative w-full overflow-hidden" style={{ minHeight: '540px' }}>
+      {/* Background image */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1920&q=85"
+          alt="Istanbul skyline"
+          fill
+          className="object-cover object-center"
+          priority
+        />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0.38) 60%, rgba(0,0,0,0.62) 100%)' }} />
+      </div>
 
-        <div className="relative z-10 max-w-[1320px] mx-auto px-4 md:px-6 h-full flex flex-col justify-center pb-8 md:pb-20 pt-12 md:pt-0">
-          <h1 className="text-white text-4xl sm:text-5xl md:text-[56px] font-bold mb-6 md:mb-8 drop-shadow-md leading-tight">
-            Discover and plan unforgettable Turkey experiences
-          </h1>
+      {/* Centered content */}
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 py-20 md:py-28" style={{ minHeight: '540px' }}>
+        {/* Eyebrow */}
+        <p className="text-white/70 text-xs font-semibold tracking-[0.18em] uppercase mb-4 select-none">
+          Turkey Travel Experiences
+        </p>
 
-          <div className="max-w-[640px] w-full mb-6 md:mb-12">
-            <form
-              ref={formRef}
-              action="/search"
-              onSubmit={(event) => {
-                event.preventDefault();
-                submitSearch();
-              }}
-              className="relative flex items-center w-full h-14 md:h-16 rounded-full bg-background shadow-lg overflow-visible pl-4 md:pl-6 pr-2"
-            >
-              <div className="flex-1 flex items-center h-full">
-                <input
-                  name="q"
-                  type="text"
-                  value={input}
-                  onFocus={() => setFocused(true)}
-                  onChange={(event) => setInput(event.target.value)}
-                  placeholder="Find places and things to do in Turkey"
-                  className="w-full h-full outline-none text-text-body placeholder-text-subtle font-medium text-base md:text-lg bg-transparent"
-                />
-              </div>
+        {/* Headline */}
+        <h1 className="text-white font-bold leading-tight mb-4 max-w-2xl"
+          style={{ fontSize: 'clamp(2rem, 5vw, 3.25rem)', letterSpacing: '-0.02em', textShadow: '0 2px 16px rgba(0,0,0,0.25)' }}>
+          Find your next<br />unforgettable experience
+        </h1>
+
+        {/* Subtext */}
+        <p className="text-white/75 text-base md:text-lg mb-8 max-w-md font-normal" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.3)' }}>
+          Tours, activities & day trips across Turkey — curated by locals.
+        </p>
+
+        {/* Search bar */}
+        <div className="w-full max-w-2xl mb-6">
+          <form
+            ref={formRef}
+            action="/search"
+            onSubmit={(e) => { e.preventDefault(); submitSearch(); }}
+            className="relative w-full"
+          >
+            <div className="flex items-center w-full h-14 rounded-xl bg-white shadow-2xl overflow-visible"
+              style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.22)' }}>
+              <Search className="w-5 h-5 text-text-subtle ml-4 md:ml-5 shrink-0" />
+              <input
+                name="q"
+                type="text"
+                value={input}
+                onFocus={() => setFocused(true)}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Search destinations, tours, activities..."
+                className="flex-1 h-full outline-none text-text-body placeholder-text-subtle font-medium text-sm md:text-base bg-transparent px-3"
+              />
               <button
                 type="submit"
-                className="h-10 md:h-12 px-5 md:px-8 bg-brand hover:bg-brand-hover text-white font-bold rounded-full transition-colors text-sm md:text-base"
+                className="h-full px-6 md:px-8 bg-brand hover:bg-brand-hover text-white font-semibold rounded-r-xl transition-colors text-sm md:text-[15px] shrink-0"
               >
                 Search
               </button>
-
-              {focused && suggestions.length > 0 ? (
-                <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-50 rounded-2xl border border-border-soft bg-background shadow-2xl">
-                  <ul className="max-h-80 overflow-y-auto py-2">
-                    {suggestions.map((product) => (
-                      <li key={product.id}>
-                        <button
-                          type="button"
-                          onClick={() => submitSearch(product.title)}
-                          className="w-full px-4 py-2.5 text-left hover:bg-surface-subtle"
-                        >
-                          <p className="text-sm font-semibold text-text-primary">{product.title}</p>
-                          <p className="text-xs text-text-muted">{product.location} | {product.category}</p>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-            </form>
-          </div>
-
-          <div className="relative w-full max-w-sm pt-2 md:pt-4">
-            <div className="bg-background/95 backdrop-blur-sm rounded-xl p-4 shadow-xl max-w-[400px]">
-              <div className="mb-3">
-                <h3 className="text-text-heading font-bold text-xl sm:text-2xl mb-2">Continue planning your trip</h3>
-              </div>
-              <Link href="/products/2" className="flex gap-3 md:gap-4 bg-surface-base rounded-lg p-3 border border-border-soft hover:border-brand/20 transition-colors">
-                <div className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden">
-                  <Image
-                    src="https://picsum.photos/seed/istanbul-planning/200/200"
-                    alt="Istanbul tour"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="flex flex-col justify-between py-1 min-w-0">
-                  <div>
-                    <h4 className="font-bold text-sm leading-tight text-text-primary mb-1 line-clamp-2">
-                      Istanbul: Skip-the-line Hagia Sophia and Basilica Cistern Tour
-                    </h4>
-                    <p className="text-xs text-text-muted mb-1">2 hours | Skip the line</p>
-                    <div className="flex items-center gap-1">
-                      <div className="flex text-yellow-400">
-                        <Star className="w-3 h-3 fill-current" />
-                        <Star className="w-3 h-3 fill-current" />
-                        <Star className="w-3 h-3 fill-current" />
-                        <Star className="w-3 h-3 fill-current" />
-                        <Star className="w-3 h-3 fill-current" />
-                      </div>
-                      <span className="text-xs text-text-muted">4.8</span>
-                    </div>
-                  </div>
-                  <div className="text-sm font-medium text-text-primary">
-                    From <span className="font-bold text-lg text-text-heading">$42</span>
-                  </div>
-                </div>
-              </Link>
             </div>
-          </div>
+
+            {focused && suggestions.length > 0 && (
+              <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-xl border border-border-soft bg-background shadow-2xl overflow-hidden">
+                <ul className="max-h-72 overflow-y-auto py-1.5">
+                  {suggestions.map((product) => (
+                    <li key={product.id}>
+                      <button
+                        type="button"
+                        onClick={() => submitSearch(product.title)}
+                        className="w-full px-4 py-2.5 text-left hover:bg-surface-subtle flex items-start gap-3"
+                      >
+                        <Search className="w-4 h-4 text-text-subtle mt-0.5 shrink-0" />
+                        <div>
+                          <p className="text-sm font-semibold text-text-primary">{product.title}</p>
+                          <p className="text-xs text-text-muted">{product.location} · {product.category}</p>
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </form>
         </div>
+
+        {/* Destination chips */}
+        <div className="flex flex-wrap justify-center gap-2">
+          <span className="text-white/60 text-xs font-medium self-center mr-1">Popular:</span>
+          {DESTINATIONS.map((d) => (
+            <Link
+              key={d.q}
+              href={`/search?q=${d.q}`}
+              className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-white border border-white/30 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all"
+            >
+              {d.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* Trust signal */}
+        <p className="mt-8 text-white/45 text-xs tracking-wide">
+          500+ curated experiences &nbsp;·&nbsp; Free cancellation on most tours &nbsp;·&nbsp; Instant confirmation
+        </p>
       </div>
     </div>
   );
