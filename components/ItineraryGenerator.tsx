@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { Sparkles, MapPin, DollarSign, Clock, Save, CloudSun, Banknote } from 'lucide-react';
+import { Sparkles, MapPin, DollarSign, Clock, CloudSun, Banknote, ArrowUpRight, BookmarkCheck, CalendarRange, CheckCircle2, Route } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import type { BudgetLevel, GeneratedItinerary, InterestTag, ItineraryRequest } from '@/types/travel';
@@ -91,6 +91,10 @@ function getTodayIsoDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function formatCityLabel(city: string) {
+  return city.charAt(0).toUpperCase() + city.slice(1);
+}
+
 export default function ItineraryGenerator() {
   const { preferences } = useAppPreferences();
   const userCurrency = preferences.currency;
@@ -115,6 +119,11 @@ export default function ItineraryGenerator() {
 
   const daysSelected = useMemo(() => DURATION_DAYS[duration] ?? 5, [duration]);
   const primaryDestination = destinations[0] ?? 'istanbul';
+  const totalActivities = useMemo(
+    () => result?.days.reduce((sum, day) => sum + day.items.length, 0) ?? 0,
+    [result],
+  );
+  const previewDays = useMemo(() => result?.days.slice(0, 4) ?? [], [result]);
 
   useEffect(() => {
     const saved = readPersistedState();
@@ -286,6 +295,43 @@ export default function ItineraryGenerator() {
     };
   }, [primaryDestination, transportDepartureDate, transportFrom, transportMode, userCurrency]);
 
+  async function saveGeneratedItinerary(payload: ItineraryRequest, generatedItinerary: GeneratedItinerary) {
+    setSaving(true);
+    setSaveResult(null);
+
+    try {
+      const response = await fetch('/api/v1/itineraries', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          requestSnapshot: payload,
+          generatedPlan: generatedItinerary,
+          notes: 'Generated via planner page',
+          status: 'saved',
+        }),
+      });
+
+      if (response.status === 401) {
+        setSavedItineraryId(null);
+        setSaveResult('Generated successfully. Sign in to auto-save this itinerary.');
+        return;
+      }
+
+      const body = (await response.json()) as { id?: string; detail?: string };
+      if (!response.ok || !body.id) {
+        throw new Error(body.detail ?? 'Could not save itinerary');
+      }
+
+      setSaveResult('Itinerary generated and saved automatically.');
+      setSavedItineraryId(body.id);
+    } catch (saveError) {
+      setSavedItineraryId(null);
+      setSaveResult(saveError instanceof Error ? saveError.message : 'Failed to save itinerary');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function handleGenerate() {
     setLoading(true);
     setError(null);
@@ -320,48 +366,11 @@ export default function ItineraryGenerator() {
 
       setResult(body.itinerary);
       setRequestSnapshot(payload);
+      await saveGeneratedItinerary(payload, body.itinerary);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Failed to generate itinerary');
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleSave() {
-    if (!result || !requestSnapshot) {
-      return;
-    }
-
-    setSaving(true);
-    setSaveResult(null);
-
-    try {
-      const response = await fetch('/api/v1/itineraries', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          requestSnapshot,
-          generatedPlan: result,
-          notes: 'Generated via planner page',
-          status: 'saved',
-        }),
-      });
-
-      if (response.status === 401) {
-        throw new Error('Sign in first to save itineraries.');
-      }
-
-      const body = (await response.json()) as { id?: string; detail?: string };
-      if (!response.ok || !body.id) {
-        throw new Error(body.detail ?? 'Could not save itinerary');
-      }
-
-      setSaveResult(`Saved itinerary ${body.id}`);
-      setSavedItineraryId(body.id);
-    } catch (saveError) {
-      setSaveResult(saveError instanceof Error ? saveError.message : 'Failed to save itinerary');
-    } finally {
-      setSaving(false);
     }
   }
 
@@ -606,44 +615,136 @@ export default function ItineraryGenerator() {
           </div>
 
           <div className="flex items-center gap-2 ml-auto">
-            {result && (
-              <button
-                disabled={saving}
-                onClick={handleSave}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-4 py-2 text-sm font-medium text-text-body transition-colors hover:bg-surface-subtle disabled:opacity-50"
-              >
-                <Save className="w-3.5 h-3.5" />
-                {saving ? 'Saving…' : 'Save'}
-              </button>
-            )}
             <button
-              disabled={loading}
+              disabled={loading || saving}
               onClick={handleGenerate}
               className="inline-flex items-center gap-2 rounded-lg bg-brand px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-hover active:scale-95 disabled:opacity-50"
             >
               <Sparkles className="w-4 h-4 fill-current" />
-              {loading ? 'Generating…' : 'Generate My Itinerary'}
+              {loading ? 'Generating…' : saving ? 'Saving…' : 'Generate My Itinerary'}
             </button>
           </div>
         </div>
 
         {/* Results preview */}
         {result && (
-          <div className="mt-5 rounded-xl border border-border-default bg-surface-base p-5">
-            <div className="flex items-start justify-between gap-4 mb-4">
-              <h3 className="font-bold text-base text-text-primary">{result.title}</h3>
-              <span className="shrink-0 text-xs font-medium text-text-subtle">{result.totalEstimatedCostTRY} TRY</span>
-            </div>
-            <div className="space-y-2">
-              {result.days.slice(0, 3).map((day) => (
-                <div key={day.day} className="flex items-center gap-3 rounded-lg border border-border-subtle bg-surface-subtle px-3 py-2.5">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/10 text-[11px] font-bold text-brand">{day.day}</span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-text-body truncate">{day.city}</p>
-                    <p className="text-[11px] text-text-muted">{day.items.length} activities · {day.notes[0] ?? 'Curated by AI'}</p>
+          <div className="mt-6 overflow-hidden rounded-2xl border border-border-default bg-surface-base shadow-sm">
+            <div className="border-b border-border-soft bg-linear-to-r from-brand/6 via-transparent to-transparent px-5 py-5 md:px-6">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="max-w-3xl">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-brand px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-white">
+                      AI itinerary
+                    </span>
+                    <span className="rounded-full bg-surface-brand-subtle px-2.5 py-1 text-[10px] font-semibold text-brand">
+                      {result.days.length} days
+                    </span>
+                    {savedItineraryId ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-surface-subtle px-2.5 py-1 text-[10px] font-semibold text-text-body">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Auto-saved
+                      </span>
+                    ) : null}
+                  </div>
+                  <h3 className="mt-3 text-xl font-bold tracking-tight text-text-primary md:text-2xl">{result.title}</h3>
+                  <p className="mt-2 text-sm text-text-muted">
+                    A structured route across {result.cityOrder.map((city) => formatCityLabel(city)).join(' -> ')} with live transport context and budget-aware activity grouping.
+                  </p>
+                </div>
+
+                <div className="grid min-w-[220px] grid-cols-2 gap-3">
+                  <div className="rounded-2xl border border-border-soft bg-surface-subtle px-3 py-3">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-text-subtle">Estimated total</p>
+                    <p className="mt-1 text-lg font-semibold text-text-primary">{result.totalEstimatedCostTRY} TRY</p>
+                  </div>
+                  <div className="rounded-2xl border border-border-soft bg-surface-subtle px-3 py-3">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-text-subtle">Activities</p>
+                    <p className="mt-1 text-lg font-semibold text-text-primary">{totalActivities}</p>
                   </div>
                 </div>
-              ))}
+              </div>
+
+              <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
+                <div className="rounded-2xl border border-border-soft bg-surface-subtle px-4 py-3">
+                  <div className="flex items-center gap-2 text-text-primary">
+                    <Route className="h-4 w-4 text-brand" />
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-subtle">Route</p>
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-text-primary">
+                    {result.cityOrder.map((city) => formatCityLabel(city)).join(' -> ')}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border-soft bg-surface-subtle px-4 py-3">
+                  <div className="flex items-center gap-2 text-text-primary">
+                    <CalendarRange className="h-4 w-4 text-brand" />
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-subtle">Trip window</p>
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-text-primary">
+                    {requestSnapshot?.startDate} to {requestSnapshot?.endDate}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border-soft bg-surface-subtle px-4 py-3">
+                  <div className="flex items-center gap-2 text-text-primary">
+                    <BookmarkCheck className="h-4 w-4 text-brand" />
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-subtle">Status</p>
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-text-primary">
+                    {savedItineraryId ? 'Saved to your itinerary library' : 'Generated locally'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-5 py-5 md:px-6">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-text-subtle">Preview days</p>
+                {savedItineraryId ? (
+                  <Link
+                    href={`/itineraries/${savedItineraryId}`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border-default bg-surface-base px-3 py-2 text-xs font-semibold text-text-body transition-colors hover:border-border-strong hover:bg-surface-subtle"
+                  >
+                    Open saved itinerary
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </Link>
+                ) : null}
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                {previewDays.map((day) => (
+                  <div
+                    key={day.day}
+                    className="group rounded-2xl border border-border-soft bg-surface-base p-4 transition-colors duration-200 hover:border-border-default hover:bg-surface-subtle"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-sm font-bold text-brand">
+                        {day.day}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-base font-semibold text-text-primary">{formatCityLabel(day.city)}</p>
+                          <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-[11px] font-semibold text-text-muted">
+                            {day.items.length} activities
+                          </span>
+                        </div>
+                        <p className="mt-2 text-sm leading-6 text-text-body">
+                          {day.notes[0] ?? 'Curated by AI for your selected pace, budget, and interests.'}
+                        </p>
+                        {day.items[0]?.transportHint ? (
+                          <p className="mt-3 text-xs font-medium text-brand">
+                            Transfer note: {day.items[0].transportHint}
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {result.days.length > previewDays.length ? (
+                <p className="mt-4 text-sm text-text-muted">
+                  + {result.days.length - previewDays.length} more days are available in the saved itinerary view.
+                </p>
+              ) : null}
             </div>
           </div>
         )}
