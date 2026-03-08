@@ -1,10 +1,11 @@
 ﻿'use client';
 
-import { Sparkles, MapPin, DollarSign, Clock, Save, CloudSun, Banknote, Bus } from 'lucide-react';
+import { Sparkles, MapPin, DollarSign, Clock, Save, CloudSun, Banknote } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import type { BudgetLevel, GeneratedItinerary, InterestTag, ItineraryRequest } from '@/types/travel';
 import { useAppPreferences } from '@/lib/preferences-client';
+import TransportMapEmbed from '@/components/TransportMapEmbed';
 
 const DESTINATIONS = ['cappadocia', 'istanbul', 'ephesus', 'pamukkale', 'antalya', 'bodrum', 'bursa', 'ankara', 'trabzon', 'konya', 'canakkale', 'izmir', 'alanya', 'gaziantep', 'mardin', 'safranbolu'] as const;
 
@@ -497,7 +498,8 @@ export default function ItineraryGenerator() {
         </div>
 
         {/* Row 3 — Live Data Cards */}
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-1">
           {/* Weather Card */}
           <div className="relative overflow-hidden rounded-2xl border border-border-soft bg-surface-base p-4">
             <div className="flex items-start gap-3.5">
@@ -575,46 +577,17 @@ export default function ItineraryGenerator() {
             </div>
           </div>
 
-          {/* Transport Card */}
-          <div className="relative overflow-hidden rounded-2xl border border-border-soft bg-surface-base p-4">
-            <div className="flex items-start gap-3.5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle">
-                <Bus className="h-5 w-5 text-violet-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
-                    Transport
-                  </p>
-                  {!realtimeLoading && transport?.source && (
-                    <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-semibold ${transport.source === 'google-distance-matrix'
-                      ? 'bg-surface-subtle text-emerald-500'
-                      : 'bg-surface-subtle text-amber-500'
-                      }`}>
-                      {transport.source === 'google-distance-matrix' ? 'Google Maps' : 'Estimate'}
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 text-sm font-bold text-text-primary">
-                  {realtimeLoading ? (
-                    <span className="inline-block h-4 w-24 animate-pulse rounded bg-surface-subtle" />
-                  ) : transport ? (
-                    <>
-                      {transport.distanceKm} km <span className="font-normal text-text-muted">·</span> ~{transport.estimatedDurationHours}h
-                    </>
-                  ) : (
-                    <span className="text-text-subtle">Unavailable</span>
-                  )}
-                </p>
-                <p className="mt-0.5 text-[11px] text-text-muted truncate">
-                  {transportFrom.charAt(0).toUpperCase() + transportFrom.slice(1)} → {primaryDestination.charAt(0).toUpperCase() + primaryDestination.slice(1)}
-                  {transport?.recommendation && (
-                    <span className="ml-1.5 text-text-subtle hidden sm:inline">· {transport.recommendation}</span>
-                  )}
-                </p>
-              </div>
-            </div>
           </div>
+          <TransportMapEmbed
+            from={transportFrom}
+            to={primaryDestination}
+            mode={transportMode}
+            distanceKm={transport?.distanceKm}
+            estimatedDurationHours={transport?.estimatedDurationHours}
+            recommendation={transport?.recommendation}
+            source={transport?.source}
+            isLoading={realtimeLoading}
+          />
         </div>
 
         {/* Divider + Actions */}
