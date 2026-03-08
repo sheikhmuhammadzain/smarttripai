@@ -34,7 +34,7 @@ export const products: Product[] = [
   {
     id: "1",
     slug: "cappadocia-sunrise-balloon-flight",
-    image: "https://picsum.photos/seed/cappadocia/800/600",
+    image: "https://images.pexels.com/photos/34012271/pexels-photo-34012271.jpeg?cs=srgb&dl=pexels-photo4artt-34012271.jpg&fm=jpg",
     title: "Cappadocia: Sunrise Hot Air Balloon Flight with Champagne",
     summary:
       "See Cappadocia valleys at sunrise with hotel pickup and post-flight celebration.",
@@ -91,7 +91,7 @@ export const products: Product[] = [
   {
     id: "2",
     slug: "istanbul-hagia-sophia-blue-mosque-topkapi-tour",
-    image: "https://picsum.photos/seed/istanbul/800/600",
+    image: "https://images.pexels.com/photos/35582896/pexels-photo-35582896.jpeg?cs=srgb&dl=pexels-furkan-uslu-168786346-35582896.jpg&fm=jpg",
     title: "Istanbul: Hagia Sophia, Blue Mosque & Topkapi Palace Tour",
     summary:
       "Guided Istanbul old-city route covering Ottoman and Byzantine landmarks.",
@@ -143,7 +143,7 @@ export const products: Product[] = [
   {
     id: "3",
     slug: "ephesus-small-group-tour-kusadasi-izmir",
-    image: "https://picsum.photos/seed/ephesus/800/600",
+    image: "https://images.pexels.com/photos/36122307/pexels-photo-36122307.jpeg?cs=srgb&dl=pexels-hobiphotography-36122307.jpg&fm=jpg",
     title: "Ephesus: Small Group Tour from Kusadasi/Izmir",
     summary:
       "Visit major Ephesus ruins with transfers and commentary in a small group.",
@@ -196,7 +196,7 @@ export const products: Product[] = [
   {
     id: "4",
     slug: "pamukkale-hierapolis-full-day-tour",
-    image: "https://picsum.photos/seed/pamukkale/800/600",
+    image: "https://images.pexels.com/photos/34215958/pexels-photo-34215958.jpeg?cs=srgb&dl=pexels-missptr-34215958.jpg&fm=jpg",
     title: "Pamukkale & Hierapolis Full-Day Guided Tour",
     summary:
       "Discover travertine terraces and the ancient spa city of Hierapolis.",
@@ -230,7 +230,7 @@ export const products: Product[] = [
   {
     id: "5",
     slug: "bodrum-blue-voyage-gulet-cruise",
-    image: "https://picsum.photos/seed/bodrum/800/600",
+    image: "https://images.pexels.com/photos/33822707/pexels-photo-33822707.jpeg?cs=srgb&dl=pexels-orkun-uzunsac-1764951442-33822707.jpg&fm=jpg",
     title: "Bodrum: Blue Voyage Gulet Cruise with Lunch",
     summary:
       "Sail the Aegean on a traditional wooden gulet, visiting hidden coves and crystal bays.",
@@ -265,7 +265,7 @@ export const products: Product[] = [
   {
     id: "6",
     slug: "antalya-old-town-waterfall-tour",
-    image: "https://picsum.photos/seed/antalya/800/600",
+    image: "https://images.pexels.com/photos/31914566/pexels-photo-31914566.jpeg?cs=srgb&dl=pexels-eren-31914566.jpg&fm=jpg",
     title: "Antalya: Old Town, Duden Waterfalls & Cable Car",
     summary:
       "Explore Kaleici harbour, ride the Tunektepe cable car, and admire Duden Waterfalls.",
@@ -299,7 +299,7 @@ export const products: Product[] = [
   {
     id: "7",
     slug: "bursa-grand-mosque-silk-market-tour",
-    image: "https://picsum.photos/seed/bursa/800/600",
+    image: "https://images.pexels.com/photos/19792501/pexels-photo-19792501.jpeg?cs=srgb&dl=pexels-zeynep-gonul-kocak-896406907-19792501.jpg&fm=jpg",
     title: "Bursa: Grand Mosque, Silk Bazaar & Green Tomb Tour",
     summary:
       "Discover the first Ottoman capital — magnificent mosques, covered bazaars, and royal tombs.",
@@ -333,7 +333,7 @@ export const products: Product[] = [
   {
     id: "8",
     slug: "ankara-anitkabir-museum-anatolian-civilizations",
-    image: "https://picsum.photos/seed/ankara/800/600",
+    image: "https://images.pexels.com/photos/19197366/pexels-photo-19197366.jpeg?cs=srgb&dl=pexels-turuncu-sakal-523826045-19197366.jpg&fm=jpg",
     title: "Ankara: Ataturk Mausoleum & Museum of Anatolian Civilizations",
     summary:
       "Visit Turkey's capital landmarks — the Anitkabir mausoleum and the world-class Anatolian Civilizations Museum.",
@@ -367,7 +367,7 @@ export const products: Product[] = [
   {
     id: "9",
     slug: "trabzon-sumela-monastery-black-sea-tour",
-    image: "https://picsum.photos/seed/trabzon/800/600",
+    image: "https://images.pexels.com/photos/35165112/pexels-photo-35165112.jpeg?cs=srgb&dl=pexels-kadernamuslu-35165112.jpg&fm=jpg",
     title: "Trabzon: Sumela Monastery & Black Sea Highlands",
     summary:
       "Trek to the cliff-carved Sumela Monastery and explore the lush Black Sea highland plateau.",
@@ -402,7 +402,7 @@ export const products: Product[] = [
   {
     id: "10",
     slug: "konya-mevlana-museum-whirling-dervish",
-    image: "https://picsum.photos/seed/konya/800/600",
+    image: "https://images.pexels.com/photos/19792501/pexels-photo-19792501.jpeg?cs=srgb&dl=pexels-zeynep-gonul-kocak-896406907-19792501.jpg&fm=jpg",
     title: "Konya: Mevlana Museum & Sema Whirling Dervish Ceremony",
     summary:
       "Experience the spiritual heart of Turkey — the Mevlana Museum and a live Sema ceremony.",
@@ -436,7 +436,7 @@ export const products: Product[] = [
   {
     id: "11",
     slug: "troy-ancient-ruins-canakkale-tour",
-    image: "https://picsum.photos/seed/troy/800/600",
+    image: "https://images.pexels.com/photos/36122307/pexels-photo-36122307.jpeg?cs=srgb&dl=pexels-hobiphotography-36122307.jpg&fm=jpg",
     title: "Troy Ancient Ruins & Gallipoli Battlefield Day Tour",
     summary:
       "Walk through the legendary ruins of Troy and pay tribute at Gallipoli's WWI memorials.",
@@ -470,7 +470,7 @@ export const products: Product[] = [
   {
     id: "12",
     slug: "istanbul-bosphorus-cruise-two-continents",
-    image: "https://picsum.photos/seed/bosphorus/800/600",
+    image: "https://images.pexels.com/photos/31661448/pexels-photo-31661448.jpeg?cs=srgb&dl=pexels-pelin-2937827-31661448.jpg&fm=jpg",
     title: "Istanbul: Bosphorus Cruise — Two Continents in One Day",
     summary:
       "Glide along the Bosphorus Strait, spotting palaces, fortresses, and the bridge between Europe and Asia.",
@@ -505,7 +505,7 @@ export const products: Product[] = [
   {
     id: "13",
     slug: "izmir-agora-kordon-winery-tour",
-    image: "https://picsum.photos/seed/izmir/800/600",
+    image: "https://images.pexels.com/photos/36122307/pexels-photo-36122307.jpeg?cs=srgb&dl=pexels-hobiphotography-36122307.jpg&fm=jpg",
     title: "Izmir: Ancient Agora, Kadifekale & Kordon Waterfront Tour",
     summary:
       "Explore Turkey's third-largest city — walk Roman ruins, climb a fortress hill, and stroll the sparkling Aegean waterfront.",
@@ -539,7 +539,7 @@ export const products: Product[] = [
   {
     id: "14",
     slug: "alanya-castle-damlatas-cave-beach-tour",
-    image: "https://picsum.photos/seed/alanya/800/600",
+    image: "https://images.pexels.com/photos/33822707/pexels-photo-33822707.jpeg?cs=srgb&dl=pexels-orkun-uzunsac-1764951442-33822707.jpg&fm=jpg",
     title: "Alanya: Seljuk Castle, Damlatas Cave & Red Tower",
     summary:
       "Discover the medieval fortress city — cliff-top castle, ancient cave, and crimson harbour tower above turquoise Mediterranean waters.",
@@ -573,7 +573,7 @@ export const products: Product[] = [
   {
     id: "15",
     slug: "gaziantep-zeugma-mosaic-food-tour",
-    image: "https://picsum.photos/seed/gaziantep/800/600",
+    image: "https://images.pexels.com/photos/35313541/pexels-photo-35313541.jpeg?cs=srgb&dl=pexels-aysegul-aytoren-46790226-35313541.jpg&fm=jpg",
     title: "Gaziantep: Zeugma Mosaic Museum, Spice Bazaar & Baklava Trail",
     summary:
       "Savour Turkey's food capital and explore its world-class Roman mosaic museum alongside legendary baklava workshops.",
@@ -608,7 +608,7 @@ export const products: Product[] = [
   {
     id: "16",
     slug: "mardin-old-city-monastery-artisan-tour",
-    image: "https://picsum.photos/seed/mardin/800/600",
+    image: "https://images.pexels.com/photos/35313541/pexels-photo-35313541.jpeg?cs=srgb&dl=pexels-aysegul-aytoren-46790226-35313541.jpg&fm=jpg",
     title:
       "Mardin: Honey-Stone Old City, Deyrulzafaran Monastery & Artisan Workshops",
     summary:
@@ -643,7 +643,7 @@ export const products: Product[] = [
   {
     id: "17",
     slug: "safranbolu-ottoman-houses-cave-tour",
-    image: "https://picsum.photos/seed/safranbolu/800/600",
+    image: "https://images.pexels.com/photos/35424266/pexels-photo-35424266.jpeg?cs=srgb&dl=pexels-nazmiye-kirik-1674527266-35424266.jpg&fm=jpg",
     title: "Safranbolu: UNESCO Ottoman Houses, Cinci Han & Bulak Cave",
     summary:
       "Step back into a perfectly preserved 18th-century Ottoman trading town — cobbled lanes, carved wooden mansions, and ancient caravanserai.",
@@ -677,7 +677,7 @@ export const products: Product[] = [
   {
     id: "18",
     slug: "istanbul-grand-bazaar-spice-market-food-tour",
-    image: "https://picsum.photos/seed/istanbul-bazaar/800/600",
+    image: "https://images.pexels.com/photos/35582896/pexels-photo-35582896.jpeg?cs=srgb&dl=pexels-furkan-uslu-168786346-35582896.jpg&fm=jpg",
     title: "Istanbul: Grand Bazaar, Spice Market & Street Food Walking Tour",
     summary:
       "Taste your way through Istanbul's legendary covered bazaars — simit, baklava, Turkish delight, and fresh pomegranate juice.",
@@ -730,7 +730,7 @@ export const products: Product[] = [
   {
     id: "19",
     slug: "cappadocia-atv-valleys-sunset-tour",
-    image: "https://picsum.photos/seed/cappadocia-atv/800/600",
+    image: "https://images.pexels.com/photos/34012271/pexels-photo-34012271.jpeg?cs=srgb&dl=pexels-photo4artt-34012271.jpg&fm=jpg",
     title: "Cappadocia: ATV Quad Bike Tour Through Rose & Red Valleys",
     summary:
       "Race through fairy chimneys and ochre canyons on an ATV as the Cappadocian sunset turns the valleys gold.",
@@ -765,7 +765,7 @@ export const products: Product[] = [
   {
     id: "20",
     slug: "pamukkale-cleopatra-pool-swim-tour",
-    image: "https://picsum.photos/seed/cleopatra-pool/800/600",
+    image: "https://images.pexels.com/photos/34215958/pexels-photo-34215958.jpeg?cs=srgb&dl=pexels-missptr-34215958.jpg&fm=jpg",
     title: "Pamukkale: Swim in Cleopatra's Ancient Pool & Travertine Terraces",
     summary:
       "Bathe in the 2,000-year-old thermal pool where Cleopatra is said to have swum, among submerged Roman marble columns.",
@@ -809,7 +809,7 @@ export const products: Product[] = [
   {
     id: "21",
     slug: "istanbul-turkish-cooking-class-bosphorus",
-    image: "https://picsum.photos/seed/istanbul-cooking/800/600",
+    image: "https://images.pexels.com/photos/31661448/pexels-photo-31661448.jpeg?cs=srgb&dl=pexels-pelin-2937827-31661448.jpg&fm=jpg",
     title:
       "Istanbul: Turkish Cooking Class with Market Visit & Bosphorus Lunch",
     summary:
@@ -845,7 +845,7 @@ export const products: Product[] = [
   {
     id: "22",
     slug: "cappadocia-underground-city-hike-tour",
-    image: "https://picsum.photos/seed/cappadocia-underground/800/600",
+    image: "https://images.pexels.com/photos/34012271/pexels-photo-34012271.jpeg?cs=srgb&dl=pexels-photo4artt-34012271.jpg&fm=jpg",
     title: "Cappadocia: Derinkuyu Underground City & Ihlara Valley Hike",
     summary:
       "Descend into an 8-level underground city that sheltered 20,000 people, then hike a dramatic canyon carved by a river over millennia.",
@@ -879,7 +879,7 @@ export const products: Product[] = [
   {
     id: "23",
     slug: "bodrum-sunset-catamaran-cruise",
-    image: "https://picsum.photos/seed/bodrum-sunset/800/600",
+    image: "https://images.pexels.com/photos/33822707/pexels-photo-33822707.jpeg?cs=srgb&dl=pexels-orkun-uzunsac-1764951442-33822707.jpg&fm=jpg",
     title: "Bodrum: Sunset Catamaran Cruise with Dinner & Live Music",
     summary:
       "Sail the Aegean on a sleek catamaran as the sun drops behind the Bodrum peninsula — dinner, open bar, and live Turkish music.",
@@ -914,7 +914,7 @@ export const products: Product[] = [
   {
     id: "24",
     slug: "ankara-turkish-bath-hammam-experience",
-    image: "https://picsum.photos/seed/ankara-hammam/800/600",
+    image: "https://images.pexels.com/photos/19197366/pexels-photo-19197366.jpeg?cs=srgb&dl=pexels-turuncu-sakal-523826045-19197366.jpg&fm=jpg",
     title: "Ankara: Authentic Ottoman Hammam Experience at Karacabey Bath",
     summary:
       "Surrender to a centuries-old bathing ritual — marble slabs, kese scrub, foam massage, and total relaxation in a 16th-century hammam.",
@@ -948,7 +948,7 @@ export const products: Product[] = [
   {
     id: "25",
     slug: "istanbul-princes-islands-bike-day-trip",
-    image: "https://picsum.photos/seed/princes-islands/800/600",
+    image: "https://images.pexels.com/photos/33985970/pexels-photo-33985970.jpeg?cs=srgb&dl=pexels-barkali-340353352-33985970.jpg&fm=jpg",
     title: "Istanbul: Büyükada Princes' Island Bike Ride & Ferry Day Trip",
     summary:
       "Escape the city on a ferry to the car-free Princes' Islands — rent a bike, circle the island, and swim in the Marmara Sea.",
@@ -982,7 +982,7 @@ export const products: Product[] = [
   {
     id: "26",
     slug: "antalya-perge-aspendos-ruins-day-tour",
-    image: "https://picsum.photos/seed/aspendos/800/600",
+    image: "https://images.pexels.com/photos/31914566/pexels-photo-31914566.jpeg?cs=srgb&dl=pexels-eren-31914566.jpg&fm=jpg",
     title: "Antalya: Perge Ruins, Aspendos Roman Theatre & Side Ancient City",
     summary:
       "A full-day archaeological journey through three of the Mediterranean coast's greatest Greco-Roman cities.",
@@ -1016,7 +1016,7 @@ export const products: Product[] = [
   {
     id: "27",
     slug: "trabzon-tea-plantation-highlands-tour",
-    image: "https://picsum.photos/seed/trabzon-tea/800/600",
+    image: "https://images.pexels.com/photos/35165112/pexels-photo-35165112.jpeg?cs=srgb&dl=pexels-kadernamuslu-35165112.jpg&fm=jpg",
     title:
       "Trabzon: Black Sea Tea Plantations, Rize & Ayder Plateau Hot Springs",
     summary:
@@ -1051,7 +1051,7 @@ export const products: Product[] = [
   {
     id: "28",
     slug: "istanbul-nightlife-rooftop-bar-tour",
-    image: "https://picsum.photos/seed/istanbul-night/800/600",
+    image: "https://images.pexels.com/photos/35582896/pexels-photo-35582896.jpeg?cs=srgb&dl=pexels-furkan-uslu-168786346-35582896.jpg&fm=jpg",
     title: "Istanbul: Rooftop Bar Crawl — Sultanahmet to Beyoğlu by Night",
     summary:
       "See Istanbul from above after dark — three iconic rooftop bars with Bosphorus and Golden Horn views, led by a local nightlife guide.",
@@ -1089,7 +1089,7 @@ export const products: Product[] = [
   {
     id: "29",
     slug: "aegean-fethiye-blue-lagoon-paragliding",
-    image: "https://picsum.photos/seed/fethiye/800/600",
+    image: "https://images.pexels.com/photos/34455610/pexels-photo-34455610.jpeg?cs=srgb&dl=pexels-fatih-celik-2153210214-34455610.jpg&fm=jpg",
     title:
       "Fethiye: Tandem Paraglide from Babadağ Mountain over the Blue Lagoon",
     summary:
@@ -1143,7 +1143,7 @@ export const products: Product[] = [
   {
     id: "30",
     slug: "istanbul-princess-topkapi-harem-guided-tour",
-    image: "https://picsum.photos/seed/topkapi-harem/800/600",
+    image: "https://images.pexels.com/photos/35582896/pexels-photo-35582896.jpeg?cs=srgb&dl=pexels-furkan-uslu-168786346-35582896.jpg&fm=jpg",
     title: "Istanbul: Topkapi Palace Harem, Treasury & Imperial Pavilions",
     summary:
       "Unlock the secret rooms of the Ottoman world — the Harem, the Diamond-studded Treasury, and the Sacred Relics Chamber.",
@@ -1177,7 +1177,7 @@ export const products: Product[] = [
   {
     id: "31",
     slug: "izmir-cesme-beach-wine-day-tour",
-    image: "https://picsum.photos/seed/cesme/800/600",
+    image: "https://images.pexels.com/photos/33822707/pexels-photo-33822707.jpeg?cs=srgb&dl=pexels-orkun-uzunsac-1764951442-33822707.jpg&fm=jpg",
     title: "Izmir: Çeşme Peninsula Beach Day & Aegean Wine Tasting",
     summary:
       "Sun-drenched beaches, ancient Genoese castle, and the crisp white wines of the Urla wine route on the Aegean coast.",
@@ -1211,7 +1211,7 @@ export const products: Product[] = [
   {
     id: "32",
     slug: "konya-salt-lake-sultan-marshes-nature-tour",
-    image: "https://picsum.photos/seed/salt-lake/800/600",
+    image: "https://images.pexels.com/photos/34215958/pexels-photo-34215958.jpeg?cs=srgb&dl=pexels-missptr-34215958.jpg&fm=jpg",
     title: "Konya: Tuz Gölü Salt Lake & Sultan Marshes Bird Watching Tour",
     summary:
       "Walk across a boundless white salt flat that mirrors the sky, then watch thousands of flamingos in one of Turkey's greatest wildlife spectacles.",
