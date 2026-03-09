@@ -335,8 +335,13 @@ export default function AiAssistant() {
 
             {/* Tool status chips */}
             {toolStatuses.length > 0 && (
-              <div className="flex flex-col gap-1.5 pl-9">
-                {toolStatuses.map((s) => <ToolChip key={s.tool} status={s} />)}
+              <div className="flex gap-2.5">
+                <div className="mt-1 h-8 w-8 shrink-0">
+                  <Image src="/chabot.png" alt="AI" width={32} height={32} className="drop-shadow-sm" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  {toolStatuses.map((s) => <ToolChip key={s.tool} status={s} />)}
+                </div>
               </div>
             )}
 
@@ -404,7 +409,7 @@ export default function AiAssistant() {
         ) : (
           <>
             <Image src="/chabot.png" alt="AI Assistant" width={92} height={92} className="filter drop-shadow-xl" />
-        
+
           </>
         )}
       </button>
@@ -415,15 +420,15 @@ export default function AiAssistant() {
 function ToolChip({ status }: { status: ToolStatus }) {
   return (
     <div
-      className={`inline-flex items-center gap-1.5 self-start rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 ${status.done
-        ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800"
-        : "bg-brand/8 text-brand border border-brand/15"
+      className={`inline-flex items-center gap-2 self-start rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-300 ${status.done
+          ? "bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-700"
+          : "bg-brand text-white border border-brand/80 shadow-sm shadow-brand/30"
         }`}
     >
       {status.done
-        ? <CheckCircle2 className="h-3 w-3 shrink-0" />
-        : <Loader2 className="h-3 w-3 shrink-0 animate-spin" />}
-      <span>{status.done && status.summary ? status.summary : status.label}</span>
+        ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+        : <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />}
+      <span className="leading-none">{status.done && status.summary ? status.summary : status.label}</span>
     </div>
   );
 }
