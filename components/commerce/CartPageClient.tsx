@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
@@ -54,7 +54,7 @@ function Stars({ rating }: { rating: number }) {
 
 function subscribeToTodayLabel(_callback: () => void) {
   void _callback;
-  return () => {};
+  return () => { };
 }
 
 function getTodayLabelSnapshot() {
@@ -182,18 +182,11 @@ export default function CartPageClient() {
       <h1 className="mb-4 text-2xl font-bold text-text-primary">Shopping cart</h1>
 
       {/* Countdown banner */}
-      <div
-        className="mb-6 flex items-center gap-2.5 rounded-xl px-4 py-3 text-sm font-medium shadow-sm"
-        style={{
-          background: 'var(--timer-bg)',
-          border: '2px solid var(--timer-border)',
-          color: 'var(--timer-text)',
-        }}
-      >
-        <Clock className="h-4 w-4 shrink-0" style={{ color: 'var(--timer-icon)' }} />
-        <span>
+      <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[#cf5e7f] bg-[#f8d7e2] px-4 py-2 text-sm font-medium dark:border-rose-700/60 dark:bg-rose-900/50">
+        <Clock className="h-4 w-4 shrink-0 text-[#b4234d]! dark:text-rose-400" />
+        <span className="text-[#7a1632]! dark:text-rose-200">
           We&apos;ll hold your spot for{" "}
-          <strong className="font-extrabold" style={{ color: 'var(--timer-bold)' }}>{countdown}</strong> minutes.
+          <strong className="font-extrabold text-[#651126]! dark:text-white">{countdown}</strong> minutes.
         </span>
       </div>
 

@@ -91,8 +91,8 @@ function Stars({ rating }: { rating: number }) {
         <Star
           key={i}
           className={`h-3 w-3 ${i < full
-              ? "fill-amber-400 text-amber-400"
-              : "fill-surface-subtle text-border-default"
+            ? "fill-amber-400 text-amber-400"
+            : "fill-surface-subtle text-border-default"
             }`}
         />
       ))}
@@ -251,11 +251,11 @@ export default function CheckoutPageClient() {
       {/* ══ Left: Form ══════════════════════════════ */}
       <div>
         {/* Countdown pill */}
-        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-rose-300 bg-white px-4 py-1.5 text-sm text-rose-700 dark:border-rose-800/40 dark:bg-rose-950/30 dark:text-rose-400">
-          <Clock className="h-3.5 w-3.5 shrink-0" />
-          <span>
+        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#cf5e7f] bg-[#f8d7e2] px-4 py-1.5 text-sm dark:border-rose-700/60 dark:bg-rose-900/50">
+          <Clock className="h-3.5 w-3.5 shrink-0 text-[#b4234d]! dark:text-rose-400" />
+          <span className="text-[#7a1632]! dark:text-rose-200">
             We&apos;ll hold your spot for{" "}
-            <strong className="font-bold">{countdown}</strong> minutes.
+            <strong className="font-bold text-[#651126]! dark:text-white">{countdown}</strong> minutes.
           </span>
         </div>
 

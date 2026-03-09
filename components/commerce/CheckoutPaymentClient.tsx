@@ -55,11 +55,10 @@ function Stars({ rating }: { rating: number }) {
       {Array.from({ length: 5 }, (_, i) => (
         <Star
           key={i}
-          className={`h-3 w-3 ${
-            i < full
-              ? "fill-amber-400 text-amber-400"
-              : "fill-surface-subtle text-border-default"
-          }`}
+          className={`h-3 w-3 ${i < full
+            ? "fill-amber-400 text-amber-400"
+            : "fill-surface-subtle text-border-default"
+            }`}
         />
       ))}
       <span className="ml-1 text-xs text-text-muted">{rating.toFixed(1)}</span>
@@ -259,11 +258,11 @@ export default function CheckoutPaymentClient() {
       {/* ══ Left ══════════════════════════════════════ */}
       <div>
         {/* Countdown */}
-        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-rose-300 bg-white px-4 py-1.5 text-sm text-rose-700 dark:border-rose-800/40 dark:bg-rose-950/30 dark:text-rose-400">
-          <Clock className="h-3.5 w-3.5 shrink-0" />
-          <span>
+        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#cf5e7f] bg-[#f8d7e2] px-4 py-1.5 text-sm dark:border-rose-700/60 dark:bg-rose-900/50">
+          <Clock className="h-3.5 w-3.5 shrink-0 text-[#b4234d]! dark:text-rose-400" />
+          <span className="text-[#7a1632]! dark:text-rose-200">
             We&apos;ll hold your spot for{" "}
-            <strong className="font-bold">{countdown}</strong> minutes.
+            <strong className="font-bold text-[#651126]! dark:text-white">{countdown}</strong> minutes.
           </span>
         </div>
 
@@ -294,11 +293,10 @@ export default function CheckoutPaymentClient() {
           </p>
           <div className="space-y-2">
             <label
-              className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${
-                selectedCurrency === "preferred"
-                  ? "border-brand bg-brand/5"
-                  : "border-border-default hover:bg-surface-subtle"
-              }`}
+              className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${selectedCurrency === "preferred"
+                ? "border-brand bg-brand/5"
+                : "border-border-default hover:bg-surface-subtle"
+                }`}
             >
               <input
                 type="radio"
@@ -313,11 +311,10 @@ export default function CheckoutPaymentClient() {
             </label>
             {usdTotal !== null && (
               <label
-                className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${
-                  selectedCurrency === "usd"
-                    ? "border-brand bg-brand/5"
-                    : "border-border-default hover:bg-surface-subtle"
-                }`}
+                className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${selectedCurrency === "usd"
+                  ? "border-brand bg-brand/5"
+                  : "border-border-default hover:bg-surface-subtle"
+                  }`}
               >
                 <input
                   type="radio"
@@ -349,9 +346,8 @@ export default function CheckoutPaymentClient() {
             >
               <div className="flex items-center gap-3">
                 <span
-                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-                    payMethod === "card" ? "border-brand" : "border-border-default"
-                  }`}
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${payMethod === "card" ? "border-brand" : "border-border-default"
+                    }`}
                 >
                   {payMethod === "card" && (
                     <span className="h-2.5 w-2.5 rounded-full bg-brand" />
@@ -509,9 +505,8 @@ export default function CheckoutPaymentClient() {
             >
               <div className="flex items-center gap-3">
                 <span
-                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-                    payMethod === "paypal" ? "border-brand" : "border-border-default"
-                  }`}
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${payMethod === "paypal" ? "border-brand" : "border-border-default"
+                    }`}
                 >
                   {payMethod === "paypal" && (
                     <span className="h-2.5 w-2.5 rounded-full bg-brand" />
