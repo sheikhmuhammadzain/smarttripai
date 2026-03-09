@@ -1,6 +1,7 @@
 "use client";
 
-import { MessageSquare, X, Send, Bot, ChevronDown, Loader2, CheckCircle2, Sparkles, Trash2 } from "lucide-react";
+import { MessageSquare, X, Send, ChevronDown, Loader2, CheckCircle2, Sparkles, Trash2 } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -249,8 +250,8 @@ export default function AiAssistant() {
             {/* Subtle pattern overlay */}
             <div className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
             <div className="flex items-center gap-3">
-              <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white/20 shadow-sm backdrop-blur-sm">
-                <Bot className="h-4.5 w-4.5 text-white" />
+              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
+                <Image src="/chabot.png" alt="AI Agent" width={40} height={40} className="drop-shadow-lg" />
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-brand" />
               </div>
               <div>
@@ -300,8 +301,8 @@ export default function AiAssistant() {
                 <div key={msg.id} className={`flex gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
                   {/* Avatar */}
                   {msg.role === "assistant" && (
-                    <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand/20 to-brand/10 border border-brand/20 shadow-sm">
-                      <Bot className="h-3.5 w-3.5 text-brand" />
+                    <div className="mt-1 h-8 w-8 shrink-0">
+                      <Image src="/chabot.png" alt="AI" width={32} height={32} className="drop-shadow-sm" />
                     </div>
                   )}
 
@@ -342,8 +343,8 @@ export default function AiAssistant() {
             {/* Standalone typing indicator */}
             {showStandaloneTyping && (
               <div className="flex gap-2.5">
-                <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand/20 to-brand/10 border border-brand/20 shadow-sm">
-                  <Bot className="h-3.5 w-3.5 text-brand" />
+                <div className="mt-1 h-8 w-8 shrink-0">
+                  <Image src="/chabot.png" alt="AI" width={32} height={32} className="drop-shadow-sm" />
                 </div>
                 <div className="rounded-2xl rounded-tl-md border border-border-soft bg-surface-subtle px-4 py-2.5 shadow-sm">
                   <TypingDots />
@@ -393,17 +394,17 @@ export default function AiAssistant() {
       {/* FAB */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-brand to-brand-hover text-white shadow-lg shadow-brand/30 transition-all hover:shadow-xl hover:shadow-brand/40 active:scale-95"
+        className="relative flex items-center justify-center transition-all hover:scale-110 active:scale-95 drop-shadow-2xl"
         aria-label={isOpen ? "Close assistant" : "Open assistant"}
       >
         {isOpen ? (
-          <X className="h-5 w-5" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-xl ring-2 ring-brand/20">
+            <X className="h-5 w-5 text-text-body" />
+          </div>
         ) : (
           <>
-            <MessageSquare className="h-5 w-5 fill-current" />
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-400 ring-2 ring-white shadow-sm">
-              <Sparkles className="h-2.5 w-2.5 text-white" />
-            </span>
+            <Image src="/chabot.png" alt="AI Assistant" width={92} height={92} className="filter drop-shadow-xl" />
+        
           </>
         )}
       </button>
@@ -415,8 +416,8 @@ function ToolChip({ status }: { status: ToolStatus }) {
   return (
     <div
       className={`inline-flex items-center gap-1.5 self-start rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 ${status.done
-          ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800"
-          : "bg-brand/8 text-brand border border-brand/15"
+        ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800"
+        : "bg-brand/8 text-brand border border-brand/15"
         }`}
     >
       {status.done
