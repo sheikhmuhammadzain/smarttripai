@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquare, X, Send, Bot, ChevronDown, Loader2, CheckCircle2, Sparkles } from "lucide-react";
+import { MessageSquare, X, Send, Bot, ChevronDown, Loader2, CheckCircle2, Sparkles, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -220,6 +220,15 @@ export default function AiAssistant() {
     }
   }
 
+  function clearChat() {
+    const newId = `session-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    window.localStorage.setItem(SESSION_KEY, newId);
+    setSessionId(newId);
+    setMessages([WELCOME_MESSAGE]);
+    setToolStatuses([]);
+    setHistoryLoaded(true);
+  }
+
   const lastMsg = messages[messages.length - 1];
   const showStandaloneTyping = isSending && lastMsg?.role === "user";
 
@@ -228,36 +237,50 @@ export default function AiAssistant() {
       {/* Chat window */}
       {isOpen && (
         <div
-          className="flex flex-col overflow-hidden rounded-2xl border border-border-default bg-surface-base"
+          className="flex flex-col overflow-hidden rounded-3xl border border-border-default bg-surface-base"
           style={{
-            width: "min(96vw, 480px)",
-            height: "min(85vh, 680px)",
-            boxShadow: "0 32px 80px rgba(0,0,0,0.18), 0 4px 20px rgba(0,0,0,0.08)",
+            width: "min(126vw, 820px)",
+            height: "min(85vh, 660px)",
+            boxShadow: "0 24px 60px rgba(0,0,0,0.16), 0 4px 16px rgba(0,0,0,0.08)",
           }}
         >
           {/* Header */}
-          <div className="relative flex items-center justify-between px-4 py-3 border-b border-border-soft bg-surface-base">
+          <div className="relative flex items-center justify-between px-4 py-3.5 bg-linear-to-r from-brand via-brand to-brand-hover">
+            {/* Subtle pattern overlay */}
+            <div className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
             <div className="flex items-center gap-3">
-              <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-brand shadow-sm">
+              <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white/20 shadow-sm backdrop-blur-sm">
                 <Bot className="h-4.5 w-4.5 text-white" />
-                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-surface-base" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-brand" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-text-primary leading-tight">Turkey AI Agent</p>
-                <p className="text-[11px] text-text-muted leading-tight">Powered by real-time data</p>
+                <p className="text-sm font-semibold text-white leading-tight">Turkey AI Agent</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <p className="text-[11px] text-white/70 leading-tight">Powered by real-time data</p>
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
+              <button
+                onClick={clearChat}
+                disabled={isSending}
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/15 hover:text-white disabled:opacity-40"
+                aria-label="Clear chat"
+                title="Clear chat"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg text-text-subtle transition-colors hover:bg-surface-subtle hover:text-text-body"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/15 hover:text-white"
                 aria-label="Minimise"
               >
                 <ChevronDown className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg text-text-subtle transition-colors hover:bg-surface-subtle hover:text-text-body"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/15 hover:text-white"
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />
@@ -268,7 +291,7 @@ export default function AiAssistant() {
           {/* Messages */}
           <div
             ref={scrollRef}
-            className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4"
+            className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-5"
             style={{ scrollbarWidth: "thin", scrollbarColor: "var(--border-default) transparent" }}
           >
             {messages.map((msg, idx) => {
@@ -277,17 +300,17 @@ export default function AiAssistant() {
                 <div key={msg.id} className={`flex gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
                   {/* Avatar */}
                   {msg.role === "assistant" && (
-                    <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand/10 border border-brand/20">
+                    <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand/20 to-brand/10 border border-brand/20 shadow-sm">
                       <Bot className="h-3.5 w-3.5 text-brand" />
                     </div>
                   )}
 
-                  <div className={`flex flex-col gap-1 ${msg.role === "user" ? "items-end" : "items-start"} max-w-[84%]`}>
+                  <div className={`flex flex-col gap-1 ${msg.role === "user" ? "items-end" : "items-start"} max-w-[85%]`}>
                     <div
                       className={
                         msg.role === "user"
-                          ? "rounded-2xl rounded-tr-sm bg-brand px-3.5 py-2.5 text-sm text-white shadow-sm"
-                          : "rounded-2xl rounded-tl-sm border border-border-soft bg-surface-muted px-3.5 py-2.5 text-sm text-text-body"
+                          ? "rounded-2xl rounded-tr-md bg-linear-to-br from-brand to-brand-hover px-4 py-2.5 text-sm text-white shadow-md shadow-brand/20"
+                          : "rounded-2xl rounded-tl-md border border-border-soft bg-surface-subtle px-4 py-2.5 text-sm text-text-body shadow-sm"
                       }
                     >
                       {msg.role === "assistant" ? (
@@ -319,19 +342,19 @@ export default function AiAssistant() {
             {/* Standalone typing indicator */}
             {showStandaloneTyping && (
               <div className="flex gap-2.5">
-                <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand/10 border border-brand/20">
+                <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand/20 to-brand/10 border border-brand/20 shadow-sm">
                   <Bot className="h-3.5 w-3.5 text-brand" />
                 </div>
-                <div className="rounded-2xl rounded-tl-sm border border-border-soft bg-surface-muted px-3.5 py-2.5">
+                <div className="rounded-2xl rounded-tl-md border border-border-soft bg-surface-subtle px-4 py-2.5 shadow-sm">
                   <TypingDots />
                 </div>
               </div>
             )}
           </div>
 
-          {/* Input */}
-          <div className="border-t border-border-soft bg-surface-base px-3 pb-3 pt-2.5">
-            <div className="flex items-center gap-2 rounded-xl border border-border-default bg-surface-subtle px-3 py-2 transition-all focus-within:border-brand/50 focus-within:bg-surface-base focus-within:ring-2 focus-within:ring-brand/10">
+          {/* Input area */}
+          <div className="border-t border-border-soft bg-surface-base px-4 pb-4 pt-3">
+            <div className="flex items-center gap-2.5 rounded-2xl border border-border-default bg-surface-subtle px-4 py-2.5 transition-all focus-within:border-brand/40 focus-within:bg-surface-base focus-within:ring-2 focus-within:ring-brand/10 focus-within:shadow-sm">
               <input
                 ref={inputRef}
                 type="text"
@@ -347,7 +370,7 @@ export default function AiAssistant() {
               <button
                 disabled={isSending || !input.trim()}
                 onClick={() => void sendMessage()}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand text-white transition-all hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand text-white shadow-sm shadow-brand/30 transition-all hover:bg-brand-hover hover:shadow-brand/40 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
                 aria-label="Send"
               >
                 {isSending
@@ -355,9 +378,14 @@ export default function AiAssistant() {
                   : <Send className="h-3.5 w-3.5" />}
               </button>
             </div>
-            <p className="mt-1.5 text-center text-[10px] text-text-subtle">
-              Calls real tools · Saves itineraries · Checks live availability
-            </p>
+            <div className="mt-2 flex items-center justify-center gap-3">
+              {["Calls real tools", "Saves itineraries", "Live availability"].map((label) => (
+                <span key={label} className="flex items-center gap-1 text-[10px] text-text-subtle">
+                  <span className="h-1 w-1 rounded-full bg-brand/40" />
+                  {label}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -365,7 +393,7 @@ export default function AiAssistant() {
       {/* FAB */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-lg transition-all hover:bg-brand-hover hover:shadow-xl active:scale-95"
+        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-brand to-brand-hover text-white shadow-lg shadow-brand/30 transition-all hover:shadow-xl hover:shadow-brand/40 active:scale-95"
         aria-label={isOpen ? "Close assistant" : "Open assistant"}
       >
         {isOpen ? (
@@ -373,7 +401,7 @@ export default function AiAssistant() {
         ) : (
           <>
             <MessageSquare className="h-5 w-5 fill-current" />
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-400 ring-2 ring-surface-base">
+            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-400 ring-2 ring-white shadow-sm">
               <Sparkles className="h-2.5 w-2.5 text-white" />
             </span>
           </>
@@ -386,11 +414,10 @@ export default function AiAssistant() {
 function ToolChip({ status }: { status: ToolStatus }) {
   return (
     <div
-      className={`inline-flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1 text-xs font-medium transition-all duration-300 ${
-        status.done
-          ? "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800"
+      className={`inline-flex items-center gap-1.5 self-start rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 ${status.done
+          ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800"
           : "bg-brand/8 text-brand border border-brand/15"
-      }`}
+        }`}
     >
       {status.done
         ? <CheckCircle2 className="h-3 w-3 shrink-0" />
@@ -402,12 +429,12 @@ function ToolChip({ status }: { status: ToolStatus }) {
 
 function TypingDots() {
   return (
-    <span className="flex items-center gap-1 py-0.5">
+    <span className="flex items-center gap-1.5 py-0.5 px-1">
       {[0, 1, 2].map((i) => (
         <span
           key={i}
-          className="h-1.5 w-1.5 rounded-full bg-text-subtle animate-bounce"
-          style={{ animationDelay: `${i * 0.15}s`, animationDuration: "0.9s" }}
+          className="h-2 w-2 rounded-full bg-brand/40 animate-bounce"
+          style={{ animationDelay: `${i * 0.18}s`, animationDuration: "1s" }}
         />
       ))}
     </span>

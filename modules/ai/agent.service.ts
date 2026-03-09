@@ -1,4 +1,3 @@
-import type OpenAI from "openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { logger } from "@/lib/observability/logger";
 import { getOpenAIClient } from "@/modules/ai/openai-client";
@@ -61,13 +60,13 @@ function truncateToolResult(json: string): string {
   return json.slice(0, MAX_TOOL_RESULT_CHARS) + '..."(truncated)"}';
 }
 
-/**
- * Latency optimisations vs previous version:
- * 1. Parallel tool execution — all tools in one LLM response run concurrently
- * 2. Shorter history window (16 vs 30 turns) → fewer prompt tokens
- * 3. Lower max_tokens for tool-loop calls (400 — just enough for tool_calls JSON)
- * 4. Tool result payloads capped at 4 KB to prevent context bloat
- */
+interface PartialToolCall {
+  id: string;
+  name: string;
+  arguments: string;
+  signalled: boolean;
+}
+
 export async function runAgentStream(
   conversationMessages: Array<{ role: "user" | "assistant"; content: string }>,
   context: ToolContext,
@@ -91,68 +90,101 @@ export async function runAgentStream(
     })),
   ];
 
-  // Phase 1: Tool execution loop (non-streaming, parallel tool calls)
-  let toolsWereUsed = false;
-
+  // Phase 1: Streaming tool-call loop
+  // Streaming Phase 1 means onToolCall fires the moment the LLM names a tool,
+  // before arguments are fully generated — lower perceived latency.
   for (let i = 0; i < MAX_TOOL_ITERATIONS; i++) {
     if (signal?.aborted) break;
 
-    let response: OpenAI.Chat.Completions.ChatCompletion;
+    const partials = new Map<number, PartialToolCall>();
+    let finishReason = "";
+
     try {
-      response = await client.chat.completions.create({
+      const streamResp = await client.chat.completions.create({
         model,
         messages,
         tools: agentTools,
         tool_choice: "auto",
         temperature: 0.2,
-        max_tokens: 400, // Only need room for tool_call JSON, not prose
-        stream: false,
+        max_tokens: 1000,
+        stream: true,
       });
+
+      for await (const chunk of streamResp) {
+        if (signal?.aborted) break;
+
+        const choice = chunk.choices[0];
+        if (!choice) continue;
+        if (choice.finish_reason) finishReason = choice.finish_reason;
+
+        for (const tcDelta of choice.delta.tool_calls ?? []) {
+          const idx = tcDelta.index;
+
+          if (!partials.has(idx)) {
+            // First chunk for this index — tool name is fully present in the first delta
+            const toolName = tcDelta.function?.name ?? "";
+            partials.set(idx, {
+              id: tcDelta.id ?? "",
+              name: toolName,
+              arguments: tcDelta.function?.arguments ?? "",
+              signalled: false,
+            });
+            // Fire UI event immediately — we know the tool name
+            if (toolName) {
+              const label = TOOL_LABELS[toolName] ?? `Running ${toolName}...`;
+              await callbacks.onToolCall(toolName, label, {});
+              partials.get(idx)!.signalled = true;
+            }
+          } else {
+            const p = partials.get(idx)!;
+            if (tcDelta.id) p.id = tcDelta.id;
+            if (tcDelta.function?.name) p.name += tcDelta.function.name;
+            if (tcDelta.function?.arguments) p.arguments += tcDelta.function.arguments;
+            // Signal if name just became available
+            if (!p.signalled && p.name) {
+              const label = TOOL_LABELS[p.name] ?? `Running ${p.name}...`;
+              await callbacks.onToolCall(p.name, label, {});
+              p.signalled = true;
+            }
+          }
+        }
+      }
     } catch (error) {
-      logger.warn("Agent tool-loop LLM call failed", {
+      logger.warn("Agent tool-loop streaming failed", {
         error: error instanceof Error ? error.message : "unknown",
         iteration: i,
       });
       break;
     }
 
-    const choice = response.choices[0];
-    if (!choice) break;
+    if (finishReason !== "tool_calls" || partials.size === 0) break;
 
-    const { finish_reason, message } = choice;
+    // Push the assistant message (tool_calls block) to the context
+    messages.push({
+      role: "assistant",
+      content: null,
+      tool_calls: Array.from(partials.values()).map((p) => ({
+        id: p.id,
+        type: "function" as const,
+        function: { name: p.name, arguments: p.arguments },
+      })),
+    } as ChatCompletionMessageParam);
 
-    if (finish_reason !== "tool_calls" || !message.tool_calls?.length) break;
-
-    toolsWereUsed = true;
-    messages.push(message as ChatCompletionMessageParam);
-
-    // Fire tool_call events and execute ALL tools in this batch concurrently
+    // Execute all collected tools concurrently, then push results
     await Promise.all(
-      message.tool_calls.filter((tc) => tc.type === "function").map(async (toolCall) => {
+      Array.from(partials.values()).map(async (p) => {
         if (signal?.aborted) return;
 
-        const fn = (toolCall as { type: "function"; function: { name: string; arguments: string } }).function;
-        const toolName = fn.name;
-        const label = TOOL_LABELS[toolName] ?? `Running ${toolName}...`;
-
         let parsedArgs: unknown = {};
-        try {
-          parsedArgs = JSON.parse(fn.arguments);
-        } catch { /* leave as {} */ }
+        try { parsedArgs = JSON.parse(p.arguments); } catch { /* leave as {} */ }
 
-        await callbacks.onToolCall(toolName, label, parsedArgs);
-
-        const rawResult = await executeTool(toolName, parsedArgs, context);
+        const rawResult = await executeTool(p.name, parsedArgs, context);
         const resultJson = truncateToolResult(rawResult);
-        const summary = getToolResultSummary(toolName, resultJson);
+        const summary = getToolResultSummary(p.name, resultJson);
 
-        await callbacks.onToolResult(toolName, summary);
+        await callbacks.onToolResult(p.name, summary);
 
-        messages.push({
-          role: "tool",
-          tool_call_id: toolCall.id,
-          content: resultJson,
-        });
+        messages.push({ role: "tool", tool_call_id: p.id, content: resultJson });
       }),
     );
   }
@@ -167,7 +199,7 @@ export async function runAgentStream(
       messages,
       tool_choice: "none", // Force text answer, no more tool calls
       temperature: 0.3,
-      max_tokens: 900,
+      max_tokens: 2500,
       stream: true,
     });
 
@@ -189,7 +221,7 @@ export async function runAgentStream(
         messages,
         tool_choice: "none",
         temperature: 0.3,
-        max_tokens: 900,
+        max_tokens: 2500,
         stream: false,
       });
       fullReply = fallback.choices[0]?.message?.content ?? "";

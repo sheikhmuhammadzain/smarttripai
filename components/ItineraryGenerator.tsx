@@ -99,6 +99,17 @@ function formatCityLabel(city: string) {
   return city.charAt(0).toUpperCase() + city.slice(1);
 }
 
+function weatherGradient(description?: string) {
+  const d = (description ?? '').toLowerCase();
+  if (d.includes('clear') || d.includes('sun')) return 'from-amber-300/20 via-sky-300/10 to-transparent';
+  if (d.includes('thunder') || d.includes('storm')) return 'from-purple-500/20 via-slate-500/10 to-transparent';
+  if (d.includes('rain') || d.includes('drizzle') || d.includes('shower')) return 'from-blue-500/20 via-indigo-400/10 to-transparent';
+  if (d.includes('snow') || d.includes('sleet') || d.includes('ice')) return 'from-sky-200/25 via-blue-100/10 to-transparent';
+  if (d.includes('mist') || d.includes('fog') || d.includes('haze')) return 'from-gray-400/20 via-slate-300/10 to-transparent';
+  if (d.includes('cloud')) return 'from-slate-400/15 via-blue-300/10 to-transparent';
+  return 'from-sky-400/15 via-blue-300/10 to-transparent';
+}
+
 export default function ItineraryGenerator() {
   const { preferences } = useAppPreferences();
   const userCurrency = preferences.currency;
@@ -514,80 +525,168 @@ export default function ItineraryGenerator() {
         <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-1">
             {/* Weather Card */}
-            <div className="relative overflow-hidden rounded-2xl border border-border-soft bg-surface-base p-4">
-              <div className="flex items-start gap-3.5">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle">
-                  <CloudSun className="h-5 w-5 text-sky-500" />
+            <div className={`relative overflow-hidden rounded-2xl border border-border-soft bg-linear-to-br ${weatherGradient(weather?.description)} bg-surface-base p-4`}>
+              {/* Header row */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Weather</p>
+                  {!realtimeLoading && weather && (
+                    <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Live
+                    </span>
+                  )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
-                      Weather
-                    </p>
-                    {!realtimeLoading && weather && (
-                      <span className="flex items-center gap-1 rounded-full bg-surface-subtle px-1.5 py-0.5 text-[9px] font-semibold text-emerald-500">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        Live
-                      </span>
+                <p className="text-[11px] font-semibold text-text-body">
+                  {weather?.city ?? WEATHER_CITY_MAP[primaryDestination] ?? '—'}
+                </p>
+              </div>
+
+              {realtimeLoading ? (
+                <div className="space-y-2">
+                  <div className="h-9 w-20 animate-pulse rounded-lg bg-surface-subtle" />
+                  <div className="h-3 w-36 animate-pulse rounded bg-surface-subtle" />
+                  <div className="mt-3 flex gap-2">
+                    {[1, 2, 3].map((i) => <div key={i} className="h-16 w-14 animate-pulse rounded-xl bg-surface-subtle" />)}
+                  </div>
+                </div>
+              ) : weather ? (
+                <>
+                  {/* Temp + icon */}
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-4xl font-bold tabular-nums text-text-primary leading-none">
+                        {Math.round(weather.temperatureC)}°C
+                      </p>
+                      <p className="mt-1 text-xs text-text-body capitalize">{weather.description}</p>
+                    </div>
+                    {weather.icon ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}
+                        alt={weather.description}
+                        width={64}
+                        height={64}
+                        className="-mt-2 -mr-1 drop-shadow-md"
+                      />
+                    ) : (
+                      <CloudSun className="h-10 w-10 text-sky-400 opacity-70" />
                     )}
                   </div>
-                  <p className="mt-1 text-sm font-bold text-text-primary truncate">
-                    {realtimeLoading ? (
-                      <span className="inline-block h-4 w-28 animate-pulse rounded bg-surface-subtle" />
-                    ) : weather ? (
-                      `${Math.round(weather.temperatureC)}°C — ${weather.description}`
-                    ) : (
-                      <span className="text-text-subtle">Unavailable</span>
-                    )}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-text-muted">
-                    {weather?.city ?? WEATHER_CITY_MAP[primaryDestination]}
-                    {weather?.hourly?.[0] && (
-                      <span className="ml-1.5 text-text-subtle">
-                        · Next {Math.round(weather.hourly[0].temperatureC)}°C at{' '}
-                        {new Date(weather.hourly[0].time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    )}
-                  </p>
+
+                  {/* Humidity + Wind */}
+                  {(weather.humidity !== undefined || weather.windKph !== undefined) && (
+                    <div className="mt-3 flex gap-2">
+                      {weather.humidity !== undefined && (
+                        <div className="flex items-center gap-1 rounded-lg bg-white/40 dark:bg-white/5 border border-border-soft px-2.5 py-1.5">
+                          <span className="text-base leading-none">💧</span>
+                          <span className="text-[11px] font-semibold text-text-body">{weather.humidity}%</span>
+                        </div>
+                      )}
+                      {weather.windKph !== undefined && (
+                        <div className="flex items-center gap-1 rounded-lg bg-white/40 dark:bg-white/5 border border-border-soft px-2.5 py-1.5">
+                          <span className="text-base leading-none">💨</span>
+                          <span className="text-[11px] font-semibold text-text-body">{weather.windKph} km/h</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Hourly forecast strip */}
+                  {weather.hourly && weather.hourly.length > 0 && (
+                    <div className="mt-3 flex gap-2 overflow-x-auto pb-0.5 scrollbar-none">
+                      {weather.hourly.slice(0, 4).map((h, i) => (
+                        <div key={i} className="flex shrink-0 flex-col items-center gap-0.5 rounded-xl bg-white/40 dark:bg-white/5 border border-border-soft px-2.5 py-2">
+                          <p className="text-[10px] text-text-subtle">
+                            {new Date(h.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                          {h.icon ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={`https://openweathermap.org/img/wn/${h.icon}.png`}
+                              alt={h.description}
+                              width={32}
+                              height={32}
+                            />
+                          ) : (
+                            <CloudSun className="h-5 w-5 text-sky-400" />
+                          )}
+                          <p className="text-[11px] font-semibold text-text-body">{Math.round(h.temperatureC)}°</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex items-center gap-2 py-2">
+                  <CloudSun className="h-5 w-5 text-text-subtle" />
+                  <p className="text-sm text-text-subtle">Weather unavailable</p>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Currency Card */}
-            <div className="relative overflow-hidden rounded-2xl border border-border-soft bg-surface-base p-4">
-              <div className="flex items-start gap-3.5">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle">
-                  <Banknote className="h-5 w-5 text-emerald-500" />
+            <div className="relative overflow-hidden rounded-2xl border border-border-soft bg-linear-to-br from-emerald-400/10 via-teal-300/5 to-transparent bg-surface-base p-4">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Exchange Rate</p>
+                  {!realtimeLoading && currency && (
+                    <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Live
+                    </span>
+                  )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
-                      Exchange Rate
-                    </p>
-                    {!realtimeLoading && currency && (
-                      <span className="flex items-center gap-1 rounded-full bg-surface-subtle px-1.5 py-0.5 text-[9px] font-semibold text-emerald-500">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        Live
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1 text-sm font-bold text-text-primary">
-                    {realtimeLoading ? (
-                      <span className="inline-block h-4 w-32 animate-pulse rounded bg-surface-subtle" />
-                    ) : currency ? (
-                      <>
-                        1 {currency.base} = <span className="text-emerald-600">{currency.rate.toFixed(2)}</span> {currency.target}
-                      </>
-                    ) : (
-                      <span className="text-text-subtle">Unavailable</span>
-                    )}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-text-muted">
-                    {userCurrency} → TRY
-                    <span className="ml-1.5 text-text-subtle">· Updated in real-time</span>
-                  </p>
-                </div>
+                <span className="text-base leading-none" title="Turkish Lira">🇹🇷</span>
               </div>
+
+              {realtimeLoading ? (
+                <div className="space-y-2">
+                  <div className="h-9 w-32 animate-pulse rounded-lg bg-surface-subtle" />
+                  <div className="h-3 w-24 animate-pulse rounded bg-surface-subtle" />
+                  <div className="mt-3 h-10 w-full animate-pulse rounded-xl bg-surface-subtle" />
+                </div>
+              ) : currency ? (
+                <>
+                  {/* Main rate */}
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <p className="text-3xl font-bold tabular-nums text-text-primary leading-none">
+                        {currency.rate.toFixed(2)}
+                        <span className="ml-1 text-lg font-semibold text-emerald-600">TRY</span>
+                      </p>
+                      <p className="mt-1 text-xs text-text-muted">per 1 {currency.base}</p>
+                    </div>
+                    <div className="flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2 py-1">
+                      <ArrowUpRight className="h-3 w-3 text-emerald-500" />
+                      <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">Real-time</span>
+                    </div>
+                  </div>
+
+                  {/* Conversion pills */}
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    {[10, 50, 100].map((amount) => (
+                      <div key={amount} className="rounded-xl bg-white/40 dark:bg-white/5 border border-border-soft px-2.5 py-2 text-center">
+                        <p className="text-[10px] text-text-subtle">{amount} {currency.base}</p>
+                        <p className="text-xs font-bold text-text-primary mt-0.5">
+                          {(amount * currency.rate).toFixed(0)} <span className="text-emerald-600 font-semibold">₺</span>
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Reverse rate */}
+                  <p className="mt-2.5 text-[11px] text-text-subtle text-center">
+                    100 TRY = {(100 / currency.rate).toFixed(2)} {currency.base}
+                  </p>
+                </>
+              ) : (
+                <div className="flex items-center gap-2 py-2">
+                  <Banknote className="h-5 w-5 text-text-subtle" />
+                  <p className="text-sm text-text-subtle">Rate unavailable</p>
+                </div>
+              )}
             </div>
 
           </div>
