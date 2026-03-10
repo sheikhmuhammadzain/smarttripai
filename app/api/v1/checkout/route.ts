@@ -1,8 +1,13 @@
 import { z } from "zod";
 import { getAuthSession } from "@/lib/auth/get-session";
 import { getProductById } from "@/lib/data";
+import { sendOrderConfirmationEmail } from "@/lib/email/resend";
 import { createOrderService } from "@/modules/orders/order.service";
-import { ApiError, fromUnknownError, fromZodError } from "@/modules/shared/problem";
+import {
+  ApiError,
+  fromUnknownError,
+  fromZodError,
+} from "@/modules/shared/problem";
 import { created, problemResponse } from "@/modules/shared/response";
 
 const checkoutSchema = z.object({
@@ -33,7 +38,11 @@ export async function POST(request: Request) {
     const normalized = body.items.map((item) => {
       const product = getProductById(item.productId);
       if (!product) {
-        throw new ApiError(400, "INVALID_PRODUCT", `Unknown product: ${item.productId}`);
+        throw new ApiError(
+          400,
+          "INVALID_PRODUCT",
+          `Unknown product: ${item.productId}`,
+        );
       }
       return {
         productId: product.id,
@@ -57,6 +66,18 @@ export async function POST(request: Request) {
       currency,
       orderCode,
     });
+
+    // Fire-and-forget order confirmation email
+    sendOrderConfirmationEmail({
+      to: body.customer.email,
+      name: body.customer.fullName,
+      orderCode: order.orderCode,
+      items: order.items,
+      total: order.total,
+      currency: order.currency,
+    }).catch((err) =>
+      console.error("[checkout] confirmation email failed:", err),
+    );
 
     return created(
       {

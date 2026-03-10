@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
   NEXTAUTH_SECRET: z.string().min(16).optional(),
   NEXTAUTH_URL: z.string().url().optional(),
   MONGODB_URI: z.string().min(1).optional(),
@@ -19,6 +21,8 @@ const envSchema = z.object({
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().optional(),
   SENTRY_DSN: z.string().optional(),
   ADMIN_EMAILS: z.string().optional(),
+  RESEND_API_KEY: z.string().optional(),
+  RESEND_FROM_EMAIL: z.string().email().optional(),
 });
 
 let cachedEnv: z.infer<typeof envSchema> | null = null;
@@ -30,7 +34,9 @@ export function getServerEnv() {
 
   const parsed = envSchema.safeParse(process.env);
   if (!parsed.success) {
-    const issues = parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`);
+    const issues = parsed.error.issues.map(
+      (issue) => `${issue.path.join(".")}: ${issue.message}`,
+    );
     throw new Error(`Invalid environment variables: ${issues.join("; ")}`);
   }
 

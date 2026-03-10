@@ -3,6 +3,7 @@ import { compareSync, hashSync } from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getMongoClientPromise } from "@/lib/db/mongodb-client";
+import { sendWelcomeEmail } from "@/lib/email/resend";
 import { getServerEnv } from "@/lib/env/server";
 import { checkRateLimit } from "@/lib/rate-limit/memory-rate-limit";
 
@@ -16,7 +17,8 @@ function ensureDevAuthEnv(env: ReturnType<typeof getServerEnv>) {
   }
 
   if (!process.env.NEXTAUTH_SECRET) {
-    process.env.NEXTAUTH_SECRET = "dev-only-nextauth-secret-change-in-production";
+    process.env.NEXTAUTH_SECRET =
+      "dev-only-nextauth-secret-change-in-production";
   }
 }
 
@@ -34,11 +36,17 @@ function buildProviders(): NonNullable<NextAuthOptions["providers"]> {
     }
 
     if (headerBag instanceof Headers) {
-      return (headerBag.get("x-forwarded-for") ?? "anonymous").split(",")[0]?.trim() || "anonymous";
+      return (
+        (headerBag.get("x-forwarded-for") ?? "anonymous")
+          .split(",")[0]
+          ?.trim() || "anonymous"
+      );
     }
 
     if (typeof headerBag === "object") {
-      const forwardedFor = (headerBag as Record<string, unknown>)["x-forwarded-for"];
+      const forwardedFor = (headerBag as Record<string, unknown>)[
+        "x-forwarded-for"
+      ];
       if (typeof forwardedFor === "string") {
         return forwardedFor.split(",")[0]?.trim() || "anonymous";
       }
@@ -65,9 +73,7 @@ function buildProviders(): NonNullable<NextAuthOptions["providers"]> {
             ? credentials.email.trim().toLowerCase()
             : "";
         const password =
-          typeof credentials?.password === "string"
-            ? credentials.password
-            : "";
+          typeof credentials?.password === "string" ? credentials.password : "";
         const intent =
           typeof credentials?.intent === "string"
             ? credentials.intent
@@ -114,6 +120,11 @@ function buildProviders(): NonNullable<NextAuthOptions["providers"]> {
             updatedAt: new Date(),
           });
 
+          // Fire-and-forget welcome email
+          sendWelcomeEmail({ to: email, name }).catch((err) =>
+            console.error("[signup] welcome email failed:", err),
+          );
+
           return {
             id: created.insertedId.toString(),
             email,
@@ -152,7 +163,9 @@ export function getAuthOptions(): NextAuthOptions {
   const enableDatabaseAuth = hasMongo && !usesCredentialsFallback;
 
   return {
-    ...(enableDatabaseAuth ? { adapter: MongoDBAdapter(getMongoClientPromise()) } : {}),
+    ...(enableDatabaseAuth
+      ? { adapter: MongoDBAdapter(getMongoClientPromise()) }
+      : {}),
     providers,
     secret: process.env.NEXTAUTH_SECRET ?? env.NEXTAUTH_SECRET,
     session: {
@@ -167,7 +180,7 @@ export function getAuthOptions(): NextAuthOptions {
     callbacks: {
       async session({ session, user, token }) {
         if (session.user) {
-          session.user.id = user?.id ?? (token.sub ?? "");
+          session.user.id = user?.id ?? token.sub ?? "";
         }
         return session;
       },
