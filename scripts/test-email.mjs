@@ -15,18 +15,23 @@ try {
     const eqIndex = trimmed.indexOf("=");
     if (eqIndex === -1) continue;
     const key = trimmed.slice(0, eqIndex).trim();
-    const value = trimmed.slice(eqIndex + 1).trim().replace(/^["']|["']$/g, "");
+    const value = trimmed
+      .slice(eqIndex + 1)
+      .trim()
+      .replace(/^["']|["']$/g, "");
     if (!process.env[key]) process.env[key] = value;
   }
 } catch {
-  console.error("❌ Could not read .env.local — make sure it exists at project root.");
+  console.error(
+    "❌ Could not read .env.local — make sure it exists at project root.",
+  );
   process.exit(1);
 }
 
 // ── Config ────────────────────────────────────────────────────────
-const RESEND_API_KEY   = process.env.RESEND_API_KEY;
-const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
-const TO_EMAIL         = "zaingee320@gmail.com";
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_FROM_EMAIL = "noreply@updates.smarttripai.site";
+const TO_EMAIL = "zaingee320@gmail.com";
 
 if (!RESEND_API_KEY) {
   console.error("❌ RESEND_API_KEY is not set in .env.local");
