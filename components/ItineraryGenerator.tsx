@@ -68,7 +68,7 @@ interface TransportData {
   source?: 'google-distance-matrix' | 'heuristic';
 }
 
-const PLANNER_STORAGE_KEY = 'itinerary-planner-state';
+const PLANNER_STORAGE_KEY = 'itinerary-planner-state-v2';
 
 interface PlannerPersistedState {
   destinations: string[];
