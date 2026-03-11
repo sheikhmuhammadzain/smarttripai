@@ -22,6 +22,11 @@ export interface ItineraryRequest {
 
 export interface DayPlanItem {
   attractionId: string;
+  attractionName?: string;
+  attractionSlug?: string;
+  attractionDescription?: string;
+  attractionTags?: string[];
+  avgDurationMin?: number;
   startTime: string;
   endTime: string;
   costEstimateTRY: number;

@@ -36,12 +36,24 @@ export async function generateDeterministicItinerary(
     request.interests,
   );
 
+  // Fallback pool: all attractions found across every city, sorted by popularity.
+  // Used when a destination has no matching attractions (e.g. city not yet seeded).
+  const fallbackPool = Array.from(byCity.values())
+    .flat()
+    .sort((a, b) => (b.popularityScore ?? 0) - (a.popularityScore ?? 0));
+
   const days: GeneratedItinerary["days"] = [];
   let totalEstimatedCostTRY = 0;
+  let fallbackOffset = 0;
 
   for (let dayIndex = 0; dayIndex < totalDays; dayIndex += 1) {
     const city = request.destinations[dayIndex % request.destinations.length];
-    const cityAttractions = [...(byCity.get(city) ?? [])].slice(0, perDay);
+    const cityPool = byCity.get(city) ?? [];
+    // If city has no attractions, draw from the global fallback pool
+    const cityAttractions = cityPool.length > 0
+      ? [...cityPool].slice(0, perDay)
+      : fallbackPool.slice(fallbackOffset, fallbackOffset + perDay);
+    if (cityPool.length === 0) fallbackOffset += perDay;
 
     const items = cityAttractions.map((attraction, idx) => {
       const hour = 9 + idx * 3;
@@ -58,6 +70,11 @@ export async function generateDeterministicItinerary(
 
       return {
         attractionId: attraction._id.toString(),
+        attractionName: attraction.name,
+        attractionSlug: attraction.slug,
+        attractionDescription: attraction.description,
+        attractionTags: attraction.tags,
+        avgDurationMin: attraction.avgDurationMin,
         startTime,
         endTime,
         costEstimateTRY: adjustedCost,

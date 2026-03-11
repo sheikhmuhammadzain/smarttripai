@@ -1,13 +1,15 @@
 ﻿'use client';
 
-import { Sparkles, MapPin, DollarSign, Clock, CloudSun, Banknote, ArrowUpRight, BookmarkCheck, CalendarRange, CheckCircle2, Route } from 'lucide-react';
+import { Sparkles, MapPin, DollarSign, Clock, CloudSun, Banknote, ArrowUpRight, BookmarkCheck, CalendarRange, CheckCircle2, Route, Navigation, Tag } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import type { BudgetLevel, GeneratedItinerary, InterestTag, ItineraryRequest } from '@/types/travel';
 import { useAppPreferences } from '@/lib/preferences-client';
 import TransportMapEmbed from '@/components/TransportMapEmbed';
 
-const DESTINATIONS = ['cappadocia', 'istanbul', 'ephesus', 'pamukkale', 'antalya', 'bodrum', 'bursa', 'ankara', 'trabzon', 'konya', 'canakkale', 'izmir', 'alanya', 'gaziantep', 'mardin', 'safranbolu'] as const;
+// Only cities that have seeded attractions in the database
+const DESTINATIONS = ['istanbul', 'cappadocia', 'ephesus', 'pamukkale', 'antalya', 'bodrum', 'bursa', 'ankara', 'trabzon', 'konya', 'canakkale'] as const;
 
 const DURATION_DAYS: Record<string, number> = {
   '1-3': 3,
@@ -138,7 +140,6 @@ export default function ItineraryGenerator() {
     () => result?.days.reduce((sum, day) => sum + day.items.length, 0) ?? 0,
     [result],
   );
-  const previewDays = useMemo(() => result?.days.slice(0, 4) ?? [], [result]);
 
   useEffect(() => {
     const saved = readPersistedState();
@@ -759,7 +760,7 @@ export default function ItineraryGenerator() {
                   </p>
                 </div>
 
-                <div className="grid min-w-[220px] grid-cols-2 gap-3">
+                <div className="grid min-w-55 grid-cols-2 gap-3">
                   <div className="rounded-2xl border border-border-soft bg-surface-subtle px-3 py-3">
                     <p className="text-[10px] uppercase tracking-[0.22em] text-text-subtle">Estimated total</p>
                     <p className="mt-1 text-lg font-semibold text-text-primary">{result.totalEstimatedCostTRY} TRY</p>
@@ -802,56 +803,131 @@ export default function ItineraryGenerator() {
               </div>
             </div>
 
-            <div className="px-5 py-5 md:px-6">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-text-subtle">Preview days</p>
-                {savedItineraryId ? (
-                  <Link
-                    href={`/itineraries/${savedItineraryId}`}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border-default bg-surface-base px-3 py-2 text-xs font-semibold text-text-body transition-colors hover:border-border-strong hover:bg-surface-subtle"
-                  >
-                    Open saved itinerary
-                    <ArrowUpRight className="h-3.5 w-3.5" />
-                  </Link>
-                ) : null}
-              </div>
-
-              <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-                {previewDays.map((day) => (
-                  <div
-                    key={day.day}
-                    className="group rounded-2xl border border-border-soft bg-surface-base p-4 transition-colors duration-200 hover:border-border-default hover:bg-surface-subtle"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-sm font-bold text-brand">
-                        {day.day}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="text-base font-semibold text-text-primary">{formatCityLabel(day.city)}</p>
-                          <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-[11px] font-semibold text-text-muted">
-                            {day.items.length} activities
-                          </span>
-                        </div>
-                        <p className="mt-2 text-sm leading-6 text-text-body">
-                          {day.notes[0] ?? 'Curated by AI for your selected pace, budget, and interests.'}
-                        </p>
-                        {day.items[0]?.transportHint ? (
-                          <p className="mt-3 text-xs font-medium text-brand">
-                            Transfer note: {day.items[0].transportHint}
-                          </p>
-                        ) : null}
-                      </div>
+            <div className="divide-y divide-border-soft">
+              {result.days.map((day) => (
+                <div key={day.day} className="px-5 py-6 md:px-6">
+                  {/* Day header */}
+                  <div className="mb-4 flex flex-wrap items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand text-sm font-bold text-white shadow-sm shadow-brand/30">
+                      {day.day}
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="text-base font-bold text-text-primary">{formatCityLabel(day.city)}</h4>
+                        <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand">
+                          {day.items.length} {day.items.length === 1 ? 'activity' : 'activities'}
+                        </span>
+                      </div>
+                      {day.notes[0] && (
+                        <p className="mt-0.5 text-xs text-text-muted">{day.notes[0]}</p>
+                      )}
+                    </div>
+                    {savedItineraryId && day.day === 1 ? (
+                      <Link
+                        href={`/itineraries/${savedItineraryId}`}
+                        className="ml-auto inline-flex items-center gap-1 rounded-full border border-border-default bg-surface-base px-3 py-1.5 text-xs font-semibold text-text-body transition-colors hover:border-border-strong hover:bg-surface-subtle"
+                      >
+                        Open full itinerary <ArrowUpRight className="h-3 w-3" />
+                      </Link>
+                    ) : null}
                   </div>
-                ))}
-              </div>
 
-              {result.days.length > previewDays.length ? (
-                <p className="mt-4 text-sm text-text-muted">
-                  + {result.days.length - previewDays.length} more days are available in the saved itinerary view.
-                </p>
-              ) : null}
+                  {/* Activity cards */}
+                  {day.items.length === 0 ? (
+                    <p className="rounded-xl border border-border-soft bg-surface-subtle px-4 py-3 text-sm text-text-muted">
+                      No activities scheduled for this day.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {day.items.map((item, idx) => (
+                        <div key={item.attractionId + idx}>
+                          {/* Transport connector between activities */}
+                          {idx > 0 && item.transportHint && (
+                            <div className="mb-3 flex items-center gap-2 px-1">
+                              <div className="h-4 w-px bg-border-default" />
+                              <Navigation className="h-3 w-3 shrink-0 text-brand" />
+                              <p className="text-[11px] text-text-muted">{item.transportHint}</p>
+                            </div>
+                          )}
+
+                          {/* Activity card */}
+                          <div className="group flex gap-3 rounded-2xl border border-border-soft bg-surface-base p-3 transition-colors hover:border-border-default hover:bg-surface-subtle sm:gap-4 sm:p-4">
+                            {/* Image */}
+                            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-surface-subtle sm:h-24 sm:w-24">
+                              <Image
+                                src={`https://picsum.photos/seed/${item.attractionSlug ?? item.attractionId}/200/200`}
+                                alt={item.attractionName ?? 'Activity'}
+                                fill
+                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                unoptimized
+                              />
+                            </div>
+
+                            {/* Content */}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-start justify-between gap-2">
+                                <div className="min-w-0">
+                                  <p className="truncate text-sm font-bold text-text-primary">
+                                    {item.attractionName ?? 'Activity'}
+                                  </p>
+                                  <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-text-muted">
+                                    <span className="flex items-center gap-1">
+                                      <Clock className="h-3 w-3" />
+                                      {item.startTime} – {item.endTime}
+                                    </span>
+                                    {item.avgDurationMin && (
+                                      <span>{item.avgDurationMin} min</span>
+                                    )}
+                                  </div>
+                                </div>
+                                <span className="shrink-0 rounded-lg bg-emerald-500/10 px-2 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                                  ₺{item.costEstimateTRY.toLocaleString()}
+                                </span>
+                              </div>
+
+                              {item.attractionDescription && (
+                                <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-text-body">
+                                  {item.attractionDescription}
+                                </p>
+                              )}
+
+                              {item.attractionTags && item.attractionTags.length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-1">
+                                  {item.attractionTags.slice(0, 3).map((tag) => (
+                                    <span
+                                      key={tag}
+                                      className="inline-flex items-center gap-0.5 rounded-full bg-brand/8 px-2 py-0.5 text-[10px] font-semibold text-brand capitalize"
+                                    >
+                                      <Tag className="h-2.5 w-2.5" />
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* First activity transport hint (start of day) */}
+                              {idx === 0 && item.transportHint && (
+                                <p className="mt-2 flex items-center gap-1 text-[11px] font-medium text-brand">
+                                  <Navigation className="h-3 w-3" />
+                                  {item.transportHint}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Day tip */}
+                  {day.notes[1] && (
+                    <p className="mt-3 flex items-start gap-1.5 text-[11px] text-text-muted">
+                      <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-brand" />
+                      {day.notes[1]}
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}
