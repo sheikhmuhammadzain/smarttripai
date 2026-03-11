@@ -34,28 +34,32 @@ function isGreetingOrSmallTalk(message: string) {
   if (!normalized) return true;
   const compact = normalized.replace(/[^\p{L}\p{N}\s]/gu, "").trim();
   const smallTalkSet = new Set([
-    "hi",
-    "hello",
-    "hey",
-    "hii",
-    "hola",
-    "salam",
-    "merhaba",
-    "yo",
-    "sup",
-    "good morning",
-    "good afternoon",
-    "good evening",
-    "how are you",
-    "who are you",
-    "what can you do",
+    "hi", "hello", "hey", "hii", "hola", "salam", "merhaba", "yo", "sup",
+    "good morning", "good afternoon", "good evening",
+    "how are you", "who are you", "what can you do",
   ]);
   return smallTalkSet.has(compact);
+}
+
+const OFF_TOPIC_REPLY =
+  "I'm designed to help with travel planning in Turkey. Please ask about destinations, tours, itineraries, transport, or travel tips.";
+
+function isTurkeyTravelRelated(message: string): boolean {
+  const lower = message.trim().toLowerCase();
+  return /\b(turkey|turkish|istanbul|ankara|izmir|cappadocia|antalya|bodrum|ephesus|pamukkale|trabzon|bursa|konya|canakkale|destination|tour|attraction|itinerary|transport|hotel|flight|visa|currency|lira|weather|food|culture|mosque|bazaar|beach|travel|trip|visit|book|activity|activities|safety|scam|etiquette|guide|map|bus|ferry|dolmus|airport|hostel|accommodation)\b/.test(lower);
 }
 
 function fallbackGeneralAssistantMessage(message: string) {
   const normalized = message.trim().toLowerCase();
   const compact = normalized.replace(/[^\p{L}\p{N}\s]/gu, "").trim();
+
+  // Greetings/small-talk are allowed without off-topic check
+  const isSmallTalk = new Set(["hi", "hello", "hey", "hii", "hola", "salam", "merhaba", "yo", "sup",
+    "good morning", "good afternoon", "good evening", "how are you", "who are you", "what can you do"]).has(compact);
+
+  if (!isSmallTalk && !isTurkeyTravelRelated(message)) {
+    return OFF_TOPIC_REPLY;
+  }
 
   if (compact === "who are you") {
     return "I am your Turkey travel assistant. I can help you choose destinations, build day-by-day plans, suggest activities, and guide bookings.";
@@ -255,7 +259,7 @@ export async function runChatAgent(message: string): Promise<ChatAgentResult> {
         {
           role: "system",
           content:
-            "You are a Turkey travel chat agent. Return ONLY valid JSON. Help users with recommendations, booking guidance, local culture etiquette, and safety tips using provided product catalog.",
+            "You are a Turkey travel chat agent. Return ONLY valid JSON. You are designed exclusively to help with travel planning in Turkey. If the user asks about anything unrelated to Turkey travel (coding, politics, general knowledge, other countries, personal advice, etc.), set intent=general and set assistantMessage to: \"I'm designed to help with travel planning in Turkey. Please ask about destinations, tours, itineraries, transport, or travel tips.\" — do not answer off-topic questions. Only help with: Turkish destinations, tours, activities, attractions, itineraries, transport within Turkey, Turkish culture/food/safety tips, and bookings on this platform.",
         },
         {
           role: "user",
@@ -265,6 +269,7 @@ export async function runChatAgent(message: string): Promise<ChatAgentResult> {
             rules: [
               "If user asks for recommendation, set intent=recommendation and include 1-3 recommendations.",
               "If user asks to book/reserve, set intent=booking and include booking action for one product.",
+              "If topic is unrelated to Turkey travel, set intent=general and assistantMessage must be the off-topic refusal.",
               "If no clear task, intent=general and answer naturally and concisely based on user message.",
             ],
           }),
@@ -343,7 +348,7 @@ export async function runChatAgent(message: string): Promise<ChatAgentResult> {
           {
             role: "system",
             content:
-              "You are a Turkey travel chat agent. Return ONLY valid JSON object with keys: intent, assistantMessage, recommendations, booking.",
+              "You are a Turkey travel chat agent. Return ONLY valid JSON object with keys: intent, assistantMessage, recommendations, booking. You only answer questions about Turkey travel. For off-topic questions, set intent=general and assistantMessage to the off-topic refusal message.",
           },
           requestBody.messages[1],
         ],
