@@ -1,76 +1,24 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import CurrencyAmount from "@/components/CurrencyAmount";
 import { products } from "@/lib/data";
-
-interface WishlistResponse {
-  items: string[];
-  count: number;
-}
+import { useWishlist } from "@/hooks/use-wishlist";
 
 export default function WishlistPageClient() {
-  const [loading, setLoading] = useState(true);
-  const [items, setItems] = useState<string[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadWishlist() {
-      setLoading(true);
-      try {
-        const response = await fetch("/api/v1/wishlist", { cache: "no-store" });
-        if (response.status === 401) {
-          if (!cancelled) {
-            setItems([]);
-          }
-          return;
-        }
-
-        if (!response.ok) {
-          if (!cancelled) setItems([]);
-          return;
-        }
-
-        const body = (await response.json()) as WishlistResponse;
-        if (!cancelled) {
-          setItems(body.items ?? []);
-        }
-      } catch {
-        if (!cancelled) setItems([]);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    void loadWishlist();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { items, isLoading, remove } = useWishlist();
 
   const wishlistProducts = useMemo(
     () => products.filter((product) => items.includes(product.id)),
     [items],
   );
 
-  async function removeItem(productId: string) {
-    try {
-      const response = await fetch(`/api/v1/wishlist/${productId}`, { method: "DELETE" });
-      if (!response.ok) {
-        return;
-      }
-
-      const body = (await response.json()) as WishlistResponse;
-      setItems(body.items ?? []);
-      window.dispatchEvent(new CustomEvent("wishlist:changed", { detail: { items: body.items ?? [] } }));
-    } catch {
-      // no-op
-    }
+  function removeItem(productId: string) {
+    void remove(productId);
   }
 
-  if (loading) {
+  if (isLoading) {
     return <div className="rounded-xl border border-border-default bg-surface-muted p-6 text-text-body">Loading wishlist...</div>;
   }
 
@@ -109,7 +57,7 @@ export default function WishlistPageClient() {
               View
             </Link>
             <button
-              onClick={() => void removeItem(product.id)}
+              onClick={() => removeItem(product.id)}
               className="rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700"
             >
               Remove
@@ -120,4 +68,3 @@ export default function WishlistPageClient() {
     </div>
   );
 }
-

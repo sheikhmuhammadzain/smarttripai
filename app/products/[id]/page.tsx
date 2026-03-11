@@ -16,6 +16,7 @@ import CurrencyAmount from "@/components/CurrencyAmount";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import ProductAvailabilityPanel from "@/components/product/ProductAvailabilityPanel";
+import WishlistButton from "@/components/product/WishlistButton";
 import { getProductById, products } from "@/lib/data";
 
 export default async function ProductDetailPage({
@@ -113,12 +114,15 @@ export default async function ProductDetailPage({
               <p className="mt-2 text-sm leading-relaxed text-text-muted">
                 {product.summary}
               </p>
-              {product.bookedText && (
-                <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-surface-brand-soft px-3 py-1 text-xs font-semibold text-brand">
-                  <Zap className="h-3 w-3" />
-                  {product.bookedText}
-                </div>
-              )}
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {product.bookedText && (
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-surface-brand-soft px-3 py-1 text-xs font-semibold text-brand">
+                    <Zap className="h-3 w-3" />
+                    {product.bookedText}
+                  </div>
+                )}
+                <WishlistButton productId={product.id} productTitle={product.title} />
+              </div>
             </div>
 
             {/* About this activity */}

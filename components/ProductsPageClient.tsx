@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { SlidersHorizontal, ChevronDown } from "lucide-react";
 import { products } from "@/lib/data";
 import ProductCard from "@/components/ProductCard";
+import { useWishlist } from "@/hooks/use-wishlist";
 
 const CITIES = [
   "Istanbul",
@@ -22,11 +23,6 @@ const CITIES = [
 const CATEGORIES = ["Adventure", "Culture", "History", "Nature"];
 
 type SortKey = "recommended" | "price-asc" | "price-desc" | "rating";
-
-interface WishlistResponse {
-  items: string[];
-  count: number;
-}
 
 function Chip({
   label,
@@ -66,59 +62,10 @@ export default function ProductsPageClient({
     initialCategory ?? null,
   );
   const [sortBy, setSortBy] = useState<SortKey>("recommended");
-  const [wishlistIds, setWishlistIds] = useState<string[]>([]);
+  const { isWishlisted, toggle } = useWishlist();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      try {
-        const res = await fetch("/api/v1/wishlist", { cache: "no-store" });
-        if (!res.ok) return;
-        const body = (await res.json()) as WishlistResponse;
-        if (!cancelled) {
-          setWishlistIds(body.items ?? []);
-          window.dispatchEvent(
-            new CustomEvent("wishlist:changed", {
-              detail: { items: body.items ?? [] },
-            }),
-          );
-        }
-      } catch {
-        // non-blocking
-      }
-    }
-
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const wishlistSet = useMemo(() => new Set(wishlistIds), [wishlistIds]);
-
-  async function toggleWishlist(productId: string) {
-    try {
-      const res = await fetch("/api/v1/wishlist", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ productId }),
-      });
-      if (res.status === 401) {
-        window.location.href = "/auth/signin";
-        return;
-      }
-      if (!res.ok) return;
-      const body = (await res.json()) as WishlistResponse;
-      setWishlistIds(body.items ?? []);
-      window.dispatchEvent(
-        new CustomEvent("wishlist:changed", {
-          detail: { items: body.items ?? [] },
-        }),
-      );
-    } catch {
-      // non-blocking
-    }
+  function toggleWishlist(productId: string) {
+    void toggle(productId);
   }
 
   const filtered = useMemo(() => {
@@ -238,7 +185,7 @@ export default function ProductsPageClient({
             <ProductCard
               key={product.id}
               product={product}
-              isWishlisted={wishlistSet.has(product.id)}
+              isWishlisted={isWishlisted(product.id)}
               onToggleWishlist={toggleWishlist}
             />
           ))}

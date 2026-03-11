@@ -12,6 +12,7 @@ import { products } from '@/lib/data';
 import LanguageCurrencyDialog from '@/components/LanguageCurrencyDialog';
 import { useAppPreferences } from '@/lib/preferences-client';
 import { useTheme } from '@/components/ThemeProvider';
+import { useWishlist } from '@/hooks/use-wishlist';
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
@@ -22,7 +23,8 @@ export default function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
-  const [wishlistCount, setWishlistCount] = useState(0);
+  const { items: wishlistItems } = useWishlist();
+  const wishlistCount = wishlistItems.length;
   const [cartCount, setCartCount] = useState(0);
   const [activeQuery, setActiveQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -140,43 +142,6 @@ export default function Header() {
     };
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadWishlistCount() {
-      try {
-        const response = await fetch('/api/v1/wishlist', { cache: 'no-store' });
-        if (!response.ok) {
-          if (!cancelled) {
-            setWishlistCount(0);
-          }
-          return;
-        }
-
-        const body = (await response.json()) as { items?: string[] };
-        if (!cancelled) {
-          setWishlistCount(body.items?.length ?? 0);
-        }
-      } catch {
-        if (!cancelled) {
-          setWishlistCount(0);
-        }
-      }
-    }
-
-    function onWishlistChanged(event: Event) {
-      const custom = event as CustomEvent<{ items?: string[] }>;
-      setWishlistCount(custom.detail?.items?.length ?? 0);
-    }
-
-    void loadWishlistCount();
-    window.addEventListener('wishlist:changed', onWishlistChanged as EventListener);
-
-    return () => {
-      cancelled = true;
-      window.removeEventListener('wishlist:changed', onWishlistChanged as EventListener);
-    };
-  }, []);
 
   useEffect(() => {
     function readCartCount() {
