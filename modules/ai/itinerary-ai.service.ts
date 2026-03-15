@@ -7,9 +7,15 @@ interface EnhancedItem {
   itemIndex: number;
   transport_hint?: string;
 }
+interface EnhancedItem {
+  itemIndex: number;
+  transport_hint?: string;
+}
 interface EnhancedDay {
   dayIndex: number;
+  theme?: string;
   notes?: string[];
+  insider_tip?: string;
   items?: EnhancedItem[];
 }
 
@@ -36,9 +42,14 @@ function mergeEnhancements(plan: GeneratedItinerary, enhanced: EnhancedDay[]): G
   const merged = structuredClone(plan) as GeneratedItinerary;
   for (const eDay of enhanced) {
     const day = merged.days[eDay.dayIndex];
-    if (!day) continue;
+    if (eDay.theme) {
+      day.notes = [`Theme: ${eDay.theme}`, ...(day.notes ?? [])];
+    }
     if (Array.isArray(eDay.notes) && eDay.notes.length > 0) {
-      day.notes = eDay.notes;
+      day.notes = [...(day.notes ?? []), ...eDay.notes];
+    }
+    if (eDay.insider_tip) {
+      day.notes = [...(day.notes ?? []), `Insider Tip: ${eDay.insider_tip}`];
     }
     for (const eItem of eDay.items ?? []) {
       const item = day.items[eItem.itemIndex];
@@ -66,23 +77,32 @@ export async function enhanceItineraryWithAI(
   deterministicPlan: GeneratedItinerary,
 ): Promise<GeneratedItinerary> {
   const client = getOpenAIClient();
-  const model = getAIModel();
+  const envModel = getAIModel();
+  // Override to requested model if we are using openrouter
+  const model = client?.baseURL.includes("openrouter") ? "z-ai/glm-5" : envModel;
+  
   if (!client || !model) return deterministicPlan;
 
   try {
     const response = await client.chat.completions.create({
       model,
-      temperature: 0.3,
-      // Only returning compact notes + transport hints, not the full plan → fits in 1200 tokens
-      max_tokens: 2000,
+      temperature: 0.7,
+      max_tokens: 3000,
       messages: [
         {
           role: "system",
           content: [
-            "You are a Turkey travel writer. For each day, write 1-2 short notes (strings) about highlights or tips.",
-            "For each item, provide a brief transport_hint if travel between stops is needed.",
-            "Return ONLY a valid JSON array: [{dayIndex,notes:string[],items:[{itemIndex,transport_hint}]}].",
-            "No markdown, no extra keys, no explanations — just the array.",
+            "You are an elite, professional luxury travel concierge specializing in Turkey.",
+            "You are enhancing a bare-bones itinerary with rich, engaging, and highly practical details.",
+            "For each day, provide:",
+            "1. 'theme': A catchy, premium title for the day (e.g., 'Ottoman Grandeur & Local Flavors').",
+            "2. 'notes': Array of 1-3 sentences with professional advice about pacing, what to wear, or cultural etiquette.",
+            "3. 'insider_tip': One highly specific, actionable secret tip (e.g., 'Grab a simit from the red carts near the ferry before the crowds arrive').",
+            "For each item/attraction, provide:",
+            "1. 'transport_hint': Detailed, professional directions to the next stop (e.g., '15-min scenic walk along the Bosphorus' or 'Take the pure-electric T1 Tram towards Kabatas').",
+            "Respond ONLY with a valid JSON array matching this structure:",
+            "[{ \"dayIndex\": 0, \"theme\": \"...\", \"notes\": [\"...\"], \"insider_tip\": \"...\", \"items\": [{ \"itemIndex\": 0, \"transport_hint\": \"...\" }] }]",
+            "Do not use markdown blocks, explanations, or extra keys. Just the raw JSON array.",
           ].join(" "),
         },
         {

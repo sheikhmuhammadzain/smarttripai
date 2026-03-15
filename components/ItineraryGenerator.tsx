@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Sparkles, MapPin, DollarSign, Clock, CloudSun, Banknote, ArrowUpRight, BookmarkCheck, CalendarRange, CheckCircle2, Route, Navigation, Tag } from 'lucide-react';
 import Image from 'next/image';
@@ -814,12 +814,19 @@ export default function ItineraryGenerator() {
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <h4 className="text-base font-bold text-text-primary">{formatCityLabel(day.city)}</h4>
+                        {day.notes.find(n => n.startsWith('Theme: ')) && (
+                          <span className="text-sm font-semibold text-text-body">
+                            — {day.notes.find(n => n.startsWith('Theme: '))?.replace('Theme: ', '').replace(/['"]/g, '')}
+                          </span>
+                        )}
                         <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand">
                           {day.items.length} {day.items.length === 1 ? 'activity' : 'activities'}
                         </span>
                       </div>
-                      {day.notes[0] && (
-                        <p className="mt-0.5 text-xs text-text-muted">{day.notes[0]}</p>
+                      {day.notes.find(n => !n.startsWith('Theme: ') && !n.startsWith('Insider Tip: ')) && (
+                        <p className="mt-1 text-xs text-text-muted leading-relaxed">
+                          {day.notes.find(n => !n.startsWith('Theme: ') && !n.startsWith('Insider Tip: '))}
+                        </p>
                       )}
                     </div>
                     {savedItineraryId && day.day === 1 ? (
@@ -919,12 +926,20 @@ export default function ItineraryGenerator() {
                     </div>
                   )}
 
-                  {/* Day tip */}
-                  {day.notes[1] && (
-                    <p className="mt-3 flex items-start gap-1.5 text-[11px] text-text-muted">
-                      <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-brand" />
-                      {day.notes[1]}
-                    </p>
+                  {/* Day tip / Insider tip */}
+                  {(day.notes.find(n => n.startsWith('Insider Tip: ')) || day.notes.find(n => !n.startsWith('Theme: ') && !n.startsWith('Insider Tip: ') && n !== day.notes[0])) && (
+                    <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 dark:border-amber-500/10 dark:bg-amber-500/10">
+                      <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                          Concierge Tip
+                        </p>
+                        <p className="mt-0.5 text-xs font-medium text-text-body">
+                          {day.notes.find(n => n.startsWith('Insider Tip: '))?.replace('Insider Tip: ', '') || 
+                           day.notes.find(n => !n.startsWith('Theme: ') && !n.startsWith('Insider Tip: ') && n !== day.notes[0])}
+                        </p>
+                      </div>
+                    </div>
                   )}
                 </div>
               ))}
