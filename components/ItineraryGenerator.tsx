@@ -375,14 +375,22 @@ export default function ItineraryGenerator() {
         body: JSON.stringify(payload),
       });
 
-      const body = (await response.json()) as { itinerary?: GeneratedItinerary; detail?: string };
+      const body = (await response.json()) as { itinerary?: GeneratedItinerary; savedId?: string | null; detail?: string };
       if (!response.ok || !body.itinerary) {
         throw new Error(body.detail ?? 'Could not generate itinerary');
       }
 
       setResult(body.itinerary);
       setRequestSnapshot(payload);
-      await saveGeneratedItinerary(payload, body.itinerary);
+
+      // Server already saved to DB if the user was authenticated
+      if (body.savedId) {
+        setSavedItineraryId(body.savedId);
+        setSaveResult('Itinerary generated and saved automatically.');
+      } else {
+        // Not authenticated — fall back to client-side save attempt
+        await saveGeneratedItinerary(payload, body.itinerary);
+      }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Failed to generate itinerary');
     } finally {

@@ -1,8 +1,10 @@
 import { z } from "zod";
 import { checkRateLimit } from "@/lib/rate-limit/memory-rate-limit";
 import { logger } from "@/lib/observability/logger";
+import { getAuthSession } from "@/lib/auth/get-session";
 import { enhanceItineraryWithAI } from "@/modules/ai/itinerary-ai.service";
 import { generateDeterministicItinerary } from "@/modules/itineraries/planner.service";
+import { createItineraryService } from "@/modules/itineraries/itinerary.service";
 import { ApiError, fromUnknownError, fromZodError } from "@/modules/shared/problem";
 import { itineraryRequestSchema } from "@/modules/shared/schemas";
 import { ok, problemResponse } from "@/modules/shared/response";
@@ -38,10 +40,32 @@ export async function POST(request: Request) {
       days: generated.days.length,
     });
 
+    // Save to DB in one step if user is authenticated — eliminates the need for a
+    // separate save API call from the client and prevents itineraries being lost
+    // between the two network requests.
+    let savedId: string | null = null;
+    const session = await getAuthSession();
+    if (session?.user?.id) {
+      try {
+        const saved = await createItineraryService({
+          userId: session.user.id,
+          requestSnapshot: body,
+          generatedPlan: generated,
+          notes: "Generated via planner",
+          status: "saved",
+        });
+        savedId = saved.id;
+      } catch (saveError) {
+        // Non-fatal: log and continue — client still receives the itinerary
+        logger.error("Failed to auto-save itinerary to DB", { error: saveError });
+      }
+    }
+
     return ok({
       request: body,
       itinerary: generated,
       source: "hybrid",
+      savedId,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
