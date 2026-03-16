@@ -21,18 +21,19 @@ import { getAuthSession } from "@/lib/auth/get-session";
 import { itineraryTitle, parseGeneratedItinerary } from "@/modules/itineraries/presenter";
 import { getItineraryService } from "@/modules/itineraries/itinerary.service";
 import { getAttractionsByIds } from "@/modules/attractions/attraction.repository";
+import { getAttractionImages } from "@/lib/wikipedia-images";
 
 const TAG_COLORS: Record<string, string> = {
-  culture: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300",
-  nature: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-  food: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-  adventure: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300",
-  history: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-  relaxation: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
+  culture: "bg-violet-600 text-white",
+  nature: "bg-emerald-600 text-white",
+  food: "bg-amber-500 text-white",
+  adventure: "bg-rose-600 text-white",
+  history: "bg-blue-600 text-white",
+  relaxation: "bg-teal-600 text-white",
 };
 
 function getTagColor(tag: string): string {
-  return TAG_COLORS[tag.toLowerCase()] ?? "bg-surface-subtle text-text-muted";
+  return TAG_COLORS[tag.toLowerCase()] ?? "bg-slate-500 text-white";
 }
 
 function extractTheme(notes: string[]): string | null {
@@ -116,6 +117,14 @@ export default async function ItineraryDetailPage({
       slug: (doc as Record<string, unknown>).slug as string ?? aid,
     };
   }
+
+  // Fetch real Wikipedia images for all attractions in parallel
+  const attractionImageInputs = Object.entries(attractionLookup).map(([, a]) => ({
+    slug: a.slug,
+    name: a.name,
+    city: generatedPlan?.days.find((d) => d.items.some((i) => attractionLookup[i.attractionId]?.slug === a.slug))?.city ?? "",
+  }));
+  const wikiImages = attractionImageInputs.length > 0 ? await getAttractionImages(attractionImageInputs) : {};
 
   const title = itineraryTitle(itinerary.generatedPlan, "Itinerary Detail");
   const totalActivities = generatedPlan?.days.reduce((s, d) => s + d.items.length, 0) ?? 0;
@@ -222,6 +231,7 @@ export default async function ItineraryDetailPage({
                       day.items.map((item, idx) => {
                         const attraction = attractionLookup[item.attractionId];
                         const slug = attraction?.slug ?? item.attractionId;
+                        const imageUrl = wikiImages[slug] ?? `https://picsum.photos/seed/${slug}/400/300`;
                         const isLast = idx === day.items.length - 1;
 
                         return (
@@ -239,7 +249,7 @@ export default async function ItineraryDetailPage({
                                 {/* Image */}
                                 <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-surface-muted">
                                   <Image
-                                    src={`https://picsum.photos/seed/${slug}/200/200`}
+                                    src={imageUrl}
                                     alt={attraction?.name ?? "Activity"}
                                     fill
                                     className="object-cover"
@@ -303,10 +313,10 @@ export default async function ItineraryDetailPage({
 
                   {/* Insider tip */}
                   {insiderTip && (
-                    <div className="mx-4 mb-4 flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800/40 dark:bg-amber-900/10 md:mx-6">
-                      <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-                      <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-300">
-                        <span className="font-semibold">Insider Tip:</span> {insiderTip}
+                    <div className="mx-4 mb-4 flex gap-3 rounded-2xl border border-amber-400 bg-amber-400 px-4 py-3 md:mx-6">
+                      <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-white" />
+                      <p className="text-xs leading-relaxed text-white">
+                        <span className="font-bold">Insider Tip:</span> {insiderTip}
                       </p>
                     </div>
                   )}
