@@ -46,21 +46,7 @@ export default function LandingInteractiveSection({ searchQuery }: { searchQuery
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
-          <button
-            onClick={() => setShowMap((prev) => !prev)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors border ${showMap
-              ? 'bg-brand text-white border-brand'
-              : 'bg-surface-base border-border-default hover:bg-surface-subtle text-text-body'
-              }`}
-          >
-            <Map className="w-4 h-4" />
-            {showMap ? 'Hide Map' : 'Map View'}
-          </button>
-
-          <div className="flex items-center gap-1.5 text-[13px] text-text-muted border border-border-default bg-surface-base rounded-lg px-3 py-2 select-none">
-            <Sparkles className="w-3.5 h-3.5 text-brand" />
-            <span className="font-semibold text-text-heading">AI Recommended</span>
-          </div>
+        
         </div>
       </div>
 
