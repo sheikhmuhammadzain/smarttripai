@@ -30,8 +30,6 @@ export default function TransportMapEmbed(props: TransportMapEmbedProps) {
 
   const origin = toLabel(from);
   const finalDest = toLabel(destinations[destinations.length - 1] ?? from);
-  // Waypoints = all destinations except the last one (Google Maps: origin→waypoints→destination)
-  const waypoints = destinations.slice(0, -1).map(toLabel);
   const isFlight = mode === 'flight';
 
   const routeTitle = [origin, ...destinations.map(toLabel)].join(' → ');

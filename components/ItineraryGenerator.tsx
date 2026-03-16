@@ -1,12 +1,14 @@
 'use client';
 
-import { Sparkles, MapPin, DollarSign, Clock, CloudSun, Banknote, ArrowUpRight, BookmarkCheck, CalendarRange, CheckCircle2, Route, Navigation, Tag } from 'lucide-react';
+import { Sparkles, MapPin, DollarSign, Clock, CloudSun, Banknote, ArrowUpRight, BookmarkCheck, CalendarRange, CheckCircle2, Route, Navigation, Tag, Loader2, CircleCheck, CircleX, Circle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { BudgetLevel, GeneratedItinerary, InterestTag, ItineraryRequest } from '@/types/travel';
+import type { PipelineStage, PipelineStreamEvent, StageStatus, PipelineResult } from '@/modules/itineraries/pipeline/pipeline.types';
 import { useAppPreferences } from '@/lib/preferences-client';
 import TransportMapEmbed from '@/components/TransportMapEmbed';
+import { WEATHER_CITY_MAP } from '@/lib/city-maps';
 
 // Only cities that have seeded attractions in the database
 const DESTINATIONS = ['istanbul', 'cappadocia', 'ephesus', 'pamukkale', 'antalya', 'bodrum', 'bursa', 'ankara', 'trabzon', 'konya', 'canakkale'] as const;
@@ -18,24 +20,35 @@ const DURATION_DAYS: Record<string, number> = {
   '15+': 15,
 };
 
-const WEATHER_CITY_MAP: Record<string, string> = {
-  cappadocia: 'Nevsehir',
-  istanbul: 'Istanbul',
-  ephesus: 'Izmir',
-  pamukkale: 'Denizli',
-  antalya: 'Antalya',
-  bodrum: 'Bodrum',
-  bursa: 'Bursa',
-  ankara: 'Ankara',
-  trabzon: 'Trabzon',
-  konya: 'Konya',
-  canakkale: 'Canakkale',
-  izmir: 'Izmir',
-  alanya: 'Alanya',
-  gaziantep: 'Gaziantep',
-  mardin: 'Mardin',
-  safranbolu: 'Karabuk',
+/* ── Pipeline stepper labels & icons ─────────────────────────────────────── */
+const PIPELINE_STAGE_LABELS: Record<PipelineStage, string> = {
+  preference_collection: 'Collecting your preferences',
+  context_collection: 'Fetching live weather, currency & routes',
+  prompt_construction: 'Building AI context prompt',
+  ai_processing: 'AI model generating itinerary',
+  post_processing: 'Validating & structuring output',
+  structured_output: 'Saving to your account',
 };
+
+const PIPELINE_STAGES_ORDER: PipelineStage[] = [
+  'preference_collection',
+  'context_collection',
+  'prompt_construction',
+  'ai_processing',
+  'post_processing',
+  'structured_output',
+];
+
+function initialPipelineProgress(): Record<PipelineStage, StageStatus> {
+  return {
+    preference_collection: 'pending',
+    context_collection: 'pending',
+    prompt_construction: 'pending',
+    ai_processing: 'pending',
+    post_processing: 'pending',
+    structured_output: 'pending',
+  };
+}
 
 interface WeatherData {
   city: string;
@@ -133,6 +146,8 @@ export default function ItineraryGenerator() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [currency, setCurrency] = useState<CurrencyData | null>(null);
   const [transport, setTransport] = useState<TransportData | null>(null);
+  const [pipelineProgress, setPipelineProgress] = useState<Record<PipelineStage, StageStatus>>(initialPipelineProgress);
+  const [pipelineSource, setPipelineSource] = useState<string | null>(null);
 
   const daysSelected = useMemo(() => DURATION_DAYS[duration] ?? 5, [duration]);
   const primaryDestination = destinations[0] ?? 'istanbul';
@@ -350,11 +365,13 @@ export default function ItineraryGenerator() {
     }
   }
 
-  async function handleGenerate() {
+  const handleGenerate = useCallback(async () => {
     setLoading(true);
     setError(null);
     setSaveResult(null);
     setSavedItineraryId(null);
+    setPipelineProgress(initialPipelineProgress());
+    setPipelineSource(null);
 
     const startDate = new Date();
     const endDate = new Date(startDate);
@@ -371,34 +388,67 @@ export default function ItineraryGenerator() {
     };
 
     try {
-      const response = await fetch('/api/v1/itineraries/generate', {
+      // Use the SSE streaming pipeline endpoint
+      const response = await fetch('/api/v1/itineraries/generate/stream', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, transportMode }),
       });
 
-      const body = (await response.json()) as { itinerary?: GeneratedItinerary; savedId?: string | null; detail?: string };
-      if (!response.ok || !body.itinerary) {
-        throw new Error(body.detail ?? 'Could not generate itinerary');
+      if (!response.ok || !response.body) {
+        throw new Error('Pipeline request failed');
       }
 
-      setResult(body.itinerary);
-      setRequestSnapshot(payload);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
 
-      // Server already saved to DB if the user was authenticated
-      if (body.savedId) {
-        setSavedItineraryId(body.savedId);
-        setSaveResult('Itinerary generated and saved automatically.');
-      } else {
-        // Not authenticated — fall back to client-side save attempt
-        await saveGeneratedItinerary(payload, body.itinerary);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const event = JSON.parse(line.slice(6)) as PipelineStreamEvent;
+
+            if (event.type === 'stage_update') {
+              setPipelineProgress((prev) => ({
+                ...prev,
+                [event.payload.stage]: event.payload.status,
+              }));
+            } else if (event.type === 'result') {
+              const pipelineResult = event.payload as PipelineResult;
+              setResult(pipelineResult.itinerary);
+              setRequestSnapshot(payload);
+              setPipelineSource(pipelineResult.pipelineMetadata.source);
+
+              if (pipelineResult.savedId) {
+                setSavedItineraryId(pipelineResult.savedId);
+                setSaveResult(`Generated via ${pipelineResult.pipelineMetadata.source.replace(/_/g, ' ')} in ${(pipelineResult.pipelineMetadata.totalDurationMs / 1000).toFixed(1)}s`);
+              } else {
+                setSaveResult('Generated successfully. Sign in to auto-save.');
+              }
+            } else if (event.type === 'error') {
+              throw new Error(event.payload.message);
+            }
+          } catch (parseError) {
+            if (parseError instanceof Error && parseError.message !== 'Pipeline request failed') {
+              throw parseError;
+            }
+          }
+        }
       }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Failed to generate itinerary');
     } finally {
       setLoading(false);
     }
-  }
+  }, [destinations, daysSelected, budget, interest, transportMode]);
 
   /* ── shared select class ── */
   const selectCls =
@@ -740,6 +790,45 @@ export default function ItineraryGenerator() {
           </div>
         </div>
 
+        {/* Pipeline Progress Stepper */}
+        {loading && (
+          <div className="mt-6 rounded-2xl border border-brand/20 bg-brand/3 p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Loader2 className="h-4 w-4 animate-spin text-brand" />
+              <p className="text-sm font-semibold text-text-primary">AI Pipeline Processing</p>
+            </div>
+            <div className="space-y-2">
+              {PIPELINE_STAGES_ORDER.map((stage) => {
+                const status = pipelineProgress[stage];
+                return (
+                  <div key={stage} className="flex items-center gap-3">
+                    {status === 'completed' ? (
+                      <CircleCheck className="h-5 w-5 shrink-0 text-emerald-500" />
+                    ) : status === 'running' ? (
+                      <Loader2 className="h-5 w-5 shrink-0 animate-spin text-brand" />
+                    ) : status === 'failed' ? (
+                      <CircleX className="h-5 w-5 shrink-0 text-red-500" />
+                    ) : (
+                      <Circle className="h-5 w-5 shrink-0 text-text-subtle/40" />
+                    )}
+                    <span className={`text-sm ${
+                      status === 'completed' ? 'text-emerald-600 dark:text-emerald-400 font-medium' :
+                      status === 'running' ? 'text-brand font-semibold' :
+                      status === 'failed' ? 'text-red-500 font-medium' :
+                      'text-text-subtle'
+                    }`}>
+                      {PIPELINE_STAGE_LABELS[stage]}
+                    </span>
+                    {status === 'completed' && (
+                      <span className="text-[10px] text-emerald-500/80 font-medium ml-auto">Done</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Results preview */}
         {result && (
           <div className="mt-6 overflow-hidden rounded-2xl border border-border-default bg-surface-base shadow-sm">
@@ -753,6 +842,17 @@ export default function ItineraryGenerator() {
                     <span className="rounded-full bg-surface-brand-subtle px-2.5 py-1 text-[10px] font-semibold text-brand">
                       {result.days.length} days
                     </span>
+                    {pipelineSource && (
+                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
+                        pipelineSource === 'ai_primary' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+                        pipelineSource === 'ai_repaired' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+                        'bg-surface-subtle text-text-body'
+                      }`}>
+                        {pipelineSource === 'ai_primary' ? 'AI Enhanced' :
+                         pipelineSource === 'ai_repaired' ? 'AI + Repaired' :
+                         'Deterministic'}
+                      </span>
+                    )}
                     {savedItineraryId ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-surface-subtle px-2.5 py-1 text-[10px] font-semibold text-text-body">
                         <CheckCircle2 className="h-3.5 w-3.5" />
