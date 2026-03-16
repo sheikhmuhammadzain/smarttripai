@@ -136,6 +136,8 @@ export default function ItineraryGenerator() {
 
   const daysSelected = useMemo(() => DURATION_DAYS[duration] ?? 5, [duration]);
   const primaryDestination = destinations[0] ?? 'istanbul';
+  // For map + transport: show route TO the last selected destination
+  const finalDestination = destinations[destinations.length - 1] ?? 'istanbul';
   const totalActivities = useMemo(
     () => result?.days.reduce((sum, day) => sum + day.items.length, 0) ?? 0,
     [result],
@@ -278,7 +280,7 @@ export default function ItineraryGenerator() {
           fetch(`/api/v1/realtime/currency?base=${encodeURIComponent(userCurrency)}&target=TRY`),
           fetch(
             `/api/v1/realtime/transport?from=${encodeURIComponent(transportFrom)}&to=${encodeURIComponent(
-              primaryDestination,
+              finalDestination,
             )}&mode=${transportMode}&departureAt=${encodeURIComponent(`${transportDepartureDate}T09:00:00.000Z`)}`,
           ),
         ]);
@@ -309,7 +311,7 @@ export default function ItineraryGenerator() {
     return () => {
       cancelled = true;
     };
-  }, [primaryDestination, transportDepartureDate, transportFrom, transportMode, userCurrency]);
+  }, [primaryDestination, finalDestination, transportDepartureDate, transportFrom, transportMode, userCurrency]);
 
   async function saveGeneratedItinerary(payload: ItineraryRequest, generatedItinerary: GeneratedItinerary) {
     setSaving(true);
@@ -701,7 +703,7 @@ export default function ItineraryGenerator() {
           </div>
           <TransportMapEmbed
             from={transportFrom}
-            to={primaryDestination}
+            destinations={destinations}
             mode={transportMode}
             distanceKm={transport?.distanceKm}
             estimatedDurationHours={transport?.estimatedDurationHours}

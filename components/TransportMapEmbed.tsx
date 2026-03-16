@@ -7,7 +7,7 @@ type TransportSource = 'google-distance-matrix' | 'heuristic';
 
 interface TransportMapEmbedProps {
   from: string;
-  to: string;
+  destinations: string[];  // full ordered list — supports multi-stop routes
   mode: TransportMode;
   distanceKm?: number;
   estimatedDurationHours?: number;
@@ -25,34 +25,88 @@ function getTravelMode(mode: TransportMode): 'driving' | 'transit' {
 }
 
 export default function TransportMapEmbed(props: TransportMapEmbedProps) {
-  const { from, to, mode, distanceKm, estimatedDurationHours, recommendation, source, isLoading } = props;
+  const { from, destinations, mode, distanceKm, estimatedDurationHours, recommendation, source, isLoading } = props;
   const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  const fromLabel = toLabel(from);
-  const toLabelValue = toLabel(to);
-  const routeTitle = `${fromLabel} to ${toLabelValue}`;
+
+  const origin = toLabel(from);
+  const finalDest = toLabel(destinations[destinations.length - 1] ?? from);
+  // Waypoints = all destinations except the last one (Google Maps: origin→waypoints→destination)
+  const waypoints = destinations.slice(0, -1).map(toLabel);
   const isFlight = mode === 'flight';
-  const embedUrl = googleMapsKey
-    ? isFlight
-      ? `https://www.google.com/maps/embed/v1/search?key=${encodeURIComponent(googleMapsKey)}&q=${encodeURIComponent(`${fromLabel} to ${toLabelValue} airports`)}`
-      : `https://www.google.com/maps/embed/v1/directions?key=${encodeURIComponent(googleMapsKey)}&origin=${encodeURIComponent(fromLabel)}&destination=${encodeURIComponent(toLabelValue)}&mode=${getTravelMode(mode)}`
-    : null;
-  const externalUrl = isFlight
-    ? `https://www.google.com/maps/search/${encodeURIComponent(`${fromLabel} to ${toLabelValue} airports`)}`
-    : `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(fromLabel)}&destination=${encodeURIComponent(toLabelValue)}&travelmode=${getTravelMode(mode)}`;
+
+  const routeTitle = [origin, ...destinations.map(toLabel)].join(' → ');
+
+  // Google Maps Embed API does NOT support waypoints in directions mode.
+  // For multi-stop routes use Static Maps API which renders all markers + path.
+  function buildMapUrl(): { url: string; type: 'embed' | 'static' } | null {
+    if (!googleMapsKey) return null;
+
+    if (isFlight) {
+      return {
+        url: `https://www.google.com/maps/embed/v1/search?key=${encodeURIComponent(googleMapsKey)}&q=${encodeURIComponent(`${origin} to ${finalDest} airports`)}`,
+        type: 'embed',
+      };
+    }
+
+    const allStops = [origin, ...destinations.map(toLabel)];
+
+    // Multi-stop: use Static Maps API — supports multiple markers + polyline path
+    if (allStops.length > 2) {
+      const markerParams = allStops
+        .map((stop, i) => {
+          const color = i === 0 ? 'blue' : i === allStops.length - 1 ? 'red' : '0xF59E0B';
+          return `markers=color:${color}|label:${i + 1}|${encodeURIComponent(`${stop}, Turkey`)}`;
+        })
+        .join('&');
+      const pathStops = allStops.map((s) => encodeURIComponent(`${s}, Turkey`)).join('|');
+      return {
+        url: `https://maps.googleapis.com/maps/api/staticmap?size=800x400&scale=2&key=${googleMapsKey}&${markerParams}&path=color:0x2563EB|weight:4|${pathStops}&style=feature:water|color:0xdbeafe&style=feature:landscape|color:0xf0fdf4`,
+        type: 'static',
+      };
+    }
+
+    // Single destination: use Embed directions mode
+    return {
+      url: `https://www.google.com/maps/embed/v1/directions?key=${encodeURIComponent(googleMapsKey)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(finalDest)}&mode=${getTravelMode(mode)}`,
+      type: 'embed',
+    };
+  }
+
+  function buildExternalUrl(): string {
+    if (isFlight) {
+      return `https://www.google.com/maps/search/${encodeURIComponent(`${origin} to ${finalDest} airports`)}`;
+    }
+    const allStops = [origin, ...destinations.map(toLabel)];
+    return `https://www.google.com/maps/dir/${allStops.map(encodeURIComponent).join('/')}`;
+  }
+
+  const mapResult = buildMapUrl();
+  const externalUrl = buildExternalUrl();
 
   return (
     <div className="overflow-hidden rounded-[28px] border border-border-soft bg-surface-base shadow-[0_20px_50px_rgba(15,23,42,0.10)]">
-      <div className="h-[260px] overflow-hidden bg-surface-subtle md:h-[300px]">
-        {embedUrl ? (
-          <iframe
-            title={`Google Maps route for ${routeTitle}`}
-            src={embedUrl}
-            className="h-full w-full border-0"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
+      <div className="h-65 overflow-hidden bg-surface-subtle md:h-75">
+        {mapResult ? (
+          mapResult.type === 'static' ? (
+            // Multi-stop: static map image shows all markers + polyline
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={mapResult.url}
+              alt={`Map route: ${routeTitle}`}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            // Single destination: interactive embed with directions
+            <iframe
+              title={`Google Maps route: ${routeTitle}`}
+              src={mapResult.url}
+              className="h-full w-full border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          )
         ) : (
-          <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(32,123,244,0.14),_transparent_38%),linear-gradient(180deg,var(--color-surface-base,white),var(--color-surface-subtle,#f4f6f8))] px-6 text-center">
+          <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_top,rgba(32,123,244,0.14),transparent_38%),linear-gradient(180deg,var(--color-surface-base,white),var(--color-surface-subtle,#f4f6f8))] px-6 text-center">
             <div>
               <MapPinned className="mx-auto h-10 w-10 text-brand" />
               <p className="mt-4 text-sm font-semibold text-text-primary">Google Maps preview unavailable</p>
