@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   MapPin,
@@ -6,6 +7,12 @@ import {
   Navigation,
   CalendarDays,
   ChevronRight,
+  Sparkles,
+  Lightbulb,
+  Palette,
+  ArrowDown,
+  Users,
+  Globe,
 } from "lucide-react";
 import ItineraryDetailClient from "@/components/ItineraryDetailClient";
 import Header from "@/components/Header";
@@ -14,6 +21,33 @@ import { getAuthSession } from "@/lib/auth/get-session";
 import { itineraryTitle, parseGeneratedItinerary } from "@/modules/itineraries/presenter";
 import { getItineraryService } from "@/modules/itineraries/itinerary.service";
 import { getAttractionsByIds } from "@/modules/attractions/attraction.repository";
+
+const TAG_COLORS: Record<string, string> = {
+  culture: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300",
+  nature: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+  food: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+  adventure: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300",
+  history: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+  relaxation: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
+};
+
+function getTagColor(tag: string): string {
+  return TAG_COLORS[tag.toLowerCase()] ?? "bg-surface-subtle text-text-muted";
+}
+
+function extractTheme(notes: string[]): string | null {
+  const themeNote = notes.find((n) => n.startsWith("Theme:"));
+  return themeNote ? themeNote.replace("Theme:", "").trim() : null;
+}
+
+function extractInsiderTip(notes: string[]): string | null {
+  const tipNote = notes.find((n) => n.startsWith("Insider Tip:"));
+  return tipNote ? tipNote.replace("Insider Tip:", "").trim() : null;
+}
+
+function getOtherNotes(notes: string[]): string[] {
+  return notes.filter((n) => !n.startsWith("Theme:") && !n.startsWith("Insider Tip:"));
+}
 
 export default async function ItineraryDetailPage({
   params,
@@ -65,25 +99,26 @@ export default async function ItineraryDetailPage({
   }
 
   const generatedPlan = parseGeneratedItinerary(itinerary.generatedPlan);
+  const requestSnapshot = itinerary.requestSnapshot as Record<string, unknown> | undefined;
 
-  /* Resolve attraction IDs → names */
   const allAttractionIds = generatedPlan?.days.flatMap((d) => d.items.map((i) => i.attractionId)) ?? [];
   const attractionMap = allAttractionIds.length > 0
     ? await getAttractionsByIds(allAttractionIds)
-    : new Map<string, { name: string; description: string; tags: string[]; avgDurationMin: number }>();
+    : new Map<string, { name: string; description: string; tags: string[]; avgDurationMin: number; slug: string }>();
 
-  /* Serialize attraction data for the page */
-  const attractionLookup: Record<string, { name: string; description: string; tags: string[]; avgDurationMin: number }> = {};
+  const attractionLookup: Record<string, { name: string; description: string; tags: string[]; avgDurationMin: number; slug: string }> = {};
   for (const [aid, doc] of attractionMap.entries()) {
     attractionLookup[aid] = {
       name: doc.name,
       description: doc.description,
       tags: doc.tags,
       avgDurationMin: doc.avgDurationMin,
+      slug: (doc as Record<string, unknown>).slug as string ?? aid,
     };
   }
 
   const title = itineraryTitle(itinerary.generatedPlan, "Itinerary Detail");
+  const totalActivities = generatedPlan?.days.reduce((s, d) => s + d.items.length, 0) ?? 0;
 
   return (
     <Shell title={title}>
@@ -98,133 +133,204 @@ export default async function ItineraryDetailPage({
         </ol>
       </nav>
 
-      {/* Hero */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-text-primary">{title}</h1>
-        <p className="mt-1 text-sm text-text-muted">Review your daily plan, explore activities, and manage your trip.</p>
+      {/* Hero section */}
+      <div className="relative mb-8 overflow-hidden rounded-3xl border border-border-soft bg-gradient-to-br from-brand/5 via-surface-base to-surface-subtle p-6 md:p-8">
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand/5 blur-3xl" />
+        <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-brand/8 blur-3xl" />
+        <div className="relative">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
+              <Sparkles className="h-3 w-3" />
+              AI Generated
+            </span>
+            {itinerary.notes && (
+              <span className="rounded-full bg-surface-brand-subtle px-3 py-1 text-[10px] font-semibold text-brand">
+                {itinerary.notes.includes("ai_primary") ? "AI Enhanced" : itinerary.notes.includes("ai_repaired") ? "AI + Repaired" : "Smart Plan"}
+              </span>
+            )}
+          </div>
+          <h1 className="text-2xl font-bold text-text-primary md:text-3xl">{title}</h1>
+          <p className="mt-2 max-w-xl text-sm text-text-muted">
+            Your personalized travel itinerary with curated activities, time estimates, and local insights.
+          </p>
+        </div>
       </div>
 
       {generatedPlan ? (
         <>
-          {/* Summary bar */}
-          <div className="mb-6 flex flex-wrap items-center gap-4 rounded-2xl border border-border-soft bg-surface-base p-4">
-            <div className="flex items-center gap-2 text-sm text-text-body">
-              <CalendarDays className="h-4 w-4 text-brand" />
-              <span className="font-semibold">{generatedPlan.days.length}</span> days
-            </div>
-            <div className="h-4 w-px bg-border-default" />
-            <div className="flex items-center gap-2 text-sm text-text-body">
-              <MapPin className="h-4 w-4 text-brand" />
-              {generatedPlan.cityOrder.map((c) => c.charAt(0).toUpperCase() + c.slice(1)).join(" → ")}
-            </div>
-            <div className="h-4 w-px bg-border-default" />
-            <div className="flex items-center gap-2 text-sm text-text-body">
-              <Banknote className="h-4 w-4 text-brand" />
-              <span className="font-semibold">{generatedPlan.totalEstimatedCostTRY.toLocaleString("en-US")}</span> TRY estimated
-            </div>
+          {/* Summary cards */}
+          <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <SummaryCard icon={<CalendarDays className="h-5 w-5 text-brand" />} label="Duration" value={`${generatedPlan.days.length} days`} />
+            <SummaryCard icon={<MapPin className="h-5 w-5 text-brand" />} label="Cities" value={generatedPlan.cityOrder.map((c) => c.charAt(0).toUpperCase() + c.slice(1)).join(", ")} />
+            <SummaryCard icon={<Banknote className="h-5 w-5 text-brand" />} label="Est. Budget" value={`${generatedPlan.totalEstimatedCostTRY.toLocaleString("en-US")} TRY`} />
+            <SummaryCard icon={<Globe className="h-5 w-5 text-brand" />} label="Activities" value={`${totalActivities} planned`} />
           </div>
 
-          {/* Day-by-day timeline */}
-          <div className="space-y-6">
-            {generatedPlan.days.map((day) => (
-              <section
-                key={day.day}
-                className="rounded-2xl border border-border-soft bg-surface-base overflow-hidden"
-              >
-                {/* Day header */}
-                <div className="flex items-center gap-3 border-b border-border-subtle bg-surface-subtle px-5 py-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
-                    {day.day}
-                  </span>
-                  <div>
-                    <h3 className="text-sm font-bold text-text-primary">
-                      Day {day.day} — {day.city.charAt(0).toUpperCase() + day.city.slice(1)}
-                    </h3>
-                    <p className="text-[11px] text-text-muted">
-                      {day.items.length} {day.items.length === 1 ? "activity" : "activities"}
-                    </p>
-                  </div>
-                </div>
+          {/* Route overview */}
+          <div className="mb-8 flex items-center justify-center gap-2 rounded-2xl border border-border-soft bg-surface-base px-5 py-4">
+            {generatedPlan.cityOrder.map((city, i) => (
+              <div key={city} className="flex items-center gap-2">
+                {i > 0 && <ChevronRight className="h-4 w-4 text-text-subtle" />}
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-subtle px-3 py-1.5 text-xs font-semibold text-text-primary">
+                  <MapPin className="h-3 w-3 text-brand" />
+                  {city.charAt(0).toUpperCase() + city.slice(1)}
+                </span>
+              </div>
+            ))}
+          </div>
 
-                {/* Activities */}
-                <div className="divide-y divide-border-subtle">
-                  {day.items.length === 0 ? (
-                    <p className="px-5 py-4 text-sm text-text-muted italic">
-                      No activities planned — this is a free / rest day.
-                    </p>
-                  ) : (
-                    day.items.map((item, idx) => {
-                      const attraction = attractionLookup[item.attractionId];
-                      return (
-                        <div key={idx} className="flex gap-4 px-5 py-4">
-                          {/* Time column */}
-                          <div className="flex w-20 shrink-0 flex-col items-center">
-                            <span className="text-sm font-bold text-text-primary">{item.startTime}</span>
-                            <div className="my-1 h-5 w-px bg-border-default" />
-                            <span className="text-xs text-text-muted">{item.endTime}</span>
+          {/* Day-by-day */}
+          <div className="space-y-8">
+            {generatedPlan.days.map((day, dayIdx) => {
+              const theme = extractTheme(day.notes);
+              const insiderTip = extractInsiderTip(day.notes);
+              const otherNotes = getOtherNotes(day.notes);
+
+              return (
+                <section key={day.day} className="overflow-hidden rounded-3xl border border-border-soft bg-surface-base shadow-sm">
+                  {/* Day header */}
+                  <div className="relative bg-gradient-to-r from-brand/8 via-surface-subtle to-surface-base px-6 py-5">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand text-lg font-bold text-white shadow-md shadow-brand/20">
+                        {day.day}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-text-primary">
+                          Day {day.day} — {day.city.charAt(0).toUpperCase() + day.city.slice(1)}
+                        </h3>
+                        <p className="mt-0.5 text-sm text-text-muted">
+                          {day.items.length} {day.items.length === 1 ? "activity" : "activities"}
+                          {theme && <span className="ml-2 text-text-subtle">·</span>}
+                        </p>
+                        {theme && (
+                          <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-surface-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
+                            <Palette className="h-3 w-3" />
+                            {theme}
                           </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
 
-                          {/* Activity details */}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-bold text-text-primary leading-snug">
-                              {attraction?.name ?? `Attraction ${item.attractionId.slice(-6)}`}
-                            </h4>
-                            {attraction?.description && (
-                              <p className="mt-1 text-xs text-text-muted leading-relaxed line-clamp-2">
-                                {attraction.description}
-                              </p>
-                            )}
+                  {/* Activities */}
+                  <div className="px-4 py-2 md:px-6">
+                    {day.items.length === 0 ? (
+                      <p className="py-6 text-center text-sm text-text-muted italic">
+                        Free day — explore at your own pace!
+                      </p>
+                    ) : (
+                      day.items.map((item, idx) => {
+                        const attraction = attractionLookup[item.attractionId];
+                        const slug = attraction?.slug ?? item.attractionId;
+                        const isLast = idx === day.items.length - 1;
 
-                            {/* Meta chips */}
-                            <div className="mt-2 flex flex-wrap items-center gap-2">
-                              {attraction?.avgDurationMin && (
-                                <span className="inline-flex items-center gap-1 rounded-lg bg-surface-subtle px-2 py-0.5 text-[10px] font-medium text-text-body">
-                                  <Clock className="h-3 w-3 text-brand" />
-                                  {attraction.avgDurationMin} min
-                                </span>
-                              )}
-                              <span className="inline-flex items-center gap-1 rounded-lg bg-surface-subtle px-2 py-0.5 text-[10px] font-medium text-text-body">
-                                <Banknote className="h-3 w-3 text-brand" />
-                                {item.costEstimateTRY.toLocaleString("en-US")} TRY
-                              </span>
-                              {item.transportHint && (
-                                <span className="inline-flex items-center gap-1 rounded-lg bg-surface-subtle px-2 py-0.5 text-[10px] font-medium text-text-body">
-                                  <Navigation className="h-3 w-3 text-brand" />
-                                  {item.transportHint}
-                                </span>
-                              )}
+                        return (
+                          <div key={idx}>
+                            <div className="flex gap-4 py-4">
+                              {/* Timeline connector */}
+                              <div className="flex w-14 shrink-0 flex-col items-center">
+                                <span className="rounded-lg bg-brand/10 px-2 py-0.5 text-xs font-bold text-brand">{item.startTime}</span>
+                                <div className="my-1 flex-1 border-l-2 border-dashed border-border-default" />
+                                <span className="text-[10px] font-medium text-text-subtle">{item.endTime}</span>
+                              </div>
+
+                              {/* Activity card */}
+                              <div className="flex flex-1 gap-4 rounded-2xl border border-border-soft bg-surface-subtle p-3 transition-colors hover:border-border-default">
+                                {/* Image */}
+                                <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-surface-muted">
+                                  <Image
+                                    src={`https://picsum.photos/seed/${slug}/200/200`}
+                                    alt={attraction?.name ?? "Activity"}
+                                    fill
+                                    className="object-cover"
+                                    sizes="96px"
+                                  />
+                                </div>
+
+                                {/* Content */}
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-sm font-bold text-text-primary leading-snug">
+                                    {attraction?.name ?? `Attraction ${item.attractionId.slice(-6)}`}
+                                  </h4>
+                                  {attraction?.description && (
+                                    <p className="mt-1 text-xs text-text-muted leading-relaxed line-clamp-2">
+                                      {attraction.description}
+                                    </p>
+                                  )}
+
+                                  {/* Meta row */}
+                                  <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                                    {attraction?.avgDurationMin && (
+                                      <span className="inline-flex items-center gap-1 rounded-lg bg-surface-base px-2 py-0.5 text-[10px] font-medium text-text-body">
+                                        <Clock className="h-3 w-3 text-brand" />
+                                        {attraction.avgDurationMin} min
+                                      </span>
+                                    )}
+                                    <span className="inline-flex items-center gap-1 rounded-lg bg-surface-base px-2 py-0.5 text-[10px] font-medium text-text-body">
+                                      <Banknote className="h-3 w-3 text-brand" />
+                                      {item.costEstimateTRY.toLocaleString("en-US")} TRY
+                                    </span>
+                                  </div>
+
+                                  {/* Tags */}
+                                  {attraction?.tags && attraction.tags.length > 0 && (
+                                    <div className="mt-2 flex flex-wrap gap-1">
+                                      {attraction.tags.map((tag) => (
+                                        <span key={tag} className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${getTagColor(tag)}`}>
+                                          {tag}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
 
-                            {/* Tags */}
-                            {attraction?.tags && attraction.tags.length > 0 && (
-                              <div className="mt-2 flex flex-wrap gap-1">
-                                {attraction.tags.map((tag) => (
-                                  <span
-                                    key={tag}
-                                    className="rounded-full border border-border-subtle px-2 py-0.5 text-[10px] text-text-muted"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
+                            {/* Transport hint between activities */}
+                            {!isLast && item.transportHint && (
+                              <div className="ml-14 flex items-center gap-2 py-1 pl-4">
+                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface-subtle">
+                                  <Navigation className="h-3 w-3 text-text-subtle" />
+                                </div>
+                                <span className="text-[11px] text-text-subtle">{item.transportHint}</span>
                               </div>
                             )}
                           </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-
-                {/* Day notes */}
-                {day.notes.length > 0 && (
-                  <div className="border-t border-border-subtle bg-surface-muted px-5 py-3">
-                    <p className="text-[11px] font-medium text-text-subtle">
-                      💡 {day.notes.join(" · ")}
-                    </p>
+                        );
+                      })
+                    )}
                   </div>
-                )}
-              </section>
-            ))}
+
+                  {/* Insider tip */}
+                  {insiderTip && (
+                    <div className="mx-4 mb-4 flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800/40 dark:bg-amber-900/10 md:mx-6">
+                      <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                      <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-300">
+                        <span className="font-semibold">Insider Tip:</span> {insiderTip}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Other notes */}
+                  {otherNotes.length > 0 && (
+                    <div className="border-t border-border-subtle px-6 py-3">
+                      <p className="text-[11px] leading-relaxed text-text-subtle">
+                        {otherNotes.join(" · ")}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Day transition arrow */}
+                  {dayIdx < generatedPlan.days.length - 1 && (
+                    <div className="flex justify-center pb-2">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface-subtle">
+                        <ArrowDown className="h-3 w-3 text-text-subtle" />
+                      </div>
+                    </div>
+                  )}
+                </section>
+              );
+            })}
           </div>
         </>
       ) : (
@@ -234,10 +340,21 @@ export default async function ItineraryDetailPage({
       )}
 
       {/* Notes / Status / Actions */}
-      <div className="mt-8">
+      <div className="mt-10">
         <ItineraryDetailClient itinerary={itinerary} generatedPlan={generatedPlan} />
       </div>
     </Shell>
+  );
+}
+
+/* Summary card component */
+function SummaryCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-border-soft bg-surface-base p-4">
+      <div className="mb-2">{icon}</div>
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-text-subtle">{label}</p>
+      <p className="mt-1 text-sm font-bold text-text-primary">{value}</p>
+    </div>
   );
 }
 
@@ -246,7 +363,7 @@ function Shell({ title, children }: { title: string; children: React.ReactNode }
   return (
     <div className="min-h-screen bg-background text-text-heading transition-colors">
       <Header />
-      <main className="mx-auto max-w-[900px] px-4 py-10 md:px-6">
+      <main className="mx-auto max-w-230 px-4 py-10 md:px-6">
         {children}
       </main>
       <Footer />
