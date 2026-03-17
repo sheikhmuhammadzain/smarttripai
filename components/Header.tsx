@@ -1,7 +1,9 @@
 ﻿
 'use client';
 
-import { Heart, ShoppingCart, Settings, User, LogOut, LogIn, Shield, ChevronDown, Sun, Moon } from 'lucide-react';
+import { Heart, ShoppingCart, Settings, User, LogOut, LogIn, Shield, ChevronDown, Sun, Moon, BadgeDollarSign } from 'lucide-react';
+import LanguageCurrencyDialog from '@/components/LanguageCurrencyDialog';
+import { useAppPreferences, writeAppPreferences, type AppPreferences } from '@/lib/preferences-client';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -30,6 +32,12 @@ export default function Header() {
   const searchRef = useRef<HTMLFormElement | null>(null);
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
+  const [prefsOpen, setPrefsOpen] = useState(false);
+  const { preferences } = useAppPreferences();
+
+  function handlePrefsChange(next: AppPreferences) {
+    writeAppPreferences(next);
+  }
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -179,6 +187,7 @@ export default function Header() {
   }, []);
 
   return (
+    <>
     <header className="sticky top-0 z-50 bg-background border-b border-border-soft transition-colors">
       <div className="max-w-330 mx-auto px-3 sm:px-4 md:px-6 h-18 md:h-20 flex items-center justify-between gap-2 md:gap-4">
         {/* Logo */}
@@ -270,6 +279,18 @@ export default function Header() {
             </div>
             <span className="text-[11px] font-medium hidden md:block">Cart</span>
           </Link>
+          {/* Currency / Language */}
+          <button
+            onClick={() => setPrefsOpen(true)}
+            className="p-1.5 md:p-0 flex flex-col items-center gap-1 text-text-muted hover:text-text-primary group"
+            aria-label="Change currency or language"
+          >
+            <BadgeDollarSign className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" />
+            <span className="text-[11px] font-medium hidden md:block">
+              {preferences.currency}
+            </span>
+          </button>
+
           <div ref={accountRef} className="relative">
             <button
               onClick={() => setAccountOpen((prev) => !prev)}
@@ -394,5 +415,13 @@ export default function Header() {
       </div>
 
     </header>
+
+    <LanguageCurrencyDialog
+      open={prefsOpen}
+      preferences={preferences}
+      onClose={() => setPrefsOpen(false)}
+      onChange={handlePrefsChange}
+    />
+    </>
   );
 }
