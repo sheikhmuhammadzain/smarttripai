@@ -450,9 +450,9 @@ export default function CheckoutPaymentClient() {
 
                 {/* Error */}
                 {error && (
-                  <div className="flex items-start gap-2.5 rounded-xl border border-rose-300 bg-rose-100 px-4 py-3 dark:border-rose-800/40 dark:bg-rose-950/30">
-                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
-                    <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>
+                  <div className="flex items-start gap-2.5 rounded-xl border border-red-600 bg-red-600 px-4 py-3">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-white" />
+                    <p className="text-sm font-medium text-white">{error}</p>
                   </div>
                 )}
 

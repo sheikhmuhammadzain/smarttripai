@@ -97,7 +97,7 @@ export default function ProductCard({
           </div>
 
           {product.bookedText ? (
-            <span className="shrink-0 rounded-full bg-brand/8 px-2.5 py-1 text-[10px] font-semibold text-brand">
+            <span className="shrink-0 rounded-full bg-brand px-2.5 py-1 text-[10px] font-semibold text-white">
               {product.bookedText}
             </span>
           ) : null}

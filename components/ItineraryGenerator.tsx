@@ -592,7 +592,7 @@ export default function ItineraryGenerator() {
                 <div className="flex items-center gap-2">
                   <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Weather</p>
                   {!realtimeLoading && weather && (
-                    <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span className="flex items-center gap-1 rounded-full bg-emerald-500 px-1.5 py-0.5 text-[9px] font-semibold text-white">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       Live
                     </span>
@@ -693,7 +693,7 @@ export default function ItineraryGenerator() {
                 <div className="flex items-center gap-2">
                   <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Exchange Rate</p>
                   {!realtimeLoading && currency && (
-                    <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span className="flex items-center gap-1 rounded-full bg-emerald-500 px-1.5 py-0.5 text-[9px] font-semibold text-white">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       Live
                     </span>
@@ -842,8 +842,8 @@ export default function ItineraryGenerator() {
                     </span>
                     {pipelineSource && (
                       <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
-                        pipelineSource === 'ai_primary' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
-                        pipelineSource === 'ai_repaired' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+                        pipelineSource === 'ai_primary' ? 'bg-emerald-500 text-white' :
+                        pipelineSource === 'ai_repaired' ? 'bg-amber-500 text-white' :
                         'bg-surface-subtle text-text-body'
                       }`}>
                         {pipelineSource === 'ai_primary' ? 'AI Enhanced' :
@@ -995,7 +995,7 @@ export default function ItineraryGenerator() {
                                     )}
                                   </div>
                                 </div>
-                                <span className="shrink-0 rounded-lg bg-emerald-500/10 px-2 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                                <span className="shrink-0 rounded-lg bg-emerald-500 px-2 py-1 text-[11px] font-semibold text-white">
                                   ₺{item.costEstimateTRY.toLocaleString()}
                                 </span>
                               </div>

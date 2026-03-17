@@ -417,7 +417,7 @@ function ToolChip({ status }: { status: ToolStatus }) {
   return (
     <div
       className={`inline-flex items-center gap-2 self-start rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-300 ${status.done
-        ? "bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-700"
+        ? "bg-emerald-500 text-white border border-emerald-600"
         : "bg-brand text-white border border-brand/80 shadow-sm shadow-brand/30"
         }`}
     >
