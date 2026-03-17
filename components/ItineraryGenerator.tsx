@@ -953,70 +953,58 @@ export default function ItineraryGenerator() {
                       No activities scheduled for this day.
                     </p>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       {day.items.map((item, idx) => (
-                        <div key={item.attractionId + idx}>
-                          {/* Transport connector between activities */}
-                          {idx > 0 && item.transportHint && (
-                            <div className="mb-3 flex items-center gap-2 px-1">
-                              <div className="h-4 w-px bg-border-default" />
-                              <Navigation className="h-3 w-3 shrink-0 text-brand" />
-                              <p className="text-[11px] text-text-muted">{item.transportHint}</p>
+                        <div key={item.attractionId + idx} className="group flex flex-col overflow-hidden rounded-2xl border border-border-soft bg-surface-base shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
+                          {/* Full-width image */}
+                          <div className="relative h-52 w-full shrink-0 overflow-hidden bg-surface-subtle">
+                            <Image
+                              src={`https://picsum.photos/seed/${item.attractionSlug ?? item.attractionId}-day${day.day}-${idx}/600/400`}
+                              alt={item.attractionName ?? 'Activity'}
+                              fill
+                              className="object-cover transition-transform duration-500 group-hover:scale-105"
+                              unoptimized
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                            {/* Time top-left */}
+                            <div className="absolute left-2.5 top-2.5 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 backdrop-blur-sm">
+                              <Clock className="h-2.5 w-2.5 text-white" />
+                              <span className="text-[10px] font-semibold text-white">{item.startTime}–{item.endTime}</span>
                             </div>
-                          )}
-
-                          {/* Activity card — full-width image on top */}
-                          <div className="group overflow-hidden rounded-2xl border border-border-soft bg-surface-base transition-shadow hover:shadow-md">
-                            {/* Hero image */}
-                            <div className="relative h-44 w-full overflow-hidden bg-surface-subtle sm:h-52">
-                              <Image
-                                src={`https://picsum.photos/seed/${item.attractionSlug ?? item.attractionId}/600/400`}
-                                alt={item.attractionName ?? 'Activity'}
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                unoptimized
-                              />
-                              {/* Time badge overlaid on image */}
-                              <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 backdrop-blur-sm">
-                                <Clock className="h-3 w-3 text-white" />
-                                <span className="text-[11px] font-semibold text-white">{item.startTime} – {item.endTime}</span>
-                              </div>
-                              {/* Cost badge */}
-                              <div className="absolute right-3 top-3 rounded-full bg-emerald-500 px-2.5 py-1">
-                                <span className="text-[11px] font-bold text-white">₺{item.costEstimateTRY.toLocaleString()}</span>
-                              </div>
-                              {/* Tags row at bottom of image */}
+                            {/* Cost top-right */}
+                            <div className="absolute right-2.5 top-2.5 rounded-full bg-emerald-500 px-2.5 py-1 shadow">
+                              <span className="text-[10px] font-bold text-white">₺{item.costEstimateTRY.toLocaleString()}</span>
+                            </div>
+                            {/* Name overlaid at bottom */}
+                            <div className="absolute bottom-0 left-0 right-0 p-3">
+                              <p className="text-sm font-bold leading-snug text-white drop-shadow">
+                                {item.attractionName ?? 'Activity'}
+                              </p>
                               {item.attractionTags && item.attractionTags.length > 0 && (
-                                <div className="absolute bottom-3 left-3 flex flex-wrap gap-1">
+                                <div className="mt-1 flex flex-wrap gap-1">
                                   {item.attractionTags.slice(0, 3).map((tag) => (
-                                    <span key={tag} className="rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold capitalize text-white backdrop-blur-sm">
+                                    <span key={tag} className="rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-semibold capitalize text-white backdrop-blur-sm">
                                       {tag}
                                     </span>
                                   ))}
                                 </div>
                               )}
                             </div>
+                          </div>
 
-                            {/* Content */}
-                            <div className="p-3 sm:p-4">
-                              <p className="text-sm font-bold text-text-primary leading-snug">
-                                {item.attractionName ?? 'Activity'}
+                          {/* Content below image */}
+                          <div className="flex flex-1 flex-col p-3">
+                            {item.attractionDescription && (
+                              <p className="line-clamp-2 flex-1 text-[11px] leading-relaxed text-text-muted">
+                                {item.attractionDescription}
                               </p>
-
-                              {item.attractionDescription && (
-                                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-text-body">
-                                  {item.attractionDescription}
-                                </p>
-                              )}
-
-                              {/* Transport hint */}
-                              {item.transportHint && (
-                                <p className="mt-2 flex items-center gap-1 text-[11px] font-medium text-brand">
-                                  <Navigation className="h-3 w-3 shrink-0" />
-                                  {item.transportHint}
-                                </p>
-                              )}
-                            </div>
+                            )}
+                            {item.transportHint && (
+                              <p className="mt-2 flex items-center gap-1 text-[10px] font-medium text-brand">
+                                <Navigation className="h-2.5 w-2.5 shrink-0" />
+                                <span className="line-clamp-1">{item.transportHint}</span>
+                              </p>
+                            )}
                           </div>
                         </div>
                       ))}

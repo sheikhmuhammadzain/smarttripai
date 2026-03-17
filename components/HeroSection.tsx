@@ -69,6 +69,8 @@ export default function HeroSection() {
           fill
           className="object-cover object-center"
           priority
+          sizes="100vw"
+          quality={85}
         />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0.38) 60%, rgba(0,0,0,0.62) 100%)' }} />
       </div>

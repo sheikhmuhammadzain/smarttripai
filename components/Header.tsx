@@ -382,12 +382,12 @@ export default function Header() {
             Activities & Experiences
             <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-brand rounded-full group-hover:w-full transition-[width] duration-200" />
           </Link>
-          <Link href="/assistant" className="relative group hover:text-text-primary transition-colors pb-0.75">
-            Travel Guides
-            <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-brand rounded-full group-hover:w-full transition-[width] duration-200" />
-          </Link>
           <Link href="/products" className="relative group hover:text-text-primary transition-colors pb-0.75">
             Top Experiences
+            <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-brand rounded-full group-hover:w-full transition-[width] duration-200" />
+          </Link>
+          <Link href="/assistant" className="relative group hover:text-text-primary transition-colors pb-0.75">
+            Travel Guides
             <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-brand rounded-full group-hover:w-full transition-[width] duration-200" />
           </Link>
         </nav>

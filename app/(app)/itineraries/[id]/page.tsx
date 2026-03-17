@@ -231,7 +231,7 @@ export default async function ItineraryDetailPage({
                       day.items.map((item, idx) => {
                         const attraction = attractionLookup[item.attractionId];
                         const slug = attraction?.slug ?? item.attractionId;
-                        const imageUrl = wikiImages[slug] ?? `https://picsum.photos/seed/${slug}/400/300`;
+                        const imageUrl = wikiImages[slug] ?? `https://picsum.photos/seed/${slug}-day${day.day}-${idx}/400/300`;
                         const isLast = idx === day.items.length - 1;
 
                         return (
