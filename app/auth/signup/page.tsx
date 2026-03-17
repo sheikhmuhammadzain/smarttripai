@@ -4,7 +4,7 @@ import AuthCard from "@/components/auth/AuthCard";
 
 export default function SignUpPage() {
   return (
-    <div className="min-h-screen bg-white text-text-heading">
+    <div className="min-h-screen bg-background text-text-heading">
       <Header />
       <main className="mx-auto max-w-[1200px] px-4 py-8 md:py-14 md:px-6">
         <AuthCard mode="signup" />

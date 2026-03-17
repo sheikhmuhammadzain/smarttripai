@@ -1,8 +1,10 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, useState } from "react";
 
 type FeedbackCategory = "ux" | "itinerary" | "assistant" | "realtime" | "other";
+
+const fieldCls = "h-10 w-full rounded-lg border border-border-default bg-surface-base px-3 text-sm text-text-primary outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-colors";
 
 export default function FeedbackForm() {
   const [email, setEmail] = useState("");
@@ -44,27 +46,27 @@ export default function FeedbackForm() {
   }
 
   return (
-    <form onSubmit={submit} className="rounded-xl border border-gray-200 bg-white p-5">
-      <h2 className="mb-4 text-lg font-semibold">Send Product Feedback</h2>
+    <form onSubmit={submit} className="rounded-xl border border-border-default bg-surface-base p-5">
+      <h2 className="mb-4 text-lg font-semibold text-text-heading">Send Product Feedback</h2>
 
       <div className="grid gap-3 md:grid-cols-2">
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase text-gray-600">Email (optional)</span>
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Email (optional)</span>
           <input
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="h-10 w-full rounded-lg border border-gray-300 px-3 outline-none focus:border-blue-600"
+            className={fieldCls}
             placeholder="you@example.com"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase text-gray-600">Category</span>
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Category</span>
           <select
             value={category}
             onChange={(event) => setCategory(event.target.value as FeedbackCategory)}
-            className="h-10 w-full rounded-lg border border-gray-300 px-3 outline-none focus:border-blue-600"
+            className={fieldCls}
           >
             <option value="ux">UX/UI</option>
             <option value="itinerary">Itinerary quality</option>
@@ -75,27 +77,26 @@ export default function FeedbackForm() {
         </label>
 
         <label className="block md:col-span-2">
-          <span className="mb-1 block text-xs font-semibold uppercase text-gray-600">Rating</span>
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Rating: {rating}/5</span>
           <input
             type="range"
             min={1}
             max={5}
             value={rating}
             onChange={(event) => setRating(Number(event.target.value))}
-            className="w-full"
+            className="w-full accent-brand"
           />
-          <p className="text-sm text-gray-600">{rating}/5</p>
         </label>
 
         <label className="block md:col-span-2">
-          <span className="mb-1 block text-xs font-semibold uppercase text-gray-600">Message</span>
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Message</span>
           <textarea
             required
             minLength={10}
             value={message}
             onChange={(event) => setMessage(event.target.value)}
             rows={5}
-            className="w-full rounded-lg border border-gray-300 p-3 outline-none focus:border-blue-600"
+            className="w-full rounded-lg border border-border-default bg-surface-base p-3 text-sm text-text-primary outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-colors"
             placeholder="Tell us what worked well and what should be improved..."
           />
         </label>
@@ -105,13 +106,12 @@ export default function FeedbackForm() {
         <button
           type="submit"
           disabled={sending}
-          className="rounded-full bg-brand px-5 py-2 font-semibold text-white disabled:opacity-70"
+          className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white hover:bg-brand-hover disabled:opacity-70 transition-colors"
         >
           {sending ? "Sending..." : "Submit feedback"}
         </button>
-        {result ? <p className="text-sm text-gray-700">{result}</p> : null}
+        {result ? <p className="text-sm text-text-muted">{result}</p> : null}
       </div>
     </form>
   );
 }
-

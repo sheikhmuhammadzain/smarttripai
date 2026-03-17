@@ -1,7 +1,6 @@
 ﻿'use client';
 
 import dynamic from 'next/dynamic';
-import { Map, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import ProductList from '@/components/ProductList';
 
@@ -33,20 +32,16 @@ export default function LandingInteractiveSection({ searchQuery }: { searchQuery
     <>
       <ItineraryGenerator />
 
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-7">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
         <div>
-          <h2 className="text-text-heading font-bold text-xl md:text-2xl leading-tight">
+          <h2 className="text-text-heading font-extrabold text-3xl md:text-4xl leading-tight tracking-tight">
             {normalizedQuery ? `Results for "${normalizedQuery}"` : 'Top Experiences in Turkey'}
           </h2>
-          <p className="text-text-muted text-sm mt-1">
+          <p className="text-brand font-semibold text-base mt-1.5">
             {normalizedQuery
               ? `${resultCount} experience${resultCount !== 1 ? 's' : ''} found`
               : 'Handpicked tours, activities & day trips'}
           </p>
-        </div>
-
-        <div className="flex items-center gap-2.5 shrink-0">
-        
         </div>
       </div>
 
@@ -67,6 +62,7 @@ export default function LandingInteractiveSection({ searchQuery }: { searchQuery
           <TurkeyMap />
         </div>
       ) : null}
+
     </>
   );
 }

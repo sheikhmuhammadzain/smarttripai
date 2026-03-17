@@ -764,7 +764,7 @@ export default function ItineraryGenerator() {
         </div>
 
         {/* Divider + Actions */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle pt-5">
+        <div className="mt-6 border-t border-border-subtle pt-5 flex flex-col gap-3">
           <div className="flex flex-wrap gap-2">
             {error && <p className="text-xs text-red-500">{error}</p>}
             {saveResult && <p className="text-xs text-text-muted">{saveResult}</p>}
@@ -778,16 +778,14 @@ export default function ItineraryGenerator() {
             )}
           </div>
 
-          <div className="flex items-center gap-2 ml-auto">
-            <button
-              disabled={loading || saving}
-              onClick={handleGenerate}
-              className="inline-flex items-center gap-2 rounded-lg bg-brand px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-hover active:scale-95 disabled:opacity-50"
-            >
-              <Sparkles className="w-4 h-4 fill-current" />
-              {loading ? 'Generating…' : saving ? 'Saving…' : 'Generate My Itinerary'}
-            </button>
-          </div>
+          <button
+            disabled={loading || saving}
+            onClick={handleGenerate}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-hover active:scale-95 disabled:opacity-50"
+          >
+            <Sparkles className="w-4 h-4 fill-current" />
+            {loading ? 'Generating…' : saving ? 'Saving…' : 'Generate My Itinerary'}
+          </button>
         </div>
 
         {/* Pipeline Progress Stepper */}

@@ -1,7 +1,6 @@
 "use client";
 
-import { MessageSquare, X, Send, ChevronDown, Loader2, CheckCircle2, Sparkles, Trash2 } from "lucide-react";
-import Image from "next/image";
+import { MessageSquare, X, Send, ChevronDown, Loader2, CheckCircle2, Sparkles, Trash2, HeadphonesIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -238,20 +237,18 @@ export default function AiAssistant() {
       {/* Chat window */}
       {isOpen && (
         <div
-          className="flex flex-col overflow-hidden rounded-3xl border border-border-default bg-surface-base"
-          style={{
-            width: "min(126vw, 820px)",
-            height: "min(85vh, 660px)",
-            boxShadow: "0 24px 60px rgba(0,0,0,0.16), 0 4px 16px rgba(0,0,0,0.08)",
-          }}
+          className="flex flex-col overflow-hidden rounded-2xl border border-border-default bg-surface-base
+            fixed inset-x-2 bottom-20 top-4
+            sm:static sm:inset-auto sm:rounded-3xl sm:w-[min(90vw,820px)] sm:h-[min(85vh,660px)]"
+          style={{ boxShadow: "0 24px 60px rgba(0,0,0,0.16), 0 4px 16px rgba(0,0,0,0.08)" }}
         >
           {/* Header */}
           <div className="relative flex items-center justify-between px-4 py-3.5 bg-linear-to-r from-brand via-brand to-brand-hover">
             {/* Subtle pattern overlay */}
             <div className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
             <div className="flex items-center gap-3">
-              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
-                <Image src="/chabot.png" alt="AI Agent" width={40} height={40} className="drop-shadow-lg" />
+              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
+                <HeadphonesIcon className="h-5 w-5 text-white" />
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-brand" />
               </div>
               <div>
@@ -301,8 +298,8 @@ export default function AiAssistant() {
                 <div key={msg.id} className={`flex gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
                   {/* Avatar */}
                   {msg.role === "assistant" && (
-                    <div className="mt-1 h-8 w-8 shrink-0">
-                      <Image src="/chabot.png" alt="AI" width={32} height={32} className="drop-shadow-sm" />
+                    <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand">
+                      <HeadphonesIcon className="h-4 w-4 text-white" />
                     </div>
                   )}
 
@@ -336,8 +333,8 @@ export default function AiAssistant() {
             {/* Tool status chips */}
             {toolStatuses.length > 0 && (
               <div className="flex gap-2.5">
-                <div className="mt-1 h-8 w-8 shrink-0">
-                  <Image src="/chabot.png" alt="AI" width={32} height={32} className="drop-shadow-sm" />
+                <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand">
+                  <HeadphonesIcon className="h-4 w-4 text-white" />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   {toolStatuses.map((s) => <ToolChip key={s.tool} status={s} />)}
@@ -348,8 +345,8 @@ export default function AiAssistant() {
             {/* Standalone typing indicator */}
             {showStandaloneTyping && (
               <div className="flex gap-2.5">
-                <div className="mt-1 h-8 w-8 shrink-0">
-                  <Image src="/chabot.png" alt="AI" width={32} height={32} className="drop-shadow-sm" />
+                <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand">
+                  <HeadphonesIcon className="h-4 w-4 text-white" />
                 </div>
                 <div className="rounded-2xl rounded-tl-md border border-border-soft bg-surface-subtle px-4 py-2.5 shadow-sm">
                   <TypingDots />
@@ -407,10 +404,9 @@ export default function AiAssistant() {
             <X className="h-5 w-5 text-text-body" />
           </div>
         ) : (
-          <>
-            <Image src="/chabot.png" alt="AI Assistant" width={92} height={92} className="filter drop-shadow-xl" priority />
-
-          </>
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand shadow-xl shadow-brand/40 ring-4 ring-brand/20">
+            <MessageSquare className="h-6 w-6 text-white" />
+          </div>
         )}
       </button>
     </div>

@@ -1,7 +1,7 @@
 ﻿
 'use client';
 
-import { Heart, ShoppingCart, Globe, Settings, User, LogOut, LogIn, Shield, ChevronDown, Sun, Moon } from 'lucide-react';
+import { Heart, ShoppingCart, Settings, User, LogOut, LogIn, Shield, ChevronDown, Sun, Moon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,14 +9,11 @@ import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { SMARTTRIPAI_LOGO_DATA_URI as GETYOURGUIDE_LOGO_DATA_URI } from '@/components/branding/logo';
 import { products } from '@/lib/data';
-import LanguageCurrencyDialog from '@/components/LanguageCurrencyDialog';
-import { useAppPreferences } from '@/lib/preferences-client';
 import { useTheme } from '@/components/ThemeProvider';
 import { useWishlist } from '@/hooks/use-wishlist';
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
-  const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement | null>(null);
   const [accountLoading, setAccountLoading] = useState(true);
@@ -31,7 +28,6 @@ export default function Header() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
   const searchRef = useRef<HTMLFormElement | null>(null);
-  const { preferences, setPreferences } = useAppPreferences();
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
 
@@ -274,16 +270,6 @@ export default function Header() {
             </div>
             <span className="text-[11px] font-medium hidden md:block">Cart</span>
           </Link>
-          <button
-            onClick={() => setPreferencesOpen(true)}
-            className="p-1.5 md:p-0 flex flex-col items-center gap-1 text-text-muted hover:text-text-primary group"
-            aria-label="Change language and currency"
-          >
-            <Globe className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" aria-hidden="true" />
-            <span className="text-[11px] font-medium hidden md:block">
-              {preferences.language.toUpperCase()}/{preferences.currency}
-            </span>
-          </button>
           <div ref={accountRef} className="relative">
             <button
               onClick={() => setAccountOpen((prev) => !prev)}
@@ -400,15 +386,13 @@ export default function Header() {
             Travel Guides
             <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-brand rounded-full group-hover:w-full transition-[width] duration-200" />
           </Link>
+          <Link href="/products" className="relative group hover:text-text-primary transition-colors pb-0.75">
+            Top Experiences
+            <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-brand rounded-full group-hover:w-full transition-[width] duration-200" />
+          </Link>
         </nav>
       </div>
 
-      <LanguageCurrencyDialog
-        open={preferencesOpen}
-        preferences={preferences}
-        onClose={() => setPreferencesOpen(false)}
-        onChange={setPreferences}
-      />
     </header>
   );
 }

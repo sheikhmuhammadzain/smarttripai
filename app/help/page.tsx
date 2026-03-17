@@ -7,10 +7,13 @@ export default function HelpPage() {
       title="Help Center"
       description="Support resources for planning and booking your Turkey travel."
     >
-      <div className="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-5 text-sm text-gray-700">
+      <div className="mb-6 rounded-xl border border-border-default bg-surface-subtle p-5 text-sm text-text-body">
         <p>
-          For itinerary issues, account access, or API-related travel data problems, contact
-          support@smarttripai.com and include your itinerary ID.
+          For itinerary issues, account access, or API-related travel data problems, contact{" "}
+          <a href="mailto:support@smarttripai.com" className="font-medium text-brand hover:underline">
+            support@smarttripai.com
+          </a>{" "}
+          and include your itinerary ID.
         </p>
       </div>
       <FeedbackForm />

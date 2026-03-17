@@ -14,7 +14,7 @@ export default function Home() {
 
         {/* Trust strip */}
         <div className="bg-surface-muted border-b border-border-subtle">
-          <div className="max-w-[1320px] mx-auto px-4 md:px-6 py-2.5 flex items-center justify-center gap-6 md:gap-10 flex-wrap">
+          <div className="max-w-[1320px] mx-auto px-3 sm:px-4 md:px-6 py-2.5 grid grid-cols-2 sm:flex sm:flex-row sm:justify-center gap-x-4 gap-y-2 sm:gap-x-10">
             <span className="flex items-center gap-2 text-[11px] md:text-xs font-medium text-text-muted">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
               Free cancellation available
@@ -34,7 +34,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="max-w-[1320px] mx-auto px-4 md:px-6 pt-8 pb-20">
+        <div className="max-w-[1320px] mx-auto px-3 sm:px-4 md:px-6 pt-6 pb-20">
           <LandingInteractiveSection />
         </div>
       </main>
