@@ -50,10 +50,16 @@ export async function generateDeterministicItinerary(
     const city = request.destinations[dayIndex % request.destinations.length];
     const cityPool = byCity.get(city) ?? [];
     // If city has no attractions, draw from the global fallback pool
-    const cityAttractions = cityPool.length > 0
-      ? [...cityPool].slice(0, perDay)
-      : fallbackPool.slice(fallbackOffset, fallbackOffset + perDay);
-    if (cityPool.length === 0) fallbackOffset += perDay;
+    let cityAttractions: typeof fallbackPool;
+    if (cityPool.length > 0) {
+      // Rotate through available attractions by day so each day differs
+      const offset = (dayIndex * perDay) % cityPool.length;
+      const rotated = [...cityPool.slice(offset), ...cityPool.slice(0, offset)];
+      cityAttractions = rotated.slice(0, perDay);
+    } else {
+      cityAttractions = fallbackPool.slice(fallbackOffset, fallbackOffset + perDay);
+      fallbackOffset += perDay;
+    }
 
     const items = cityAttractions.map((attraction, idx) => {
       const hour = 9 + idx * 3;

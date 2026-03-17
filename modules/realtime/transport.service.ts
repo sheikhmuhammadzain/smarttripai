@@ -12,6 +12,10 @@ const cityCoordinates: Record<string, [number, number]> = {
   konya: [37.8746, 32.4932],
   bodrum: [37.0344, 27.4305],
   trabzon: [41.0027, 39.7168],
+  ephesus: [37.9395, 27.3417],
+  pamukkale: [37.9212, 29.1208],
+  bursa: [40.1826, 29.0669],
+  canakkale: [40.1553, 26.4142],
 };
 
 function toRadians(value: number) {
@@ -174,7 +178,7 @@ export async function getTransportGuidance(
   }
 
   const fromCoordinates = cityCoordinates[normalizedFrom] ?? cityCoordinates.istanbul;
-  const toCoordinates = cityCoordinates[normalizedTo] ?? cityCoordinates.ankara;
+  const toCoordinates = cityCoordinates[normalizedTo] ?? cityCoordinates.istanbul;
 
   const distanceKm = haversineKm(fromCoordinates, toCoordinates);
   const estimatedDurationHours = Number((distanceKm / speedByMode(mode)).toFixed(1));

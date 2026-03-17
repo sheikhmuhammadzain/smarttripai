@@ -965,65 +965,54 @@ export default function ItineraryGenerator() {
                             </div>
                           )}
 
-                          {/* Activity card */}
-                          <div className="group flex gap-3 rounded-2xl border border-border-soft bg-surface-base p-3 transition-colors hover:border-border-default hover:bg-surface-subtle sm:gap-4 sm:p-4">
-                            {/* Image */}
-                            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-surface-subtle sm:h-24 sm:w-24">
+                          {/* Activity card — full-width image on top */}
+                          <div className="group overflow-hidden rounded-2xl border border-border-soft bg-surface-base transition-shadow hover:shadow-md">
+                            {/* Hero image */}
+                            <div className="relative h-44 w-full overflow-hidden bg-surface-subtle sm:h-52">
                               <Image
-                                src={`https://picsum.photos/seed/${item.attractionSlug ?? item.attractionId}/200/200`}
+                                src={`https://picsum.photos/seed/${item.attractionSlug ?? item.attractionId}/600/400`}
                                 alt={item.attractionName ?? 'Activity'}
                                 fill
-                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                className="object-cover transition-transform duration-500 group-hover:scale-105"
                                 unoptimized
                               />
-                            </div>
-
-                            {/* Content */}
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-start justify-between gap-2">
-                                <div className="min-w-0">
-                                  <p className="truncate text-sm font-bold text-text-primary">
-                                    {item.attractionName ?? 'Activity'}
-                                  </p>
-                                  <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-text-muted">
-                                    <span className="flex items-center gap-1">
-                                      <Clock className="h-3 w-3" />
-                                      {item.startTime} – {item.endTime}
-                                    </span>
-                                    {item.avgDurationMin && (
-                                      <span>{item.avgDurationMin} min</span>
-                                    )}
-                                  </div>
-                                </div>
-                                <span className="shrink-0 rounded-lg bg-emerald-500 px-2 py-1 text-[11px] font-semibold text-white">
-                                  ₺{item.costEstimateTRY.toLocaleString()}
-                                </span>
+                              {/* Time badge overlaid on image */}
+                              <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 backdrop-blur-sm">
+                                <Clock className="h-3 w-3 text-white" />
+                                <span className="text-[11px] font-semibold text-white">{item.startTime} – {item.endTime}</span>
                               </div>
-
-                              {item.attractionDescription && (
-                                <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-text-body">
-                                  {item.attractionDescription}
-                                </p>
-                              )}
-
+                              {/* Cost badge */}
+                              <div className="absolute right-3 top-3 rounded-full bg-emerald-500 px-2.5 py-1">
+                                <span className="text-[11px] font-bold text-white">₺{item.costEstimateTRY.toLocaleString()}</span>
+                              </div>
+                              {/* Tags row at bottom of image */}
                               {item.attractionTags && item.attractionTags.length > 0 && (
-                                <div className="mt-2 flex flex-wrap gap-1">
+                                <div className="absolute bottom-3 left-3 flex flex-wrap gap-1">
                                   {item.attractionTags.slice(0, 3).map((tag) => (
-                                    <span
-                                      key={tag}
-                                      className="inline-flex items-center gap-0.5 rounded-full bg-brand/8 px-2 py-0.5 text-[10px] font-semibold text-brand capitalize"
-                                    >
-                                      <Tag className="h-2.5 w-2.5" />
+                                    <span key={tag} className="rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold capitalize text-white backdrop-blur-sm">
                                       {tag}
                                     </span>
                                   ))}
                                 </div>
                               )}
+                            </div>
 
-                              {/* First activity transport hint (start of day) */}
-                              {idx === 0 && item.transportHint && (
+                            {/* Content */}
+                            <div className="p-3 sm:p-4">
+                              <p className="text-sm font-bold text-text-primary leading-snug">
+                                {item.attractionName ?? 'Activity'}
+                              </p>
+
+                              {item.attractionDescription && (
+                                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-text-body">
+                                  {item.attractionDescription}
+                                </p>
+                              )}
+
+                              {/* Transport hint */}
+                              {item.transportHint && (
                                 <p className="mt-2 flex items-center gap-1 text-[11px] font-medium text-brand">
-                                  <Navigation className="h-3 w-3" />
+                                  <Navigation className="h-3 w-3 shrink-0" />
                                   {item.transportHint}
                                 </p>
                               )}

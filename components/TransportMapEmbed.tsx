@@ -154,11 +154,11 @@ export default function TransportMapEmbed(props: TransportMapEmbedProps) {
           </div>
           <div className="rounded-2xl border border-border-soft bg-surface-subtle px-3 py-2.5">
             <p className="text-[10px] uppercase tracking-[0.22em] text-text-subtle">Distance</p>
-            <p className="mt-1 text-sm font-semibold text-text-primary">{isLoading ? 'Loading...' : distanceKm ? `${distanceKm} km` : 'Unavailable'}</p>
+            <p className="mt-1 text-sm font-semibold text-text-primary">{isLoading ? 'Loading...' : distanceKm != null ? `${distanceKm} km` : 'Unavailable'}</p>
           </div>
           <div className="rounded-2xl border border-border-soft bg-surface-subtle px-3 py-2.5">
             <p className="text-[10px] uppercase tracking-[0.22em] text-text-subtle">ETA</p>
-            <p className="mt-1 text-sm font-semibold text-text-primary">{isLoading ? 'Loading...' : estimatedDurationHours ? `~${estimatedDurationHours}h` : 'Unavailable'}</p>
+            <p className="mt-1 text-sm font-semibold text-text-primary">{isLoading ? 'Loading...' : estimatedDurationHours != null ? `~${estimatedDurationHours}h` : 'Unavailable'}</p>
           </div>
           <div className="rounded-2xl border border-border-soft bg-surface-subtle px-3 py-2.5">
             <p className="text-[10px] uppercase tracking-[0.22em] text-text-subtle">Source</p>
